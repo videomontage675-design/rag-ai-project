@@ -1,0 +1,76 @@
+{
+  "info": {
+    "facts": {
+      "facts": 24,
+      "occurrences_checked": 69
+    },
+    "golden": {
+      "questions": 53,
+      "categories": {
+        "multi_doc": 10,
+        "numeric_table": 8,
+        "out_of_scope": 3,
+        "paraphrased": 6,
+        "single_doc": 14,
+        "unanswerable": 7,
+        "version_sensitive": 5
+      },
+      "insufficient_information_share_default_state": 0.189,
+      "questions_with_evidence_from_2plus_documents": 9
+    },
+    "pdfs": {
+      "02_plans_pricing_v1.pdf": {
+        "pages": 3,
+        "pdftotext": {
+          "letter_multiset_error": 0.0009,
+          "cer_letters": 0.0306,
+          "cer_with_punctuation": 0.0405,
+          "word_recall": 0.8636,
+          "presentation_form_chars_before_nfkc": 0
+        },
+        "pypdf": {
+          "letter_multiset_error": 0.0234,
+          "cer_letters": 0.6571,
+          "cer_with_punctuation": 0.6615,
+          "word_recall": 0.8318,
+          "presentation_form_chars_before_nfkc": 42
+        }
+      },
+      "02_plans_pricing_v2.pdf": {
+        "pages": 3,
+        "pdftotext": {
+          "letter_multiset_error": 0.0008,
+          "cer_letters": 0.0261,
+          "cer_with_punctuation": 0.036,
+          "word_recall": 0.8423,
+          "presentation_form_chars_before_nfkc": 0
+        },
+        "pypdf": {
+          "letter_multiset_error": 0.02,
+          "cer_letters": 0.6502,
+          "cer_with_punctuation": 0.6549,
+          "word_recall": 0.8192,
+          "presentation_form_chars_before_nfkc": 42
+        }
+      },
+      "05_privacy_security.pdf": {
+        "pages": 3,
+        "pdftotext": {
+          "letter_multiset_error": 0.0,
+          "cer_letters": 0.0015,
+          "cer_with_punctuation": 0.0143,
+          "word_recall": 0.8687,
+          "presentation_form_chars_before_nfkc": 0
+        },
+        "pypdf": {
+          "letter_multiset_error": 0.0184,
+          "cer_letters": 0.6997,
+          "cer_with_punctuation": 0.711,
+          "word_recall": 0.9512,
+          "presentation_form_chars_before_nfkc": 42
+        }
+      }
+    }
+  },
+  "errors": []
+}

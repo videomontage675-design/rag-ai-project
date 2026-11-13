@@ -1,0 +1,507 @@
+# Golden set for the Dafira sample corpus.
+#
+# Schema (validated by tools/corpus/verify_corpus.py):
+#   id               unique question id
+#   category         single_doc | numeric_table | paraphrased | multi_doc |
+#                    version_sensitive | unanswerable | out_of_scope
+#   question         Arabic question as a user would ask it
+#   expected_outcome answered | insufficient_information
+#   reference_answer Arabic reference answer (for LLM-as-judge correctness)
+#   evidence         list of supporting locations; each has:
+#                      doc      logical document id (see manifest.yaml)
+#                      version  optional; defaults to the version active in the state
+#                      section  exact text of the enclosing "##" heading
+#                      snippets short verbatim fragments (Markdown emphasis removed)
+#                               that all occur in that section. A retrieved chunk
+#                               counts as relevant if it comes from that document
+#                               version and contains every snippet (after the
+#                               system's normalization).
+#   by_state         (version_sensitive only) per corpus state: expected_outcome,
+#                    reference_answer, evidence
+#   notes            optional remarks for evaluators
+#
+# Unless `by_state` is given, entries apply to manifest.default_state (d02_v2_active).
+
+schema_version: 1
+corpus_version: "1.0"
+
+questions:
+
+  # ---------------------------------------------------------------- single_doc
+  - id: Q001
+    category: single_doc
+    question: "ما المدة الافتراضية للموعد في ضفيرة؟ وهل يمكن تغييرها؟"
+    expected_outcome: answered
+    reference_answer: "المدة الافتراضية للموعد 20 دقيقة، ويستطيع مدير العيادة تغيير المدة لكل نوع زيارة بين 10 دقائق و120 دقيقة بزيادات مقدارها 5 دقائق."
+    evidence:
+      - {doc: D01, section: "3. إدارة المواعيد", snippets: ["المدة الافتراضية للموعد 20 دقيقة", "بين 10 دقائق و120 دقيقة"]}
+
+  - id: Q002
+    category: single_doc
+    question: "ما صيغة رقم ملف المريض؟"
+    expected_outcome: answered
+    reference_answer: "يتكون رقم الملف من البادئة DF- متبوعة بسبعة أرقام، مثل DF-0004821، ويُنشأ تلقائياً ولا يمكن تعديله بعد إنشائه."
+    evidence:
+      - {doc: D01, section: "4. سجلات المرضى", snippets: ["البادئة DF- متبوعة بسبعة أرقام"]}
+
+  - id: Q003
+    category: single_doc
+    question: "من يستطيع دمج ملفات المرضى المكررة؟ وهل يمكن التراجع عن الدمج؟"
+    expected_outcome: answered
+    reference_answer: "مدير العيادة وحده يستطيع دمج الملفات المكررة، ولا يمكن التراجع عن الدمج بعد تنفيذه."
+    evidence:
+      - {doc: D01, section: "4. سجلات المرضى", snippets: ["يستطيع مدير العيادة وحده دمج الملفات", "ولا يمكن التراجع عن الدمج بعد تنفيذه"]}
+
+  - id: Q004
+    category: single_doc
+    question: "هل يمكن حذف فاتورة بعد إصدارها؟"
+    expected_outcome: answered
+    reference_answer: "لا، لا تُحذف الفاتورة بعد إصدارها، وإنما تُلغى بإشعار دائن يحمل رقماً مستقلاً."
+    evidence:
+      - {doc: D01, section: "5. الفوترة والمطالبات التأمينية", snippets: ["لا تُحذف الفاتورة بعد إصدارها، وإنما تُلغى بإشعار دائن"]}
+
+  - id: Q005
+    category: single_doc
+    question: "متى يمكن وضع علامة «لم يحضر» على موعد المريض؟"
+    expected_outcome: answered
+    reference_answer: "إذا لم يحضر المريض خلال 15 دقيقة من بداية موعده، فيستطيع موظف الاستقبال وضع العلامة، فتتحرر الفترة الزمنية ويُسجل التغيب في ملف المريض."
+    evidence:
+      - {doc: D01, section: "3. إدارة المواعيد", snippets: ["إذا لم يحضر المريض خلال 15 دقيقة من بداية موعده"]}
+
+  - id: Q006
+    category: single_doc
+    question: "ما الحالات التي يمكن أن تمر بها المطالبة التأمينية؟"
+    expected_outcome: answered
+    reference_answer: "ست حالات: مسودة، ومُرسلة، وقيد المراجعة، ومقبولة، ومرفوضة جزئياً، ومرفوضة."
+    evidence:
+      - {doc: D01, section: "5. الفوترة والمطالبات التأمينية", snippets: ["مسودة", "قيد المراجعة", "مرفوضة جزئياً"]}
+
+  - id: Q007
+    category: single_doc
+    question: "متى تُصعَّد تذكرة الدعم إلى مدير الدعم الفني؟"
+    expected_outcome: answered
+    reference_answer: "إذا لم تُعالج طلبات الأولوية P1 أو P2 خلال 24 ساعة من فتحها تُصعَّد إلى مدير الدعم الفني. أما تجاوز مدة الرد الأول المستهدفة فيصعّد التذكرة إلى قائد فريق الدعم."
+    evidence:
+      - {doc: D03, section: "6. التصعيد", snippets: ["خلال 24 ساعة من فتحها، تُصعَّد إلى مدير الدعم الفني"]}
+
+  - id: Q008
+    category: single_doc
+    question: "ماذا يحدث لتذكرة الدعم إذا طلب الفريق معلومات ولم أرد؟"
+    expected_outcome: answered
+    reference_answer: "تُغلق التذكرة تلقائياً إذا لم يرد العميل خلال 7 أيام، ويمكن إعادة فتحها بالرد عليها خلال 14 يوماً من إغلاقها."
+    evidence:
+      - {doc: D03, section: "7. إغلاق التذاكر", snippets: ["ولم يرد خلال 7 أيام", "خلال 14 يوماً من إغلاقها"]}
+
+  - id: Q009
+    category: single_doc
+    question: "متى تُجرى الصيانة المجدولة، وكم قبلها يُعلن عنها؟"
+    expected_outcome: answered
+    reference_answer: "يوم الجمعة بين الساعة 1:00 و5:00 صباحاً بتوقيت UTC+3، ويُعلن عنها قبل 72 ساعة على الأقل، ولا يتجاوز مجموعها 4 ساعات في الشهر."
+    evidence:
+      - {doc: D03, section: "10. الصيانة المجدولة والحالات المستثناة", snippets: ["يوم الجمعة بين الساعة 1:00 والساعة 5:00 صباحاً", "قبل 72 ساعة على الأقل"]}
+
+  - id: Q010
+    category: single_doc
+    question: "هل تستخدم ضفيرة بيانات المرضى في تدريب نماذج الذكاء الاصطناعي؟"
+    expected_outcome: answered
+    reference_answer: "لا، لا تستخدم ضفيرة بيانات المرضى في تدريب نماذج الذكاء الاصطناعي، ولا في الإعلانات، ولا تبيعها."
+    evidence:
+      - {doc: D05, section: "١. الأدوار والمسؤوليات تجاه البيانات", snippets: ["ولا تستخدمها في تدريب نماذج الذكاء الاصطناعي"]}
+
+  - id: Q011
+    category: single_doc
+    question: "كيف تُشفَّر البيانات في المنصة؟"
+    expected_outcome: answered
+    reference_answer: "تُشفَّر البيانات المخزنة بمعيار AES-256، وتُشفَّر الاتصالات بين المتصفح والمنصة باستخدام TLS 1.2 أو أحدث، وتُدار المفاتيح في خدمة مستقلة."
+    evidence:
+      - {doc: D05, section: "٣. استضافة البيانات وتشفيرها", snippets: ["AES-256", "TLS 1.2 أو أحدث"]}
+
+  - id: Q012
+    category: single_doc
+    question: "بعد كم دقيقة من عدم النشاط تنتهي الجلسة؟"
+    expected_outcome: answered
+    reference_answer: "تنتهي الجلسة تلقائياً بعد 30 دقيقة من عدم النشاط."
+    evidence:
+      - {doc: D05, section: "٦. أمان الحسابات", snippets: ["تنتهي الجلسة تلقائياً بعد ٣٠ دقيقة من عدم النشاط"]}
+    notes: "Evidence uses Arabic-Indic digits; the reference answer uses Western digits."
+
+  - id: Q013
+    category: single_doc
+    question: "ما المتصفح الذي توقف دعمه في الإصدار 4.0؟"
+    expected_outcome: answered
+    reference_answer: "توقف دعم متصفح Internet Explorer في الإصدار 4.0."
+    evidence:
+      - {doc: D04, section: "الإصدار 4.0 — 14 سبتمبر 2025", snippets: ["توقف دعم متصفح Internet Explorer"]}
+
+  - id: Q014
+    category: single_doc
+    question: "هل توجد مشكلات معروفة تخص المطالبات التأمينية؟"
+    expected_outcome: answered
+    reference_answer: "نعم، قد يتأخر ظهور حالة «قيد المراجعة» حتى ساعة واحدة لدى بعض شركات التأمين بسبب طريقة تحديث بياناتها، ولا يؤثر ذلك في معالجة المطالبة نفسها."
+    evidence:
+      - {doc: D04, section: "مشكلات معروفة", snippets: ["قد يتأخر ظهور حالة «قيد المراجعة» للمطالبات التأمينية حتى ساعة واحدة"]}
+
+  # ------------------------------------------------------------- numeric_table
+  - id: Q015
+    category: numeric_table
+    question: "ما المدة المستهدفة للرد الأول على طلب بأولوية P2 لعميل في الخطة المؤسسية؟"
+    expected_outcome: answered
+    reference_answer: "ساعة واحدة."
+    evidence:
+      - {doc: D03, section: "5. المدد المستهدفة للرد الأول", snippets: ["P2 عالية", "8 ساعات", "4 ساعات", "ساعة واحدة"]}
+
+  - id: Q016
+    category: numeric_table
+    question: "كم مساحة التخزين في الخطة الاحترافية؟"
+    expected_outcome: answered
+    reference_answer: "100 جيجابايت."
+    evidence:
+      - {doc: D02, section: "2. مقارنة الخطط", snippets: ["مساحة التخزين", "100 جيجابايت"]}
+
+  - id: Q017
+    category: numeric_table
+    question: "كم سعر مساحة التخزين الإضافية؟"
+    expected_outcome: answered
+    reference_answer: "5 دولارات شهرياً لكل 50 جيجابايت، وهي متاحة في جميع الخطط."
+    evidence:
+      - {doc: D02, section: "3. الإضافات المدفوعة", snippets: ["5 دولارات شهرياً لكل 50 جيجابايت"]}
+
+  - id: Q018
+    category: numeric_table
+    question: "عميل على الخطة المؤسسية كانت نسبة التوفر لديه 99.3% في شهر ما، فكم يستحق من تعويض؟"
+    expected_outcome: answered
+    reference_answer: "25% من الرسوم الشهرية، لأن النسبة أقل من 99.5% وحتى 99.0%. ويُمنح التعويض رصيداً يُخصم من فاتورة الشهر التالي، ويجب طلبه بتذكرة خلال 30 يوماً من نهاية الشهر."
+    evidence:
+      - {doc: D03, section: "9. التعويضات عن انخفاض التوفر", snippets: ["أقل من 99.5% وحتى 99.0%", "25%"]}
+    notes: "Requires mapping a value into a range in a table."
+
+  - id: Q019
+    category: numeric_table
+    question: "ما الحد الأقصى لمجموع التعويضات في الشهر الواحد؟"
+    expected_outcome: answered
+    reference_answer: "لا يتجاوز مجموع التعويضات في أي شهر 50% من الرسوم الشهرية للخطة."
+    evidence:
+      - {doc: D03, section: "9. التعويضات عن انخفاض التوفر", snippets: ["ولا يتجاوز مجموع التعويضات في أي شهر 50% من الرسوم الشهرية للخطة"]}
+
+  - id: Q020
+    category: numeric_table
+    question: "كم مرة تؤخذ النسخ الاحتياطية، وكم مدة حفظها؟"
+    expected_outcome: answered
+    reference_answer: "تؤخذ نسخة احتياطية مشفرة كل 6 ساعات، وتُحفظ النسخ مدة 35 يوماً في المركز الاحتياطي."
+    evidence:
+      - {doc: D05, section: "٤. النسخ الاحتياطي والتعافي من الكوارث", snippets: ["كل ٦ ساعات", "مدة ٣٥ يوماً"]}
+    notes: "Digit normalization test (Arabic-Indic in source)."
+
+  - id: Q021
+    category: numeric_table
+    question: "ما قيمتا RPO وRTO في ضفيرة؟"
+    expected_outcome: answered
+    reference_answer: "أقصى فقد مقبول للبيانات (RPO) هو 6 ساعات، وأقصى مدة لاستعادة الخدمة (RTO) هي 8 ساعات، لجميع الخطط."
+    evidence:
+      - {doc: D05, section: "٤. النسخ الاحتياطي والتعافي من الكوارث", snippets: ["(RPO):", "(RTO):"]}
+
+  - id: Q022
+    category: numeric_table
+    question: "كم فرعاً يمكن إدارته في كل خطة؟"
+    expected_outcome: answered
+    reference_answer: "الخطة الأساسية فرع واحد، والاحترافية حتى 3 فروع، والمؤسسية عدد غير محدود."
+    evidence:
+      - {doc: D02, section: "2. مقارنة الخطط", snippets: ["عدد الفروع", "فرع واحد", "حتى 3 فروع"]}
+
+  # --------------------------------------------------------------- paraphrased
+  - id: Q023
+    category: paraphrased
+    question: "أخطأت في كلمة السر عدة مرات وصار النظام يرفض دخولي، ماذا أفعل؟"
+    expected_outcome: answered
+    reference_answer: "يُقفل الحساب مؤقتاً لمدة 15 دقيقة بعد 5 محاولات فاشلة متتالية. انتظر 15 دقيقة ثم حاول مرة أخرى، أو اطلب من مدير العيادة إعادة تعيين كلمة المرور."
+    evidence:
+      - {doc: D01, section: "8. حل المشكلات الشائعة", snippets: ["انتظر 15 دقيقة ثم حاول مرة أخرى"]}
+      - {doc: D01, section: "7. أمان الحساب", snippets: ["يُقفل الحساب مؤقتاً لمدة 15 دقيقة بعد 5 محاولات دخول فاشلة متتالية"]}
+
+  - id: Q024
+    category: paraphrased
+    question: "هل يقدر المريض يتراجع عن حجزه بنفسه بدون ما يتصل بالعيادة؟"
+    expected_outcome: answered
+    reference_answer: "نعم، عبر الرابط الموجود في رسالة التذكير، بشرط أن يكون ذلك قبل الموعد بـ 6 ساعات على الأقل. بعد ذلك يجب أن يتصل بالعيادة."
+    evidence:
+      - {doc: D01, section: "3. إدارة المواعيد", snippets: ["إلغاء موعده بنفسه حتى 6 ساعات قبل الموعد"]}
+    notes: "Colloquial phrasing on purpose."
+
+  - id: Q025
+    category: paraphrased
+    question: "أبغى تقارير العيادة توصلني على الإيميل كل أسبوع تلقائياً، ممكن؟"
+    expected_outcome: answered
+    reference_answer: "نعم في الخطتين الاحترافية والمؤسسية، من خلال جدولة التقارير لتُرسل تلقائياً بالبريد الإلكتروني يومياً أو أسبوعياً أو شهرياً. ولا تتوفر في الخطة الأساسية."
+    evidence:
+      - {doc: D01, section: "6. التقارير", snippets: ["يمكن جدولة التقارير لتُرسل تلقائياً بالبريد الإلكتروني"]}
+
+  - id: Q026
+    category: paraphrased
+    question: "لو نزلنا لباقة أرخص، متى يتم التغيير وماذا يحصل للبيانات اللي أكثر من حدود الباقة؟"
+    expected_outcome: answered
+    reference_answer: "يسري التخفيض مع بداية دورة الفوترة التالية، وتبقى البيانات الزائدة عن حدود الخطة الجديدة متاحة للقراءة فقط مدة 60 يوماً يجب خلالها تقليصها أو العودة إلى خطة أعلى."
+    evidence:
+      - {doc: D02, section: "7. الترقية والتخفيض", snippets: ["يسري مع بداية دورة الفوترة التالية", "متاحة للقراءة فقط مدة 60 يوماً"]}
+
+  - id: Q027
+    category: paraphrased
+    question: "إذا ألغيت اشتراكي، كم عندي وقت أسحب فيه بيانات العيادة قبل ما تنمسح؟"
+    expected_outcome: answered
+    reference_answer: "تبقى بيانات العيادة متاحة للتصدير 90 يوماً من تاريخ إنهاء الاشتراك، ثم تُحذف نهائياً من الأنظمة الرئيسية خلال 30 يوماً بعد ذلك."
+    evidence:
+      - {doc: D05, section: "٨. الاحتفاظ بالبيانات وحذفها", snippets: ["متاحة للتصدير مدة ٩٠ يوماً"]}
+
+  - id: Q028
+    category: paraphrased
+    question: "مين يقدر يشوف الملاحظات اللي يكتبها الدكتور عن المريض؟"
+    expected_outcome: answered
+    reference_answer: "الطبيب، ومدير العيادة ومالك الحساب. أما موظف الاستقبال فلا يرى إلا البيانات الشخصية والمواعيد، والمحاسب لا يرى إلا بيانات الفوترة والتأمين."
+    evidence:
+      - {doc: D05, section: "٥. التحكم في الوصول", snippets: ["السجلات والملاحظات الطبية للمرضى", "البيانات الشخصية للمرضى ومواعيدهم فقط"]}
+      - {doc: D01, section: "2. الأدوار والصلاحيات", snippets: ["الملاحظات الطبية والتقارير المالية"]}
+
+  # ----------------------------------------------------------------- multi_doc
+  - id: Q029
+    category: multi_doc
+    question: "هل يمكن لعيادة على الخطة الأساسية رفع صور أشعة بصيغة DICOM؟ ومتى أُضيفت هذه الميزة؟"
+    expected_outcome: answered
+    reference_answer: "لا، مرفقات DICOM متاحة في الخطتين الاحترافية والمؤسسية فقط. وأُضيفت الميزة في الإصدار 4.3 بتاريخ 10 مايو 2026."
+    evidence:
+      - {doc: D02, section: "2. مقارنة الخطط", snippets: ["مرفقات DICOM", "غير متاحة"]}
+      - {doc: D04, section: "الإصدار 4.3 — 10 مايو 2026", snippets: ["مرفقات DICOM:"]}
+
+  - id: Q030
+    category: multi_doc
+    question: "ما الحد الأقصى لحجم المرفق الواحد حالياً، وكم كان قبل ذلك؟"
+    expected_outcome: answered
+    reference_answer: "الحد الحالي 25 ميجابايت، وكان 10 ميجابايت قبل الإصدار 4.3."
+    evidence:
+      - {doc: D01, section: "4. سجلات المرضى", snippets: ["الحد الأقصى لحجم المرفق الواحد 25 ميجابايت"]}
+      - {doc: D04, section: "الإصدار 4.3 — 10 مايو 2026", snippets: ["من 10 ميجابايت إلى 25 ميجابايت"]}
+
+  - id: Q031
+    category: multi_doc
+    question: "منذ متى يتوفر التحقق الثنائي، ولمن أصبح إلزامياً ومتى؟"
+    expected_outcome: answered
+    reference_answer: "أُضيف التحقق الثنائي اختيارياً لجميع المستخدمين في الإصدار 4.0 (14 سبتمبر 2025)، ويصبح إلزامياً لمالك الحساب ومدير العيادة ابتداءً من 1 أكتوبر 2026، ويبقى اختيارياً لبقية الأدوار."
+    evidence:
+      - {doc: D04, section: "الإصدار 4.0 — 14 سبتمبر 2025", snippets: ["إضافة التحقق الثنائي عبر تطبيقات المصادقة"]}
+      - {doc: D04, section: "الإصدار 4.4 — 20 أغسطس 2026", snippets: ["ابتداءً من 1 أكتوبر 2026 يصبح التحقق الثنائي إلزامياً"]}
+      - {doc: D05, section: "٦. أمان الحسابات", snippets: ["التحقق الثنائي إلزامي لمالك الحساب ومدير العيادة"]}
+
+  - id: Q032
+    category: multi_doc
+    question: "عيادتنا على الخطة الاحترافية وتوقفت المنصة عندنا بالكامل؛ ما أقصى مدة للرد الأول، وما القنوات التي يمكننا التواصل عبرها؟"
+    expected_outcome: answered
+    reference_answer: "هذا طلب بأولوية P1 حرجة، والمدة المستهدفة للرد الأول في الخطة الاحترافية ساعة واحدة خلال ساعات عمل الدعم. والقنوات المتاحة هي البريد الإلكتروني والمحادثة المباشرة داخل المنصة."
+    evidence:
+      - {doc: D03, section: "4. تصنيف الطلبات حسب الأولوية", snippets: ["توقف الخدمة كلياً"]}
+      - {doc: D03, section: "5. المدد المستهدفة للرد الأول", snippets: ["P1 حرجة", "ساعة واحدة"]}
+      - {doc: D03, section: "2. قنوات الدعم الفني", snippets: ["البريد الإلكتروني والمحادثة المباشرة داخل المنصة"]}
+
+  - id: Q033
+    category: multi_doc
+    question: "كم يوماً لدينا لإعادة تقديم مطالبة تأمينية مرفوضة، وفي أي إصدار أُضيفت هذه الإمكانية؟"
+    expected_outcome: answered
+    reference_answer: "خلال 30 يوماً من تاريخ الرفض، وأُضيفت في الإصدار 4.1 بتاريخ 30 نوفمبر 2025."
+    evidence:
+      - {doc: D01, section: "5. الفوترة والمطالبات التأمينية", snippets: ["وإعادة تقديمها خلال 30 يوماً من تاريخ الرفض"]}
+      - {doc: D04, section: "الإصدار 4.1 — 30 نوفمبر 2025", snippets: ["إعادة تقديم المطالبات المرفوضة:"]}
+
+  - id: Q034
+    category: multi_doc
+    question: "هل يستطيع المحاسب تصدير سجل التدقيق؟"
+    expected_outcome: answered
+    reference_answer: "لا، تصدير سجل التدقيق متاح لمالك الحساب ومدير العيادة فقط، في الخطتين الاحترافية والمؤسسية (منذ الإصدار 4.4)."
+    evidence:
+      - {doc: D04, section: "الإصدار 4.4 — 20 أغسطس 2026", snippets: ["أصبح بإمكان مالك الحساب ومدير العيادة في الخطتين الاحترافية والمؤسسية تصدير سجل التدقيق"]}
+      - {doc: D05, section: "٥. التحكم في الوصول", snippets: ["بيانات الفوترة والتأمين فقط"]}
+
+  - id: Q035
+    category: multi_doc
+    question: "كم مدة الاحتفاظ بسجل التدقيق لعميل على الخطة المؤسسية، وهل يمكنه تصديره؟"
+    expected_outcome: answered
+    reference_answer: "تُحفظ سجلات التدقيق 24 شهراً في الخطة المؤسسية، ويمكن تصديرها بصيغة CSV (ميزة أُضيفت في الإصدار 4.4)."
+    evidence:
+      - {doc: D05, section: "٧. سجل التدقيق", snippets: ["ومدة ٢٤ شهراً في الخطة المؤسسية"]}
+      - {doc: D04, section: "الإصدار 4.4 — 20 أغسطس 2026", snippets: ["تصدير سجل التدقيق بصيغة CSV"]}
+
+  - id: Q036
+    category: multi_doc
+    question: "ماذا يحدث لرسائل التذكير إذا نفد رصيد الرسائل النصية، وكم سعر الباقة الإضافية؟"
+    expected_outcome: answered
+    reference_answer: "تتوقف رسائل التذكير حتى بداية الشهر التالي أو حتى شراء باقة إضافية. وسعر الباقة الإضافية 10 دولارات لكل 500 رسالة، وتبقى رسائلها صالحة حتى استخدامها."
+    evidence:
+      - {doc: D01, section: "3. إدارة المواعيد", snippets: ["وإذا نفد الرصيد تتوقف رسائل التذكير"]}
+      - {doc: D02, section: "3. الإضافات المدفوعة", snippets: ["10 دولارات لكل 500 رسالة"]}
+
+  - id: Q037
+    category: multi_doc
+    question: "ما نسبة التوفر المضمونة للخطة الأساسية؟ وهل يحصل مشتركوها على تعويض إذا انخفضت؟"
+    expected_outcome: answered
+    reference_answer: "نسبة التوفر المضمونة للخطة الأساسية 99.5%، لكنها لا تشمل أي تعويضات عند انخفاضها."
+    evidence:
+      - {doc: D03, section: "8. نسبة التوفر المضمونة", snippets: ["99.5%"]}
+      - {doc: D03, section: "9. التعويضات عن انخفاض التوفر", snippets: ["ولا تشمل الخطة الأساسية أي تعويضات"]}
+
+  - id: Q038
+    category: multi_doc
+    question: "حذفنا ملف مريض بالخطأ، هل يمكن استعادته؟ ومن يستطيع ذلك؟"
+    expected_outcome: answered
+    reference_answer: "نعم، ينتقل الملف المحذوف إلى سلة المحذوفات ويبقى فيها 30 يوماً، ويستطيع مدير العيادة استعادته خلالها. وبعد انقضائها يُحذف نهائياً."
+    evidence:
+      - {doc: D01, section: "4. سجلات المرضى", snippets: ["ويستطيع مدير العيادة استعادته خلال هذه المدة"]}
+      - {doc: D05, section: "٨. الاحتفاظ بالبيانات وحذفها", snippets: ["تنتقل إلى سلة المحذوفات وتبقى فيها ٣٠ يوماً"]}
+
+  # --------------------------------------------------------- version_sensitive
+  - id: Q039
+    category: version_sensitive
+    question: "كم سعر الخطة الأساسية شهرياً؟"
+    by_state:
+      d02_v2_active:
+        expected_outcome: answered
+        reference_answer: "59 دولاراً شهرياً (بعد أن كان 49 دولاراً قبل 1 يوليو 2026)."
+        evidence:
+          - {doc: D02, version: v2, section: "2. مقارنة الخطط", snippets: ["السعر الشهري", "59 دولاراً"]}
+      d02_v1_active:
+        expected_outcome: answered
+        reference_answer: "49 دولاراً شهرياً."
+        evidence:
+          - {doc: D02, version: v1, section: "2. مقارنة الخطط", snippets: ["السعر الشهري", "49 دولاراً"]}
+
+  - id: Q040
+    category: version_sensitive
+    question: "كم مستخدماً تشمل الخطة الأساسية؟"
+    by_state:
+      d02_v2_active:
+        expected_outcome: answered
+        reference_answer: "حتى 5 مستخدمين، ولا يمكن إضافة مستخدمين بعد بلوغ الحد إلا بالترقية إلى الخطة الاحترافية."
+        evidence:
+          - {doc: D02, version: v2, section: "2. مقارنة الخطط", snippets: ["حتى 5 مستخدمين"]}
+      d02_v1_active:
+        expected_outcome: answered
+        reference_answer: "حتى 3 مستخدمين، ولا يمكن إضافة مستخدمين بعد بلوغ الحد إلا بالترقية إلى الخطة الاحترافية."
+        evidence:
+          - {doc: D02, version: v1, section: "2. مقارنة الخطط", snippets: ["حتى 3 مستخدمين"]}
+
+  - id: Q041
+    category: version_sensitive
+    question: "ما نسبة الخصم عند الدفع السنوي؟"
+    by_state:
+      d02_v2_active:
+        expected_outcome: answered
+        reference_answer: "20% من مجموع الأسعار الشهرية للسنة."
+        evidence:
+          - {doc: D02, version: v2, section: "5. الفوترة والدفع السنوي", snippets: ["خصم بنسبة 20%"]}
+      d02_v1_active:
+        expected_outcome: answered
+        reference_answer: "15% من مجموع الأسعار الشهرية للسنة."
+        evidence:
+          - {doc: D02, version: v1, section: "5. الفوترة والدفع السنوي", snippets: ["خصم بنسبة 15%"]}
+
+  - id: Q042
+    category: version_sensitive
+    question: "كم رسالة نصية شهرية تتضمنها الخطة الاحترافية؟"
+    by_state:
+      d02_v2_active:
+        expected_outcome: answered
+        reference_answer: "1,500 رسالة شهرياً."
+        evidence:
+          - {doc: D02, version: v2, section: "2. مقارنة الخطط", snippets: ["الرسائل النصية الشهرية", "1,500 رسالة"]}
+      d02_v1_active:
+        expected_outcome: answered
+        reference_answer: "1,000 رسالة شهرياً."
+        evidence:
+          - {doc: D02, version: v1, section: "2. مقارنة الخطط", snippets: ["الرسائل النصية الشهرية", "1,000 رسالة"]}
+
+  - id: Q043
+    category: version_sensitive
+    question: "نحن مشتركون منذ مارس 2026، متى تُطبق علينا الأسعار الجديدة؟"
+    by_state:
+      d02_v2_active:
+        expected_outcome: answered
+        reference_answer: "تسري الأسعار والحدود الجديدة على الاشتراكات القائمة عند أول تجديد بعد 1 يوليو 2026."
+        evidence:
+          - {doc: D02, version: v2, section: "9. ملخص التغييرات عن الإصدار السابق", snippets: ["وعلى الاشتراكات القائمة عند أول تجديد بعد 1 يوليو 2026"]}
+      d02_v1_active:
+        expected_outcome: insufficient_information
+        reference_answer: "لا تتضمن الوثائق المتاحة معلومات عن أسعار جديدة أو عن موعد تطبيقها على الاشتراكات القائمة."
+        evidence: []
+    notes: "Answerable only when version 2 is active; tests that inactive content is not retrieved."
+
+  # -------------------------------------------------------------- unanswerable
+  - id: Q044
+    category: unanswerable
+    question: "هل تدعم ضفيرة الربط مع أجهزة تخطيط القلب؟"
+    expected_outcome: insufficient_information
+    reference_answer: "لا تتضمن الوثائق المتاحة معلومات عن الربط مع أجهزة تخطيط القلب."
+    evidence: []
+
+  - id: Q045
+    category: unanswerable
+    question: "من هو الرئيس التنفيذي لشركة ضفيرة؟"
+    expected_outcome: insufficient_information
+    reference_answer: "لا تتضمن الوثائق المتاحة معلومات عن الرئيس التنفيذي للشركة."
+    evidence: []
+
+  - id: Q046
+    category: unanswerable
+    question: "هل يوجد تطبيق لضفيرة على الهواتف الذكية؟"
+    expected_outcome: insufficient_information
+    reference_answer: "لا تذكر الوثائق المتاحة تطبيقاً للهواتف الذكية، وإنما تذكر أن المنصة تعمل من خلال المتصفح."
+    evidence: []
+    notes: "Mentioning that the platform works in the browser is acceptable; asserting that no app exists is not supported."
+
+  - id: Q047
+    category: unanswerable
+    question: "ما مدة الاحتفاظ برسائل التذكير النصية التي أُرسلت للمرضى؟"
+    expected_outcome: insufficient_information
+    reference_answer: "لا تحدد الوثائق المتاحة مدة الاحتفاظ برسائل التذكير المرسلة."
+    evidence: []
+    notes: "Near miss: retention periods exist for other data types (backups, audit logs, deleted files)."
+
+  - id: Q048
+    category: unanswerable
+    question: "كم نسبة الضريبة المفروضة على الاشتراك؟"
+    expected_outcome: insufficient_information
+    reference_answer: "تذكر الوثائق أن الأسعار لا تشمل الضرائب، لكنها لا تحدد نسبة الضريبة."
+    evidence: []
+    notes: "Near miss: the pricing document says prices exclude taxes."
+
+  - id: Q049
+    category: unanswerable
+    question: "متى سيصدر الإصدار 4.5 من المنصة؟"
+    expected_outcome: insufficient_information
+    reference_answer: "لا تتضمن الوثائق المتاحة معلومات عن الإصدار 4.5 أو موعد صدوره."
+    evidence: []
+
+  - id: Q050
+    category: unanswerable
+    question: "هل يمكن دفع رسوم اشتراك ضفيرة عبر Apple Pay؟"
+    expected_outcome: insufficient_information
+    reference_answer: "لا تحدد الوثائق المتاحة طرق دفع رسوم الاشتراك."
+    evidence: []
+    notes: "Near miss trap: the user guide lists payment methods for patient invoices (cash, card, transfer, insurance), not for the subscription."
+
+  # -------------------------------------------------------------- out_of_scope
+  - id: Q051
+    category: out_of_scope
+    question: "ما الجرعة المناسبة من الباراسيتامول لطفل عمره 5 سنوات؟"
+    expected_outcome: insufficient_information
+    reference_answer: "هذا سؤال طبي خارج نطاق المساعد، الذي يجيب عن وثائق منصة ضفيرة فقط ولا يقدم نصائح طبية."
+    evidence: []
+
+  - id: Q052
+    category: out_of_scope
+    question: "ما أعراض ارتفاع ضغط الدم؟"
+    expected_outcome: insufficient_information
+    reference_answer: "هذا سؤال طبي خارج نطاق المساعد، الذي يجيب عن وثائق منصة ضفيرة فقط ولا يقدم نصائح طبية."
+    evidence: []
+
+  - id: Q053
+    category: out_of_scope
+    question: "من اخترع شبكة الإنترنت؟"
+    expected_outcome: insufficient_information
+    reference_answer: "هذا السؤال خارج نطاق المساعد، الذي يجيب عن وثائق منصة ضفيرة فقط."
+    evidence: []
+    notes: "General knowledge the LLM knows; the system must still not answer from prior knowledge."
