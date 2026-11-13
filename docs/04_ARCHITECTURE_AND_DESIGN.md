@@ -4,7 +4,7 @@
 |---|---|
 | Document ID | DESIGN-001 |
 | Phase | Phase 4: Architecture and Technical Design |
-| Status | **Draft for owner review** |
+| Status | **Complete, awaiting owner approval** (decisions DD-01 to DD-08 in §17) |
 | Date | 2026-11-13 |
 | Inputs | SRS-001 v1.1 (`docs/01_SRS.md`), TECH-001 (`docs/03_TECHNOLOGY_EVALUATION.md`), CORPUS-001, `docs/DECISIONS.md` |
 | Approved stack | Python + FastAPI · Jinja2 + HTMX · SQLite + NumPy · pdftotext · gemini-embedding-001 · qwen3.8-27b (Groq) · OpenAI-compatible adapters (D-027 to D-029) |
@@ -801,3 +801,113 @@ Every expected failure is an `AppError` with a stable `code`, an HTTP status, an
 - **Structured JSON logs** with these fields: timestamp, level, event, `request_id`, `job_id`, `version_id`, `stage`, `duration_ms`, provider, model, and outcome or error code. Logs go to `logs/` with size-based rotation.
 - **No document text, questions, or answers in logs** at the default level (NFR-PRV-02).
 - Latency per stage is logged, which is the input for the Phase 9 latency baseline (NFR-PRF-01).
+
+---
+
+## 14. Project Structure
+
+`src` layout: a single package, `rag_app`. Folders map one-to-one to the components in §3.
+
+```text
+rag-ai-project/
+├── src/rag_app/
+│   ├── __main__.py              ⌨️ CLI: check · reindex · evaluate · serve
+│   ├── config/                  🧩 settings.py (typed, validated) · domain_profile.py
+│   ├── core/                    🧩 errors.py (AppError + codes) · logging.py · ids.py · clock.py
+│   ├── domain/                  🧩 models.py (Document, Version, Chunk, Answer, Citation …)
+│   ├── ingestion/               🔶 validation · extract_pdf · extract_markdown · cleaning
+│   │                               · normalization · chunking · pipeline · worker
+│   ├── retrieval/               🔶 query (replaceable stage, D-011) · index (NumPy) · ranking · context
+│   ├── generation/              🔶 prompts/answer.v1.md · prompt_builder · verify (citations)
+│   ├── providers/               🔌 ports.py · openai_compatible.py · fallback.py · retry.py
+│   ├── storage/                 🗄️ db.py · migrations/0001_init.sql · repositories/ · files.py
+│   ├── services/                ⚙️ documents.py · chat.py
+│   ├── evaluation/              📊 runner.py · metrics.py · judge.py
+│   └── web/                     🖥️ app.py · api/ · ui/ · templates/ (RTL) · static/
+├── config/                      settings.toml · domain_profile.toml · .env.example
+├── tests/                       unit/ · integration/ · e2e/ · fixtures/
+├── data/sample_corpus/          (Phase 2) corpus + manifest
+├── eval/                        (Phase 2) golden_set.yaml · reports/
+├── docs/                        SRS · evaluation · this design · decisions
+├── poc/ · tools/                (Phase 2–4) measurement and documentation tools
+└── pyproject.toml               dependencies pinned with a lockfile (tool chosen in Phase 5)
+```
+
+---
+
+## 15. Test Strategy
+
+```mermaid
+flowchart BT
+    u["🧪 Unit tests · many, fast<br/>validation · cleaning · normalization · chunking<br/>citation parsing · error mapping · prompt building"]
+    i["🔗 Integration tests<br/>SQLite transactions · version lifecycle · deletion<br/>pdftotext on corpus PDFs · provider adapters with HTTP mocks"]
+    s["🖥️ System / E2E tests · few<br/>upload → ready → ask → answer with sources<br/>(Playwright, fake providers)"]
+    q["📊 Quality evaluation · separate<br/>golden set with real providers · retrieval + answer metrics<br/>(not pass/fail for CI)"]
+    u --> i --> s
+    s -. "different question:<br/>is it good, not does it work" .-> q
+
+    classDef unit fill:#E6F4EA,stroke:#188038,color:#202124
+    classDef integ fill:#E8F0FE,stroke:#1A73E8,color:#202124
+    classDef sys fill:#FEF7E0,stroke:#B06000,color:#202124
+    classDef qual fill:#F3E8FD,stroke:#8430CE,color:#202124
+    class u unit
+    class i integ
+    class s sys
+    class q qual
+```
+
+| Level | Scope | Providers | Runs |
+|---|---|---|---|
+| Unit | Pure functions and stage logic; edge cases: empty, oversized, Arabic-Indic digits, presentation forms, broken lines, tables | None | Every commit |
+| Integration | Repositories and transactions, including crash simulation between stages; the version lifecycle (§6); deletion while processing; recovery; Poppler on the real corpus PDFs; adapters against recorded HTTP responses (429, 503, 404, malformed) | Mocked HTTP | Every commit |
+| System / E2E | Full user journeys through the UI | Deterministic fake providers | Every commit (CI, including a Windows runner, P-008) |
+| Real-provider smoke tests | One call per configured provider | Real (opt-in, keys required) | Manually, before a release |
+| Quality evaluation | Golden set: Hit@k, MRR, refusal accuracy, citation validity, judge scores | Real | Phases 8, 9, 11 and after changes |
+
+This separation follows CLAUDE.md §5: a passing test suite shows the system **works**; the evaluation shows whether it **answers well**.
+
+---
+
+## 16. Traceability: Requirements → Design
+
+| Requirement group | Design elements | Section |
+|---|---|---|
+| FR-DOC (management) | DocumentService · API `/documents` · data model · deletion order | §3, §5, §7.2, §11 |
+| FR-ING (processing) | Ingestion pipeline stages 1–6 · worker · one-commit rule · recovery | §6, §7.1, §8 |
+| FR-RET (retrieval) | Query pipeline 7–10 · VectorIndex · relevance gate · model check | §7.3, §7.4, §9 |
+| FR-GEN (generation) | Prompt design · ChatProvider · fallback · retries | §9.4, §10 |
+| FR-VAL (verification) | Three-layer decision · citation algorithm · snapshots | §9.2, §9.3, §5 |
+| FR-CONV (conversations) | Conversation, Message, and Citation tables · auto-title · independent questions | §5, §11 |
+| FR-CFG (configuration) | settings.toml · `.env` · start-up validation · `check` and `reindex` CLI | §7.4, §11.3, §12 |
+| FR-UI | Jinja2 + HTMX pages · status polling · answer card states | §11.2 |
+| FR-EVAL | EvaluationRunner · judge provider · `evaluate` CLI | §3, §11.3, §15 |
+| FR-VER (versions) | Document and Version split · active pointer · lifecycle · vector retention | §5.2, §5.3, §6 |
+| FR-DOM (domain) | domain_profile.toml · prompt template placeholders | §9.4, §12 |
+| NFR-REL / NFR-SEC / NFR-PRV | Transactions · recovery · orphan sweep · security controls · log policy | §7, §13 |
+| NFR-EXT | Replaceable query stage (follow-ups) · OpenAI-compatible adapter (local models) | §3, §10 |
+| NFR-PRF / NFR-OPS | NumPy index (measured) · WAL · single process · Windows deployment | §4, §7.3 |
+
+---
+
+## 17. Design Decisions for Owner Approval
+
+| ID | Decision | Basis |
+|---|---|---|
+| DD-01 | **Inactive versions keep their chunks and vectors** (FR-VER-07) | Instant restore; avoids spending scarce free-tier quota; ~1.2 MB per version (§5.3) |
+| DD-02 | **Deleting a version that is processing cancels it** (FR-DOC-08) | Combined with the one-commit rule, cancellation can never leave partial data (§6, §7.1) |
+| DD-03 | **Automatic fallback for chat only:** on 404, 429, or 503 the request is retried once on the fallback model | Phase 3 measured all three failure types on free tiers in one session. Embeddings never fall back, because vectors from different models are incompatible (§10) |
+| DD-04 | **Synchronous ask endpoint** with a loading indicator; no token streaming | Streaming is out of scope (SRS §9); the measured median generation time is 0.5 s |
+| DD-05 | **Re-indexing is a CLI command,** run while the app is stopped | Rare operation; keeps the web app free of long-running admin flows (§7.4) |
+| DD-06 | **Initial RAG parameters:** chunks of 800 characters with 150 overlap, K = 8, ≤ 5 passages, τ = 0.60 | Phase 3 measurements; calibrated in Phases 8 and 9 (§9.2) |
+| DD-07 | **Data model** (§5) and **API contract** (§11.1) | Derived from the requirements; traceability in §16 |
+| DD-08 | **Code layout:** `src/rag_app` package with the folder structure of §14 | One-to-one mapping to components; testable boundaries |
+
+## 18. Risks Carried into Implementation
+
+| Risk | Mitigation in this design |
+|---|---|
+| Groq preview model withdrawn | Fallback model (DD-03); switching is a configuration change |
+| Free-tier quotas during ingestion | Throttled batches with backoff; ingestion failures recorded per version and retryable |
+| Poppler version differences on Windows | `check` CLI reports the Poppler version; extraction tests on the corpus PDFs run on the Windows CI runner |
+| Table reflow in PDF text | Chunker keeps rows together where detectable; evidence-intact metric (NFR-LNG-02 v1.1) is tested |
+| SQLite writer contention | One worker, short transactions, WAL mode |
