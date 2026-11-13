@@ -1,0 +1,74 @@
+# Manifest of the Dafira sample corpus.
+#
+# Lists the logical documents, their versions, the reference Markdown source of
+# each version, and the file that is actually uploaded into the system.
+# The `ingestion_sequence` defines the default corpus state used by the golden
+# set (`default_state`): all five documents uploaded, then document D02
+# replaced by its version 2.
+
+corpus_version: "1.0"
+platform_name: "ضفيرة"
+platform_name_latin: "Dafira"
+language: ar
+fictional: true
+
+documents:
+  - id: D01
+    title: "دليل المستخدم لمنصة ضفيرة"
+    versions:
+      - version: v1
+        source: source/01_user_guide.md
+        upload_file: source/01_user_guide.md
+        format: markdown
+
+  - id: D02
+    title: "الخطط والأسعار وحدود الاستخدام"
+    versions:
+      - version: v1
+        source: source/02_plans_pricing_v1.md
+        upload_file: pdf/02_plans_pricing_v1.pdf
+        format: pdf
+      - version: v2
+        source: source/02_plans_pricing_v2.md
+        upload_file: pdf/02_plans_pricing_v2.pdf
+        format: pdf
+
+  - id: D03
+    title: "سياسة الدعم الفني واتفاقية مستوى الخدمة"
+    versions:
+      - version: v1
+        source: source/03_support_sla.md
+        upload_file: source/03_support_sla.md
+        format: markdown
+
+  - id: D04
+    title: "ملاحظات إصدارات منصة ضفيرة"
+    versions:
+      - version: v1
+        source: source/04_release_notes.md
+        upload_file: source/04_release_notes.md
+        format: markdown
+
+  - id: D05
+    title: "سياسة الخصوصية وأمن البيانات"
+    versions:
+      - version: v1
+        source: source/05_privacy_security.md
+        upload_file: pdf/05_privacy_security.pdf
+        format: pdf
+    notes: "Uses Arabic-Indic digits (٠-٩) on purpose, to exercise digit normalization."
+
+states:
+  # Which version of each document is active in a given corpus state.
+  d02_v1_active: {D01: v1, D02: v1, D03: v1, D04: v1, D05: v1}
+  d02_v2_active: {D01: v1, D02: v2, D03: v1, D04: v1, D05: v1}
+
+default_state: d02_v2_active
+
+ingestion_sequence:
+  - {action: upload_new_document, document: D01, version: v1}
+  - {action: upload_new_document, document: D02, version: v1}
+  - {action: upload_new_document, document: D03, version: v1}
+  - {action: upload_new_document, document: D04, version: v1}
+  - {action: upload_new_document, document: D05, version: v1}
+  - {action: upload_new_version, document: D02, version: v2}

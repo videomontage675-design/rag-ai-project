@@ -1,0 +1,173 @@
+# Fact registry for the Dafira sample corpus.
+#
+# Every fact stated in more than one document (or that is version-sensitive)
+# is listed once here, with the exact text that must appear in each document
+# that states it. tools/corpus/verify_corpus.py checks every entry against the
+# Markdown sources, so an edit that breaks cross-document consistency fails
+# the check.
+#
+# Intentional differences exist only between the two versions of document 02
+# (pricing v1 vs v2); they are marked `versioned: true`.
+#
+# Document 05 uses Arabic-Indic digits on purpose (normalization test), so its
+# expected strings use those digits.
+
+facts:
+  - id: F01
+    description: Plan names
+    occurrences:
+      02_plans_pricing_v1: ["| البند | الأساسية | الاحترافية | المؤسسية |"]
+      02_plans_pricing_v2: ["| البند | الأساسية | الاحترافية | المؤسسية |"]
+      03_support_sla: ["| الأساسية | الاحترافية | المؤسسية |"]
+
+  - id: F02
+    description: Basic plan monthly price (changed in v2)
+    versioned: true
+    occurrences:
+      02_plans_pricing_v1: ["| السعر الشهري | 49 دولاراً |"]
+      02_plans_pricing_v2: ["| السعر الشهري | 59 دولاراً |", "| السعر الشهري للخطة الأساسية | 49 دولاراً | 59 دولاراً |"]
+
+  - id: F03
+    description: Professional and Enterprise monthly prices (unchanged)
+    occurrences:
+      02_plans_pricing_v1: ["129 دولاراً | تبدأ من 399 دولاراً"]
+      02_plans_pricing_v2: ["129 دولاراً | تبدأ من 399 دولاراً"]
+
+  - id: F04
+    description: Users included per plan (Basic changed in v2)
+    versioned: true
+    occurrences:
+      02_plans_pricing_v1: ["| عدد المستخدمين المشمولين | حتى 3 مستخدمين | حتى 15 مستخدماً | غير محدود |"]
+      02_plans_pricing_v2: ["| عدد المستخدمين المشمولين | حتى 5 مستخدمين | حتى 15 مستخدماً | غير محدود |"]
+
+  - id: F05
+    description: Monthly SMS per plan (Professional changed in v2)
+    versioned: true
+    occurrences:
+      02_plans_pricing_v1: ["| الرسائل النصية الشهرية | 200 رسالة | 1,000 رسالة | 5,000 رسالة |"]
+      02_plans_pricing_v2: ["| الرسائل النصية الشهرية | 200 رسالة | 1,500 رسالة | 5,000 رسالة |"]
+
+  - id: F06
+    description: Annual payment discount (changed in v2)
+    versioned: true
+    occurrences:
+      02_plans_pricing_v1: ["خصم بنسبة 15%"]
+      02_plans_pricing_v2: ["خصم بنسبة 20%"]
+
+  - id: F07
+    description: Insurance claims available on Professional and Enterprise only
+    occurrences:
+      01_user_guide: ["وحدة المطالبات التأمينية متاحة في الخطتين الاحترافية والمؤسسية"]
+      02_plans_pricing_v1: ["| المطالبات التأمينية | غير متاحة | متاحة | متاحة |"]
+      02_plans_pricing_v2: ["| المطالبات التأمينية | غير متاحة | متاحة | متاحة |"]
+
+  - id: F08
+    description: DICOM attachments on Professional and Enterprise, introduced in 4.3
+    occurrences:
+      01_user_guide: ["يمكن في الخطتين الاحترافية والمؤسسية إرفاق صور الأشعة بصيغة DICOM"]
+      02_plans_pricing_v1: ["| مرفقات DICOM | غير متاحة | متاحة | متاحة |"]
+      02_plans_pricing_v2: ["| مرفقات DICOM | غير متاحة | متاحة | متاحة |"]
+      04_release_notes: ["## الإصدار 4.3 — 10 مايو 2026", "الميزة متاحة في الخطتين الاحترافية والمؤسسية"]
+
+  - id: F09
+    description: Scheduled reports on Professional and Enterprise, introduced in 4.3
+    occurrences:
+      01_user_guide: ["في الخطتين الاحترافية والمؤسسية يمكن جدولة التقارير"]
+      02_plans_pricing_v1: ["| جدولة التقارير | غير متاحة | متاحة | متاحة |"]
+      02_plans_pricing_v2: ["| جدولة التقارير | غير متاحة | متاحة | متاحة |"]
+      04_release_notes: ["يومياً أو أسبوعياً أو شهرياً، في الخطتين الاحترافية والمؤسسية"]
+
+  - id: F10
+    description: Support channels per plan
+    occurrences:
+      02_plans_pricing_v1: ["| قنوات الدعم الفني | البريد الإلكتروني | البريد الإلكتروني والمحادثة المباشرة | البريد الإلكتروني والمحادثة المباشرة والهاتف ومدير حساب مخصص |"]
+      02_plans_pricing_v2: ["| قنوات الدعم الفني | البريد الإلكتروني | البريد الإلكتروني والمحادثة المباشرة | البريد الإلكتروني والمحادثة المباشرة والهاتف ومدير حساب مخصص |"]
+      03_support_sla: ["| الأساسية | البريد الإلكتروني |", "| المؤسسية | البريد الإلكتروني والمحادثة المباشرة والهاتف، مع مدير حساب مخصص |"]
+
+  - id: F11
+    description: Guaranteed uptime per plan
+    occurrences:
+      02_plans_pricing_v1: ["| نسبة التوفر المضمونة | 99.5% | 99.9% | 99.95% |"]
+      02_plans_pricing_v2: ["| نسبة التوفر المضمونة | 99.5% | 99.9% | 99.95% |"]
+      03_support_sla: ["| الأساسية | 99.5% |", "| الاحترافية | 99.9% |", "| المؤسسية | 99.95% |"]
+
+  - id: F12
+    description: SMS reminder 24 hours before; optional 2-hour reminder since 4.2
+    occurrences:
+      01_user_guide: ["قبل موعده بـ 24 ساعة", "ومنذ الإصدار 4.2 أصبح بالإمكان تفعيل تذكير ثانٍ اختياري قبل الموعد بساعتين"]
+      04_release_notes: ["خيار لإرسال تذكير إضافي قبل الموعد بساعتين، إلى جانب التذكير الأساسي قبل 24 ساعة"]
+
+  - id: F13
+    description: Waiting list introduced in 4.2
+    occurrences:
+      01_user_guide: ["أُضيفت قائمة الانتظار في الإصدار 4.2"]
+      04_release_notes: ["## الإصدار 4.2 — 15 فبراير 2026", "**قائمة الانتظار:**"]
+
+  - id: F14
+    description: Attachment size limit 25 MB since 4.3 (previously 10 MB)
+    occurrences:
+      01_user_guide: ["الحد الأقصى لحجم المرفق الواحد 25 ميجابايت", "لا يتجاوز 25 ميجابايت"]
+      04_release_notes: ["رُفع الحد الأقصى لحجم المرفق الواحد من 10 ميجابايت إلى 25 ميجابايت"]
+
+  - id: F15
+    description: Rejected claims can be resubmitted within 30 days (since 4.1)
+    occurrences:
+      01_user_guide: ["وإعادة تقديمها خلال 30 يوماً من تاريخ الرفض"]
+      04_release_notes: ["وإعادة تقديمها خلال 30 يوماً من تاريخ الرفض"]
+
+  - id: F16
+    description: Password minimum length 12 characters
+    occurrences:
+      01_user_guide: ["يجب ألا تقل كلمة المرور عن 12 حرفاً"]
+      05_privacy_security: ["لا يقل طول كلمة المرور عن ١٢ حرفاً"]
+
+  - id: F17
+    description: Account lockout for 15 minutes after 5 failed attempts
+    occurrences:
+      01_user_guide: ["يُقفل الحساب مؤقتاً لمدة 15 دقيقة بعد 5 محاولات دخول فاشلة متتالية"]
+      05_privacy_security: ["يُقفل الحساب مؤقتاً لمدة ١٥ دقيقة بعد ٥ محاولات دخول فاشلة متتالية"]
+
+  - id: F18
+    description: 2FA mandatory for account owner and clinic manager from 1 Oct 2026; introduced (optional) in 4.0
+    occurrences:
+      01_user_guide: ["وهو إلزامي لمالك الحساب ومدير العيادة ابتداءً من 1 أكتوبر 2026"]
+      04_release_notes: ["ابتداءً من 1 أكتوبر 2026 يصبح التحقق الثنائي إلزامياً لمالك الحساب ومدير العيادة", "**التحقق الثنائي:** إضافة التحقق الثنائي عبر تطبيقات المصادقة، اختيارياً لجميع المستخدمين"]
+      05_privacy_security: ["التحقق الثنائي إلزامي لمالك الحساب ومدير العيادة ابتداءً من ١ أكتوبر ٢٠٢٦"]
+
+  - id: F19
+    description: Deleted patient files kept in the recycle bin for 30 days
+    occurrences:
+      01_user_guide: ["ينتقل إلى «سلة المحذوفات» ويبقى فيها 30 يوماً"]
+      05_privacy_security: ["تنتقل إلى سلة المحذوفات وتبقى فيها ٣٠ يوماً قابلة للاستعادة"]
+
+  - id: F20
+    description: Audit log export on Professional and Enterprise (added in 4.4)
+    occurrences:
+      04_release_notes: ["أصبح بإمكان مالك الحساب ومدير العيادة في الخطتين الاحترافية والمؤسسية تصدير سجل التدقيق"]
+      05_privacy_security: ["ويمكن تصديرها في الخطتين الاحترافية والمؤسسية"]
+
+  - id: F21
+    description: Role-based access (receptionist sees personal data and appointments only; accountant billing only)
+    occurrences:
+      01_user_guide: ["لا يرى موظف الاستقبال من ملف المريض إلا البيانات الشخصية والمواعيد"]
+      05_privacy_security: ["| موظف الاستقبال | البيانات الشخصية للمرضى ومواعيدهم فقط |", "| المحاسب | بيانات الفوترة والتأمين فقط |"]
+
+  - id: F22
+    description: Storage full blocks new uploads; existing data retained
+    occurrences:
+      01_user_guide: ["فعند امتلاء المساحة يُمنع رفع ملفات جديدة"]
+      02_plans_pricing_v1: ["عند امتلائها يُمنع رفع ملفات جديدة، وتبقى جميع البيانات الحالية محفوظة ومتاحة"]
+      02_plans_pricing_v2: ["عند امتلائها يُمنع رفع ملفات جديدة، وتبقى جميع البيانات الحالية محفوظة ومتاحة"]
+
+  - id: F23
+    description: SMS balance exhausted stops reminders until next month or extra pack
+    occurrences:
+      01_user_guide: ["وإذا نفد الرصيد تتوقف رسائل التذكير حتى بداية الشهر التالي أو حتى شراء باقة رسائل إضافية"]
+      02_plans_pricing_v1: ["عند نفاد الرصيد تتوقف رسائل التذكير حتى بداية الشهر التالي أو حتى شراء باقة إضافية"]
+      02_plans_pricing_v2: ["عند نفاد الرصيد تتوقف رسائل التذكير حتى بداية الشهر التالي أو حتى شراء باقة إضافية"]
+
+  - id: F24
+    description: Maintenance happens during the scheduled window
+    occurrences:
+      03_support_sla: ["تُجرى الصيانة المجدولة يوم الجمعة بين الساعة 1:00 والساعة 5:00 صباحاً بتوقيت UTC+3"]
+      04_release_notes: ["خلال نافذة الصيانة المجدولة"]
