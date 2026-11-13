@@ -1,0 +1,14 @@
+{
+  "name": "docs-tools",
+  "private": true,
+  "description": "Development-only: validates and previews Mermaid diagrams in Markdown documentation.",
+  "type": "module",
+  "scripts": {
+    "check-diagrams": "node check_mermaid.mjs"
+  },
+  "dependencies": {
+    "mermaid11": "npm:mermaid@11.4.1",
+    "mermaid12": "npm:mermaid@12.2.0",
+    "playwright": "1.63.0"
+  }
+}

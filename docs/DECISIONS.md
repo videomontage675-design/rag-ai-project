@@ -268,6 +268,21 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
 - **Note:** T-01, T-02, T-04, T-14, and T-15 rest on requirements and principles rather than measurements; their reasons are stated above. If the owner considers any of these insufficiently justified, it is reopened through change management (`EXECUTION_PROTOCOL.md` §8).
 - **Also authorized:** Phase 4 (Architecture and Technical Design) start. The owner asked for modern, visual Markdown diagrams with clear semantic shapes and icons.
 
+## D-030 — Phase 4 approved: architecture and technical design
+- **Date:** 2026-11-13 · **Status:** Approved
+- **Decision:** The owner approved DESIGN-001 (`docs/04_ARCHITECTURE_AND_DESIGN.md`), including design decisions DD-01 to DD-08:
+  - **DD-01:** inactive versions keep their vectors.
+  - **DD-02:** deleting a version during processing cancels the processing.
+  - **DD-03:** automatic chat fallback on 404, 429, or 503.
+  - **DD-04:** synchronous ask endpoint.
+  - **DD-05:** re-indexing through the CLI.
+  - **DD-06:** initial RAG parameters.
+  - **DD-07:** data model and API contract.
+  - **DD-08:** `src/rag_app` layout.
+
+  These resolve FR-VER-07 (DD-01) and FR-DOC-08 (DD-02).
+- **Also authorized:** Phase 5 (Project Foundation and Environment) start.
+
 ---
 
 ## Pending decisions
