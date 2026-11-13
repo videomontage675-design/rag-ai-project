@@ -68,7 +68,11 @@ def main() -> None:
     questions = h.load_questions(None)
     results = {}
     for spec in specs:
-        r = run(spec, chunks, questions)
+        try:
+            r = run(spec, chunks, questions)
+        except RuntimeError as e:  # one provider failing must not lose the others' results
+            print(f"- {spec}: FAILED: {str(e)[:200]}")
+            continue
         if r:
             results[spec] = r
     if not results:

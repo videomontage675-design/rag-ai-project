@@ -1,0 +1,404 @@
+{
+  "gemini:gemini-embedding-001": {
+    "answerable_questions": 43,
+    "hit@1": 0.8372093023255814,
+    "hit@3": 0.9767441860465116,
+    "hit@5": 1.0,
+    "hit@10": 1.0,
+    "recall@1": 0.7364341085271318,
+    "recall@3": 0.9496124031007752,
+    "recall@5": 0.9689922480620156,
+    "recall@10": 1.0,
+    "mrr": 0.9127906976744186,
+    "per_question": {
+      "Q001": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7214531898498535
+      },
+      "Q002": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7913269996643066
+      },
+      "Q003": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8639869689941406
+      },
+      "Q004": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7343894243240356
+      },
+      "Q005": {
+        "first_relevant_rank": 1,
+        "top_score": 0.832897961139679
+      },
+      "Q006": {
+        "first_relevant_rank": 1,
+        "top_score": 0.809885561466217
+      },
+      "Q007": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8336073160171509
+      },
+      "Q008": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7452479004859924
+      },
+      "Q009": {
+        "first_relevant_rank": 1,
+        "top_score": 0.725552499294281
+      },
+      "Q010": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7220622301101685
+      },
+      "Q011": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8079754114151001
+      },
+      "Q012": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6787314414978027
+      },
+      "Q013": {
+        "first_relevant_rank": 2,
+        "top_score": 0.7225909233093262
+      },
+      "Q014": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8405404686927795
+      },
+      "Q015": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8168110847473145
+      },
+      "Q016": {
+        "first_relevant_rank": 1,
+        "top_score": 0.739032506942749
+      },
+      "Q017": {
+        "first_relevant_rank": 1,
+        "top_score": 0.79429030418396
+      },
+      "Q018": {
+        "first_relevant_rank": 1,
+        "top_score": 0.811663031578064
+      },
+      "Q019": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6786565780639648
+      },
+      "Q020": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7703045606613159
+      },
+      "Q021": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6865853071212769
+      },
+      "Q022": {
+        "first_relevant_rank": 2,
+        "top_score": 0.6865551471710205
+      },
+      "Q023": {
+        "first_relevant_rank": 2,
+        "top_score": 0.7066916227340698
+      },
+      "Q024": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7875129580497742
+      },
+      "Q025": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7671557664871216
+      },
+      "Q026": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7585698366165161
+      },
+      "Q027": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8459715247154236
+      },
+      "Q028": {
+        "first_relevant_rank": 4,
+        "top_score": 0.7484427094459534
+      },
+      "Q029": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7812901735305786
+      },
+      "Q030": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7912782430648804
+      },
+      "Q031": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7190424203872681
+      },
+      "Q032": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7582373023033142
+      },
+      "Q033": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8192653656005859
+      },
+      "Q034": {
+        "first_relevant_rank": 2,
+        "top_score": 0.7441301345825195
+      },
+      "Q035": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8287873268127441
+      },
+      "Q036": {
+        "first_relevant_rank": 2,
+        "top_score": 0.7726873159408569
+      },
+      "Q037": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8050590753555298
+      },
+      "Q038": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8483617305755615
+      },
+      "Q039": {
+        "first_relevant_rank": 1,
+        "top_score": 0.759224534034729
+      },
+      "Q040": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7537913918495178
+      },
+      "Q041": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8498262166976929
+      },
+      "Q042": {
+        "first_relevant_rank": 2,
+        "top_score": 0.7634063363075256
+      },
+      "Q043": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7681119441986084
+      }
+    },
+    "unanswerable_top_scores": [
+      0.6652022004127502,
+      0.6960705518722534,
+      0.7084260582923889,
+      0.7614609003067017,
+      0.6801976561546326,
+      0.7536668181419373,
+      0.6672968864440918,
+      0.5459096431732178,
+      0.5543338656425476,
+      0.5592950582504272
+    ],
+    "auroc_answerable_vs_unanswerable": 0.8953488372093024,
+    "model": "gemini-embedding-001",
+    "dimension": 3072
+  },
+  "gemini:gemini-embedding-2": {
+    "answerable_questions": 43,
+    "hit@1": 0.8372093023255814,
+    "hit@3": 0.9534883720930233,
+    "hit@5": 1.0,
+    "hit@10": 1.0,
+    "recall@1": 0.7131782945736433,
+    "recall@3": 0.9147286821705427,
+    "recall@5": 0.9806201550387598,
+    "recall@10": 0.9806201550387598,
+    "mrr": 0.9019379844961242,
+    "per_question": {
+      "Q001": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7870711088180542
+      },
+      "Q002": {
+        "first_relevant_rank": 1,
+        "top_score": 0.730255663394928
+      },
+      "Q003": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8270442485809326
+      },
+      "Q004": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7094713449478149
+      },
+      "Q005": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7687867283821106
+      },
+      "Q006": {
+        "first_relevant_rank": 1,
+        "top_score": 0.791344165802002
+      },
+      "Q007": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7925437688827515
+      },
+      "Q008": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7667191624641418
+      },
+      "Q009": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7597364187240601
+      },
+      "Q010": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7925527095794678
+      },
+      "Q011": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8197289705276489
+      },
+      "Q012": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7111162543296814
+      },
+      "Q013": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7573283314704895
+      },
+      "Q014": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8274208903312683
+      },
+      "Q015": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8157697319984436
+      },
+      "Q016": {
+        "first_relevant_rank": 5,
+        "top_score": 0.7058167457580566
+      },
+      "Q017": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6273666024208069
+      },
+      "Q018": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8358932137489319
+      },
+      "Q019": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6791425347328186
+      },
+      "Q020": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7336668372154236
+      },
+      "Q021": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6563235521316528
+      },
+      "Q022": {
+        "first_relevant_rank": 4,
+        "top_score": 0.6677959561347961
+      },
+      "Q023": {
+        "first_relevant_rank": 2,
+        "top_score": 0.7057772874832153
+      },
+      "Q024": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7916787266731262
+      },
+      "Q025": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7870336174964905
+      },
+      "Q026": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6965187788009644
+      },
+      "Q027": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7932208180427551
+      },
+      "Q028": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7267516255378723
+      },
+      "Q029": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8129169344902039
+      },
+      "Q030": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8293746709823608
+      },
+      "Q031": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6901657581329346
+      },
+      "Q032": {
+        "first_relevant_rank": 1,
+        "top_score": 0.757636547088623
+      },
+      "Q033": {
+        "first_relevant_rank": 1,
+        "top_score": 0.807197093963623
+      },
+      "Q034": {
+        "first_relevant_rank": 2,
+        "top_score": 0.6869686841964722
+      },
+      "Q035": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7767193913459778
+      },
+      "Q036": {
+        "first_relevant_rank": 1,
+        "top_score": 0.766049325466156
+      },
+      "Q037": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8106197118759155
+      },
+      "Q038": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8044195175170898
+      },
+      "Q039": {
+        "first_relevant_rank": 3,
+        "top_score": 0.6736694574356079
+      },
+      "Q040": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6748448610305786
+      },
+      "Q041": {
+        "first_relevant_rank": 1,
+        "top_score": 0.786714494228363
+      },
+      "Q042": {
+        "first_relevant_rank": 2,
+        "top_score": 0.7407008409500122
+      },
+      "Q043": {
+        "first_relevant_rank": 2,
+        "top_score": 0.7503272294998169
+      }
+    },
+    "unanswerable_top_scores": [
+      0.6233426332473755,
+      0.6633186340332031,
+      0.6533433198928833,
+      0.7643637657165527,
+      0.6318686604499817,
+      0.685905396938324,
+      0.6635923385620117,
+      0.5186420679092407,
+      0.5410864353179932,
+      0.5519042015075684
+    ],
+    "auroc_answerable_vs_unanswerable": 0.9232558139534883,
+    "model": "gemini-embedding-2",
+    "dimension": 3072
+  }
+}
