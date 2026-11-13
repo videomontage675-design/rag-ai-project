@@ -188,7 +188,7 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
 - **Context:** The owner delegated the choice of Markdown-to-PDF tool, with justification.
 - **Decision:** Markdown is converted to HTML with markdown-it, and then to PDF with headless Chromium via Playwright. The font is Amiri (SIL OFL 1.1) with kerning disabled. This is development tooling only (`tools/corpus/`).
 - **Evidence:**
-  - Measured against WeasyPrint, LibreOffice, and five other fonts (`docs/02_SAMPLE_CORPUS.md` §5).
+  - Measured against WeasyPrint and LibreOffice, each with the same six fonts (`docs/02_SAMPLE_CORPUS.md` §5). The LibreOffice comparison was corrected on 2026-11-13 to use the same fonts (D-026); the decision did not change.
   - It had the best text-layer quality: pdftotext letter error 0.1%, letter CER 1.9%, word recall 84%.
 - **Consequences:**
   - The tooling needs Node.js; there is no runtime role.
@@ -212,6 +212,21 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
   - API keys are entered through a secure credential form; they are never sent in chat or stored in Git.
   - From the cloud development container, only Gemini's host is currently reachable. The others are blocked by the container's network policy (not by the providers) until a credential for that host is saved.
   - Free-tier data-usage terms (e.g., Gemini and Mistral free tiers may use data to improve models) are acceptable for the fictional corpus. They will be documented per provider as a selection criterion for real data.
+
+## D-026 — Evaluation principle: evidence, not the development environment
+- **Date:** 2026-11-13 · **Status:** Approved (owner instruction)
+- **Context:** The owner objected that technology candidates must not be nominated, evaluated, or chosen on the basis of the cloud development environment Claude works in. They must be chosen on reliable information and sources and on known efficiency.
+- **Decision:** Technology choices rest only on the following, in this order:
+  1. **Project requirements**, including the **target environment**: the owner's Windows machine (D-017), single user, free hosted providers (D-010).
+  2. **Authoritative sources:** official documentation, licenses, official pricing and data-usage terms, maintenance status, and recognised public benchmarks (e.g., MTEB/MMTEB for embeddings). Third-party aggregator sites are used only as leads, never as evidence.
+  3. **Reproducible measurements on the project's own Arabic corpus and golden set**, with pinned versions, so the results do not depend on the machine they run on. Where a result can depend on the OS (e.g., native binaries), it is re-verified on Windows.
+- **Never a criterion:** what happens to be installed, pre-installed, or reachable in the development container.
+  - Container limitations affect only *how* a measurement is run: the missing access or tool is set up, or the measurement runs on the owner's machine.
+  - A candidate that cannot be measured is reported as "not measured". It is not dropped.
+- **Corrections made:**
+  - The PDF-tool comparison in Phase 2 had tested LibreOffice with one font only, because of what was installed in the container. It was re-run with the same fonts as the other tools; the conclusion stands.
+  - The rationale "Chromium was already available" was replaced with a portable, environment-independent property.
+  - The provider shortlist (D-025) is a lead from web research. Each provider's free-tier limits and data terms will be verified on its official pages in Phase 3 before any decision.
 
 ---
 
