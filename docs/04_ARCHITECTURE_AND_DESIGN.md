@@ -4,7 +4,7 @@
 |---|---|
 | Document ID | DESIGN-001 |
 | Phase | Phase 4: Architecture and Technical Design |
-| Status | **Complete, awaiting owner approval** (decisions DD-01 to DD-08 in §17) |
+| Status | **Approved** (D-030), including decisions DD-01 to DD-08 (§17) |
 | Date | 2026-11-13 |
 | Inputs | SRS-001 v1.1 (`docs/01_SRS.md`), TECH-001 (`docs/03_TECHNOLOGY_EVALUATION.md`), CORPUS-001, `docs/DECISIONS.md` |
 | Approved stack | Python + FastAPI · Jinja2 + HTMX · SQLite + NumPy · pdftotext · gemini-embedding-001 · qwen3.8-27b (Groq) · OpenAI-compatible adapters (D-027 to D-029) |
