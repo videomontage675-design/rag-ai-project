@@ -113,6 +113,16 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
   - Phase 3 considers whether a widely supported API format (for example an OpenAI-compatible interface, which many hosted and local servers expose) would reduce a future local provider to a configuration change. This is a selection criterion, not a pre-made choice.
   - Switching to a local embedding model later requires re-indexing (see D-010).
 
+## D-014 — Phased plan approved
+- **Date:** 2026-11-13 · **Status:** Approved
+- **Decision:** The 12-phase plan in `docs/planning/PHASE_0_DISCOVERY_AND_PLAN.md` §7 is approved, including adjustments T1–T6. Phase 0 is complete. Phase 1 (Requirements Analysis) was authorized to start.
+- **Note:** Approving the plan does not pre-approve later phases (`EXECUTION_PROTOCOL.md` §2).
+
+## D-015 — Integration policy: one pull request per approved phase
+- **Date:** 2026-11-13 · **Status:** Approved
+- **Decision:** Work happens on the designated development branch. After the owner approves a phase, Claude opens a pull request into `main` containing that phase's work. The owner reviews and merges it. Claude does not push to `main` directly.
+- **Note:** Phase 0 was approved in the same message that started Phase 1, and only one development branch is in use, so the first pull request will contain both Phase 0 and Phase 1. It will be opened once Phase 1 is approved.
+
 ---
 
 ## Pending decisions
@@ -124,7 +134,5 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
 | P-006 | Topic of the sample corpus (a fictional but realistic domain is recommended) | Phase 2 |
 | P-007 | Re-upload and update semantics (content-hash deduplication recommended) | Phase 1 |
 | P-008 | Lightweight CI (GitHub Actions) for tests and linting | Phase 5 |
-| P-009 | Approval of the revised phase plan (T1–T6 in the Phase 0 report) | Before Phase 1 |
-| P-010 | Git integration policy: when and how approved work reaches `main` | Before Phase 1 |
 
-Resolved: P-001 → D-009 · P-002 → D-011 · P-003 → D-012.
+Resolved: P-001 → D-009 · P-002 → D-011 · P-003 → D-012 · P-009 → D-014 · P-010 → D-015.
