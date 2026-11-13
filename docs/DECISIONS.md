@@ -229,6 +229,22 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
   - The rationale "Chromium was already available" was replaced with a portable, environment-independent property.
   - The provider shortlist (D-025) is a lead from web research. Each provider's free-tier limits and data terms will be verified on its official pages in Phase 3 before any decision.
 
+## D-027 — User interface: server-rendered Jinja2 + HTMX
+- **Date:** 2026-11-13 · **Status:** Approved (resolves P-012)
+- **Decision:** The UI is server-rendered HTML with Jinja2 templates and HTMX for partial updates (e.g., processing status), in Arabic with a right-to-left layout. React SPA was the alternative considered (TECH-001 T-03).
+- **Consequences:**
+  - One language (Python) and one runtime; no Node.js is needed on the owner's machine.
+  - The backend still exposes a documented JSON API, so the UI can be replaced later without changing the pipeline.
+
+## D-028 — PDF text extraction: pdftotext (Poppler)
+- **Date:** 2026-11-13 · **Status:** Approved
+- **Decision:** PDF text is extracted with Poppler's `pdftotext`, invoked as a separate process.
+- **Evidence:** TECH-001 T-06. All 57 evidence passages stay intact, and BM25 Hit@5 is 0.93, versus 52 intact and 0.81 for pypdfium2.
+- **Consequences:**
+  - Windows needs a separate installation step (a conda-forge Poppler build). The owner accepts this. The step is documented in the README and checked at start-up (FR-CFG-04).
+  - Results are re-verified on Windows (NFR-OPS-04, P-011).
+  - The extractor sits behind an interface, so it can be replaced.
+
 ---
 
 ## Pending decisions
@@ -237,7 +253,6 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
 |---|---|---|
 | P-008 | Lightweight CI (GitHub Actions) for tests and linting, including a Windows runner (D-017) | Phase 5 |
 | P-011 | NFR-LNG-02 (PDF extraction CER ≤ 2%) may need redefinition. The sample pricing PDFs measure 2.6–3.1% letter CER with pdftotext before cleaning, caused entirely by table reflow (`docs/02_SAMPLE_CORPUS.md` §7). The proposal will be based on Phase 3 measurements and needs owner approval. | Phase 3 |
-| P-012 | User-interface approach (TECH-001 T-03): server-rendered Jinja2 + HTMX (recommended) or React SPA | Phase 3 approval |
 | P-013 | Provider API keys for the embedding and LLM measurements (TECH-001 T-10, T-11, T-12) | Before Phase 3 can close |
 
-Resolved: P-001 → D-009 · P-002 → D-011 · P-003 → D-012 · P-004 → D-017 · P-005 → D-018 · P-006 → D-021 · P-007 → D-019 · P-009 → D-014 · P-010 → D-015.
+Resolved: P-001 → D-009 · P-002 → D-011 · P-003 → D-012 · P-004 → D-017 · P-005 → D-018 · P-006 → D-021 · P-007 → D-019 · P-009 → D-014 · P-010 → D-015 · P-012 → D-027.

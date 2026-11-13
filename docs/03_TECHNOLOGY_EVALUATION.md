@@ -46,10 +46,10 @@ What happens to be installed or reachable in the development container is **neve
 |---|---|---|---|
 | T-01 | Backend language | **Python** (3.12 or later) | Proposed |
 | T-02 | Web/API framework | **FastAPI** | Proposed |
-| T-03 | User interface | **Server-rendered HTML (Jinja2) + HTMX**, Arabic right-to-left | **Owner choice needed** (alternative: React SPA) |
+| T-03 | User interface | **Server-rendered HTML (Jinja2) + HTMX**, Arabic right-to-left | **Approved** (D-027) |
 | T-04 | Background processing | **In-process worker** with job state persisted in the database | Proposed |
 | T-05 | Storage | **SQLite** (one file: metadata, chunks, vectors, conversations) with **exact NumPy similarity search** | Proposed (sqlite-vec kept as alternative) |
-| T-06 | PDF text extraction | **pdftotext (Poppler)** via subprocess | Proposed (Windows install cost noted) |
+| T-06 | PDF text extraction | **pdftotext (Poppler)** via subprocess | **Approved** (D-028); Windows install step accepted |
 | T-07 | Markdown parsing | **markdown-it-py** | Proposed |
 | T-08 | Arabic normalization | Basic set (NFKC, tashkeel/tatweel, digits) for indexing; original text kept for display | Proposed; refined by the embedding PoC |
 | T-09 | Chunking | **Own implementation**: heading-aware, size-bounded, overlapping | Proposed; size tuned after the embedding PoC |
@@ -81,7 +81,7 @@ What happens to be installed or reachable in the development container is **neve
 
 **Proposal: FastAPI.**
 
-### T-03 User interface: owner choice needed
+### T-03 User interface: Jinja2 + HTMX (approved, D-027)
 | Option | For | Against |
 |---|---|---|
 | **Jinja2 templates + HTMX** | One language and runtime; no Node.js on the owner's machine. Right-to-left via standard `dir="rtl"`. Partial page updates (processing status, FR-UI-03) without a JavaScript framework. The smallest moving parts. | Less of a frontend portfolio piece; complex client-side interactions are harder. |
@@ -151,7 +151,7 @@ Both are far below the 1-second target (NFR-PRF-02).
 
 pypdfium2 garbles letter order around shadda (e.g., «تشفّر» → «تفشر»), around Latin-and-digit runs («AES-256» → «256AES»), and in some table cells. As a result, five evidence passages no longer exist in the extracted text and cannot be retrieved by any method.
 
-**Proposal: pdftotext,** invoked as a separate process. Consequences:
+**Decision: pdftotext** (approved by the owner, D-028), invoked as a separate process. Consequences:
 - **Windows installation step:** a conda-forge Poppler build. This is documented in the README and checked at start-up (FR-CFG-04).
 - **Re-verification on Windows:** Poppler's version there may differ from the one measured (D-026, NFR-OPS-04, P-011).
 - **Licensing:** Calling a GPL program as a separate executable is generally treated as aggregation, not linking. This is an engineering note, not legal advice.
@@ -245,7 +245,7 @@ Using this interface as the common adapter means **switching providers is a conf
 | Item | Status |
 |---|---|
 | Provider API keys (Gemini, Groq, Cohere, Jina; Mistral optional) | The owner will create the accounts; the T-10, T-11, and T-12 measurements are waiting on them |
-| T-03 UI approach | Owner choice: Jinja2 + HTMX (recommended) or React |
+| T-03 UI approach | Resolved: Jinja2 + HTMX (D-027) |
 | Poppler on Windows (T-06) | Installation step and re-verification on Windows |
 | NFR-LNG-02 (P-011) | With pdftotext: 1.9% letter CER overall, but 2.6–3.1% on the table-heavy pricing PDFs. A redefinition is proposed with the final report |
 | Free-tier data terms | Gemini and Mistral free tiers may use the data. Acceptable for the fictional corpus; must be revisited before any real data |
