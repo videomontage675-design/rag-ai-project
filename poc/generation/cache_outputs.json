@@ -1060,5 +1060,59 @@
  "gen-v1|groq:openai/gpt-oss-20b|Q052": {
   "answer": "INSUFFICIENT_INFORMATION",
   "latency_s": 0.26
+ },
+ "gen-v1|groq:openai/gpt-oss-20b|Q053": {
+  "answer": "INSUFFICIENT_INFORMATION",
+  "latency_s": 15.34
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q001": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تطابق تمامًا المعلومات الواردة في المصدر S1."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q002": {
+  "correctness": 1,
+  "faithfulness": 2,
+  "notes": "أجاب المساعد بشكل صحيح عن الصيغة والبادئة والأرقام السبعة مع تقديم مثال، لكنه أغفل ذكر أن الرقم يُنشأ تلقائياً ولا يمكن تعديله، وهما من الحقائق الرئيسية في الإجابة المرجعية."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q003": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تذكر بشكل صحيح أن مدير العيادة فقط هو من يستطيع دمج الملفات المكررة وأن الدمج لا يمكن التراجع عنه، وكلاهما مدعوم بالكامل بالمصدر S1."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q004": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة توضح بشكل صحيح أنه لا يمكن حذف الفاتورة بعد إصدارها ويجب إلغاؤها بإشعار دائن، وهو ما تؤكده المعلومات في S1."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q005": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تذكر بشكل صحيح شرط الـ 15 دقيقة وموظف الاستقبال، وكلاهما مدعوم بالكامل من S1."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q006": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تذكر بشكل صحيح الحالات الست للمطالبات التأمينية كما هي محددة في المصدر."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q007": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تذكر بشكل صحيح شرط التصعيد إلى مدير الدعم الفني وفقًا للمستند S1. جميع الادعاءات مدعومة بالنصوص المقدمة."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q008": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تذكر بشكل صحيح أن التذكرة تُغلق تلقائياً بعد 7 أيام من عدم الرد ويمكن إعادة فتحها بالرد خلال 14 يوماً، وكلاهما مدعوم بالنص في S1."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q009": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تذكر بشكل صحيح توقيت الصيانة المجدولة وإشعار الإعلان المسبق، وكلاهما مدعوم بالنص المصدر."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q010": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تذكر بشكل صحيح أن ضفيرة لا تستخدم بيانات المرضى في تدريب نماذج الذكاء الاصطناعي، وهو ما تدعمه المعلومات الواردة في المصدر S1."
  }
 }
