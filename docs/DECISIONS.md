@@ -123,16 +123,67 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
 - **Decision:** Work happens on the designated development branch. After the owner approves a phase, Claude opens a pull request into `main` containing that phase's work. The owner reviews and merges it. Claude does not push to `main` directly.
 - **Note:** Phase 0 was approved in the same message that started Phase 1, and only one development branch is in use, so the first pull request will contain both Phase 0 and Phase 1. It will be opened once Phase 1 is approved.
 
+## D-016 — Phase 1 (SRS) approved with amendments
+- **Date:** 2026-11-13 · **Status:** Approved
+- **Decision:** The owner approved `docs/01_SRS.md`, with the amendments recorded in D-017 to D-021. These were applied in SRS v1.0.
+
+## D-017 — Target operating system: Windows
+- **Date:** 2026-11-13 · **Status:** Approved (resolves P-004)
+- **Decision:** The owner's machine runs Windows. Windows is the installation and acceptance platform.
+- **Consequences:**
+  - Avoid POSIX-only tooling in setup and run scripts.
+  - Watch for Windows path, encoding, and file-locking behaviour.
+  - Development happens in a Linux container, so Windows behaviour must be verified separately. A Windows CI runner is the proposed mechanism (NFR-OPS-04, P-008), plus the owner's final clean-install check.
+
+## D-018 — File size limit and performance targets
+- **Date:** 2026-11-13 · **Status:** Approved (resolves P-005)
+- **Decision:**
+  - The maximum upload size is 10 MB per file.
+  - Answer latency must be acceptable for interactive use and improvable. The initial target is a median of 10 s or less and a 95th percentile of 20 s or less, re-baselined after the first measurement.
+  - The quality targets in SRS §5.9 and the other initial numeric targets are approved as **initial targets**. They are re-baselined after the first measurement and change only with owner approval.
+
+## D-019 — Document version management
+- **Date:** 2026-11-13 · **Status:** Approved (resolves P-007, replacing the "delete and re-upload" proposal)
+- **Decision:** Documents support linear version management:
+  - upload a new version of an existing document;
+  - view the version history;
+  - restore (activate) an earlier version;
+  - delete an individual non-active version.
+
+  Exactly one version per document is active and retrievable. A new version becomes active only when it is `Ready`. Content identical to any existing version is rejected.
+- **Scope impact (CLAUDE.md §7):**
+  - Adds a document-version entity, version-aware retrieval filtering, atomic activation, and more UI and tests.
+  - Moderate complexity, no extra cost.
+  - Bounded: no branching, merging, or diffing (FR-VER-06).
+- **Open design point (Phase 4):** whether inactive versions keep their vectors (FR-VER-07).
+
+## D-020 — Automatic conversation titles
+- **Date:** 2026-11-13 · **Status:** Approved
+- **Decision:** Each conversation gets an automatic title derived from its first question (FR-CONV-06).
+
+## D-021 — Use-case specialization: fictional cloud clinic-management platform
+- **Date:** 2026-11-13 · **Status:** Approved (resolves P-006)
+- **Decision:**
+  - The system is specialized for one use case: a help assistant answering from the official documentation of a fictional cloud platform for managing medical clinics.
+  - Its intended users are the clinic administrators and staff who use the platform.
+  - The specialization is applied through a configurable **domain profile** (assistant name, scope statement, intended users, welcome text, example questions). The core pipeline stays domain-agnostic (FR-DOM-01..04).
+- **Rationale:**
+  - It makes the project a concrete product rather than a generic demo, which is better for the portfolio.
+  - Keeping domain specifics in configuration preserves maintainability and lets the system be re-targeted.
+  - A fictional platform keeps answers out of LLMs' prior knowledge, so grounding can be measured.
+  - Platform documentation (procedures, plans and limits, SLAs, release notes, privacy) mixes prose, tables, numbers, and dates, which exercises extraction, chunking, and retrieval.
+- **Boundary:** The assistant gives no clinical or medical advice (CON-10).
+- **Sample corpus (Phase 2):**
+  - 5 Arabic documents, all authored in Markdown first so the reference text is known.
+  - 2 are converted to PDF and 3 stay as Markdown.
+  - A golden set of 40–60 questions.
+
 ---
 
 ## Pending decisions
 
 | ID | Question | Resolve by |
 |---|---|---|
-| P-004 | Operating system of the owner's machine (affects installation and run instructions) | Phase 1 |
-| P-005 | Quantitative non-functional targets (latency, maximum file size, number of documents) | Phase 1 |
-| P-006 | Topic of the sample corpus (a fictional but realistic domain is recommended) | Phase 2 |
-| P-007 | Re-upload and update semantics (content-hash deduplication recommended) | Phase 1 |
-| P-008 | Lightweight CI (GitHub Actions) for tests and linting | Phase 5 |
+| P-008 | Lightweight CI (GitHub Actions) for tests and linting, including a Windows runner (D-017) | Phase 5 |
 
-Resolved: P-001 → D-009 · P-002 → D-011 · P-003 → D-012 · P-009 → D-014 · P-010 → D-015.
+Resolved: P-001 → D-009 · P-002 → D-011 · P-003 → D-012 · P-004 → D-017 · P-005 → D-018 · P-006 → D-021 · P-007 → D-019 · P-009 → D-014 · P-010 → D-015.

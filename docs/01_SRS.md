@@ -4,11 +4,18 @@
 | Item | Value |
 |---|---|
 | Document ID | SRS-001 |
-| Version | 0.1 (draft for review) |
+| Version | 1.0 |
 | Phase | Phase 1: Requirements Analysis |
-| Status | **Awaiting owner approval** |
+| Status | **Approved with amendments** (D-016); amendments applied in this version |
 | Date | 2026-11-13 |
 | Sources | `docs/PROJECT_BRIEF.md` (BR), `docs/DECISIONS.md` (D-xxx), `CLAUDE.md`, `docs/EXECUTION_PROTOCOL.md` |
+
+**Change log**
+
+| Version | Change |
+|---|---|
+| 0.1 | Initial draft. |
+| 1.0 | Owner amendments: Windows target (D-017); 10 MB file limit and latency approach (D-018); document version management (D-019, new §4.11); automatic conversation titles (D-020); use-case specialization through a domain profile (D-021, new §4.12). Numeric and quality targets approved as initial targets. |
 
 ---
 
@@ -20,16 +27,21 @@ This document specifies the functional and non-functional requirements of the Ba
 ### 1.2 Scope
 The system is a standalone web application for a **single user on their own machine**. The user builds a private knowledge base from **Arabic** documents (**text-based PDF and Markdown**) and asks questions in Arabic. The system answers using **only** the content of those documents, shows the supporting sources, and states clearly when the knowledge base does not contain enough information.
 
+The initial deployment is **specialized for one use case**: a help assistant answering questions from the official documentation of a fictional cloud platform for managing medical clinics (D-021). Domain specifics live in a configurable domain profile; the core pipeline stays domain-agnostic.
+
 Language models and embedding models are consumed through the **free tiers of hosted providers** via API. Providers are switchable through configuration (D-010). The design must allow a local provider to be added later (D-013).
 
 ### 1.3 Definitions
 
 | Term | Definition |
 |---|---|
-| **Document** | A file uploaded by the user (PDF or Markdown) together with its metadata. |
+| **Document** | A logical knowledge source owned by the user. It has one or more versions (D-019). |
+| **Document version** | One uploaded file (PDF or Markdown) of a document, with its metadata, chunks, and vectors. Exactly one version per document is **active**. |
+| **Active version** | The only version of a document whose chunks are retrievable. |
+| **Domain profile** | Configuration that specializes the system for a use case: assistant name, scope statement, intended users, UI welcome text, example questions (D-021). |
 | **Chunk** | A contiguous segment of a document's extracted text. It is the unit of embedding, retrieval, and citation. |
 | **Embedding** | A fixed-length numeric vector that represents a text's meaning, produced by an embedding model. |
-| **Knowledge base (KB)** | All documents in the **Ready** state, with their chunks and embeddings. |
+| **Knowledge base (KB)** | The active versions of all documents that are in the **Ready** state, with their chunks and embeddings. |
 | **Retrieval score** | The similarity score between the query embedding and a chunk embedding. Its scale depends on the model, and it is **not** a probability. |
 | **Relevance threshold** | The minimum retrieval score for a chunk to count as evidence (see §4.7). |
 | **Context** | The ordered set of retrieved chunks sent to the LLM for one question. |
@@ -64,7 +76,7 @@ A self-contained application with a web user interface and a backend. It depends
 There is one user (D-009). They have no special technical role, read and write Arabic, and run the application on their own machine. There are no accounts, logins, or roles.
 
 ### 2.3 Operating environment
-- The owner's personal computer (OS to be confirmed: **P-004**).
+- The owner's personal computer running **Windows** (D-017). Code should stay cross-platform where this costs nothing, but Windows is the acceptance platform.
 - A modern desktop web browser.
 - Outbound internet access to the selected model providers.
 - No GPU is required, and no models are downloaded (D-013).
@@ -80,6 +92,8 @@ There is one user (D-009). They have no special technical role, read and write A
 | CON-06 | Code and technical documentation are in English. The UI is in Arabic with right-to-left layout. | D-008, D-012 |
 | CON-07 | Secrets are never stored in code or in Git. | CLAUDE.md §5, §12 |
 | CON-08 | No agents, multi-agent systems, orchestration frameworks, or workflow automation. | CLAUDE.md §7 |
+| CON-09 | Windows is the target operating system for installation and acceptance. | D-017 |
+| CON-10 | The assistant answers about the platform's documentation only. It gives no clinical or medical advice. | D-021 |
 
 ### 2.5 Assumptions and dependencies
 | ID | Assumption | Impact if false |
@@ -148,15 +162,17 @@ flowchart LR
 | FR-DOC-01 | The user shall be able to upload one or more files from the UI. | M | T, D | BR §4.1 |
 | FR-DOC-02 | The system shall accept only PDF and Markdown (`.md`, `.markdown`) files. The type is determined from the file **content** (e.g., PDF signature; valid UTF-8 text for Markdown), not only from the extension. | M | T | D-003, BR §3.1.2 |
 | FR-DOC-03 | The system shall reject, with a specific Arabic error message: unsupported types, files over the maximum size (NFR-PRF-04), empty files, corrupted or encrypted PDFs, and Markdown that is not valid UTF-8. | M | T | BR §3.1.2 |
-| FR-DOC-04 | The system shall detect re-upload of a file whose content is identical to an existing document (content hash) and reject it, referencing the existing document. *(Proposal for P-007.)* | S | T | Derived (P-007) |
-| FR-DOC-05 | The system shall show a list of all documents with name, format, size, upload time, and processing status. | M | T, D | BR §4.1 |
-| FR-DOC-06 | The system shall show a document's details: the metadata of FR-DOC-05 plus page count (PDF), chunk count, processing timestamps, the embedding model used, and the error message if it failed. | M | T, D | BR §4.1 |
-| FR-DOC-07 | The user shall be able to delete a document. Deletion shall remove the stored file, extracted text, chunks, vectors, and metadata, leaving **no orphaned data** in any store, including after a failure partway through deletion. | M | T | BR §4.1 |
+| FR-DOC-04 | The system shall reject a file whose content (hash) is identical to **any existing version of any document**, and shall reference that document and version in the message. | M | T | D-019 |
+| FR-DOC-05 | The system shall show a list of all documents with name, format, size, upload time, processing status, active version number, and number of versions. | M | T, D | BR §4.1, D-019 |
+| FR-DOC-06 | The system shall show a document's details: the metadata of FR-DOC-05 plus page count (PDF), chunk count, processing timestamps, the embedding model used, the error message if processing failed, and the version history (FR-VER-03). | M | T, D | BR §4.1, D-019 |
+| FR-DOC-07 | The user shall be able to delete a document. Deletion shall remove **all its versions**: stored files, extracted text, chunks, vectors, and metadata. It shall leave **no orphaned data** in any store, including after a failure partway through deletion. | M | T | BR §4.1, D-019 |
 | FR-DOC-08 | Deleting a document that is still being processed shall not leave orphaned data. Whether deletion cancels processing or is refused until processing ends is decided in Phase 4. | M | T | Derived from FR-DOC-07 |
-| FR-DOC-09 | The system shall keep the original uploaded file until the document is deleted, so it can be reprocessed (e.g., after a change to chunking or embedding settings). | S | T | Derived (NFR-EXT-02) |
-| FR-DOC-10 | Two documents with the same file name but different content shall both be accepted and be distinguishable in the UI (e.g., by upload time). | S | T | Derived |
+| FR-DOC-09 | The system shall keep the original uploaded file of every version until that version is deleted, so it can be reprocessed (e.g., after a change to chunking or embedding settings, or on restore). | M | T | Derived, D-019 |
+| FR-DOC-10 | Uploading a file as a **new document** (rather than as a new version, FR-VER-01) shall always create a separate document, even if the file name matches an existing one. Documents shall be distinguishable in the UI (e.g., by upload time). | S | T | Derived |
 
 ### 4.2 Document processing / ingestion (FR-ING)
+
+> Processing happens per **document version**. In this section, "document" means the version being processed.
 
 | ID | Requirement | P | Verify | Source |
 |---|---|---|---|---|
@@ -172,7 +188,7 @@ flowchart LR
 | FR-ING-10 | Each chunk shall record: document ID, sequence number, original text, page number(s) for PDFs, the heading path (section titles) where available, and character offsets. | M | T | BR §4.2 |
 | FR-ING-11 | Embeddings shall be generated in batches through the embedding provider port. Rate-limit and transient errors shall be retried with backoff up to a configured limit; when the limit is exceeded, the document fails per FR-ING-03. | M | T | D-010 |
 | FR-ING-12 | Each stored vector shall record the embedding model identifier and its dimension. | M | T | D-010 |
-| FR-ING-13 | A document becomes `Ready` only when all of its chunks and vectors are stored. Partial results shall never be retrievable. | M | T | Derived (consistency) |
+| FR-ING-13 | A version becomes `Ready` only when all of its chunks and vectors are stored. Partial results shall never be retrievable. | M | T | Derived (consistency) |
 | FR-ING-14 | On application start, documents left in `Processing` by an interrupted run shall be detected and either resumed or set to `Failed` with a clear message. They shall not stay stuck. | M | T | NFR-REL-03 |
 
 ### 4.3 Retrieval (FR-RET)
@@ -182,7 +198,7 @@ flowchart LR
 | FR-RET-01 | The system shall accept a natural-language question in Arabic. It shall reject empty questions and questions longer than the maximum length (NFR-PRF-06) with a clear message. | M | T | BR §3.2.1 |
 | FR-RET-02 | The question shall pass through a **query-processing stage** that is a separate, replaceable component. In this release it applies validation and the same normalization used at indexing, and does not use earlier turns (D-011). | M | T, I | BR §3.2.2, D-011 |
 | FR-RET-03 | The question shall be embedded with the **same embedding model** as the indexed chunks. If the configured model differs from the stored vectors' model, retrieval shall refuse to run and report that re-indexing is required. | M | T | D-010 |
-| FR-RET-04 | The system shall retrieve the top-K most similar chunks (K configurable) from documents in the `Ready` state only. | M | T | BR §3.2.4 |
+| FR-RET-04 | The system shall retrieve the top-K most similar chunks (K configurable) from the **active, `Ready`** version of each document only. | M | T | BR §3.2.4, D-019 |
 | FR-RET-05 | Results shall be ordered by relevance. Whether additional ranking (e.g., re-ranking or hybrid lexical search) is added shall be decided in Phase 8 **based on measured improvement** on the golden set. | M | E | BR §3.2.5 |
 | FR-RET-06 | Chunks scoring below the relevance threshold shall be discarded. The threshold is configurable and is **calibrated empirically** on the golden set, including unanswerable questions. | M | T, E | D-007, BR §3.4 |
 | FR-RET-07 | Context assembly shall select chunks within a configurable context budget (e.g., tokens or characters). It shall remove duplicate or overlapping text and give each chunk a stable citation identifier. | M | T | BR §3.2.7 |
@@ -206,7 +222,7 @@ flowchart LR
 | FR-VAL-01 | After generation, every citation in the answer shall be checked against the identifiers of the chunks in that request's context. | M | T | D-007 |
 | FR-VAL-02 | Invalid citations shall be removed from the displayed answer. If the answer is not an insufficient-information response but **no valid citation remains**, it shall be shown with a visible "not verified against sources" warning. | M | T | D-007 |
 | FR-VAL-03 | If the model returns the insufficient-information signal, the system shall show the standardized insufficient-information response. Retrieved chunks shall **not** be presented as supporting sources in that case. | M | T | BR §3.4 |
-| FR-VAL-04 | For each answer, the system shall show the cited sources: document name, page (PDF) or section heading, and the cited chunk text (fully or expandable). | M | T, D | BR §3.3.6, §4.4 |
+| FR-VAL-04 | For each answer, the system shall show the cited sources: document name, version number, page (PDF) or section heading, and the cited chunk text (fully or expandable). | M | T, D | BR §3.3.6, §4.4, D-019 |
 | FR-VAL-05 | Each answer shall be recorded with an outcome: `answered`, `answered_unverified`, `insufficient_information`, or `error`. | M | T | Derived (evaluation, history) |
 
 ### 4.6 Conversations and history (FR-CONV)
@@ -217,8 +233,8 @@ flowchart LR
 | FR-CONV-02 | Each question and answer shall be stored in order within its conversation. The stored data includes the question, answer, outcome, citations (with a **snapshot** of the cited text and source name), timestamps, and the configuration used (models, prompt version). | M | T | BR §4.5, D-011 |
 | FR-CONV-03 | The user shall see a list of previous conversations (most recent first) and be able to reopen one, with full content and sources. | M | T, D | BR §4.5 |
 | FR-CONV-04 | Each question shall be processed independently: earlier turns shall not be sent to retrieval or to the LLM (D-011). | M | T | D-011 |
-| FR-CONV-05 | If a cited document is later deleted, past answers shall remain readable from the snapshot, and the source shall be marked as deleted. | S | T | Derived (FR-DOC-07 consistency) |
-| FR-CONV-06 | Conversations shall get an automatic title, e.g., derived from the first question. | C | D | Derived (usability) |
+| FR-CONV-05 | If a cited document or version is later deleted or replaced, past answers shall remain readable from the snapshot. The source shall be marked as deleted or as no longer the active version. | M | T | Derived (FR-DOC-07, D-019) |
+| FR-CONV-06 | Each conversation shall get an automatic title derived from its first question (truncated to a readable length). | S | T | D-020 |
 
 ### 4.7 Insufficient-information behaviour (consolidated)
 
@@ -239,7 +255,7 @@ Cases 1–3 are measured on the golden set (refusal accuracy, NFR-QLT-03). Case 
 | FR-CFG-02 | Provider configuration shall be expressed as endpoint, model name, optional API key, and parameters. An API key shall **not** be mandatory at the abstraction level (local-provider readiness, D-013). | M | I, T | D-013 |
 | FR-CFG-03 | Secrets shall come from environment variables. A template file without real values shall be provided. | M | I | CON-07 |
 | FR-CFG-04 | On start-up the system shall validate its configuration and fail fast with a clear message for missing or invalid values (e.g., a missing key for a provider that needs one). | M | T | NFR-REL-04 |
-| FR-CFG-05 | A documented **re-index** operation shall re-embed all documents with the currently configured embedding model, and shall not mix vectors from different models during the transition. | M | T | D-010 |
+| FR-CFG-05 | A documented **re-index** operation shall re-embed all document versions that hold vectors with the currently configured embedding model. It shall not mix vectors from different models during the transition. | M | T | D-010, D-019 |
 | FR-CFG-06 | RAG parameters (chunk size and overlap, top-K, threshold, context budget, retry limits) shall be configurable without code changes. | M | I | Derived (evaluation and tuning) |
 
 ### 4.9 User interface (FR-UI)
@@ -247,12 +263,13 @@ Cases 1–3 are measured on the golden set (refusal accuracy, NFR-QLT-03). Case 
 | ID | Requirement | P | Verify | Source |
 |---|---|---|---|---|
 | FR-UI-01 | The UI shall be in Arabic with a right-to-left layout, and shall render mixed Arabic and Latin text (file names, numbers) correctly. | M | D | D-012 |
-| FR-UI-02 | A **documents** view shall provide upload, list, details, status, error display, and delete with confirmation. | M | D | BR §4.1 |
+| FR-UI-02 | A **documents** view shall provide upload (new document or new version), list, details with version history, status, error display, version activation, and delete with confirmation. | M | D | BR §4.1, D-019 |
 | FR-UI-03 | Processing status shall update in the UI without manual page reload. | S | D | BR §4.1 |
 | FR-UI-04 | A **chat** view shall provide question input, answer display, sources (FR-VAL-04), and clear loading and error states. | M | D | BR §4.5 |
 | FR-UI-05 | A conversation list shall allow starting a new conversation and reopening previous ones. | M | D | BR §4.5 |
 | FR-UI-06 | The UI shall distinguish visually between: a verified answer, an unverified answer (warning), an insufficient-information response, and an error. | M | D | BR §3.4, FR-VAL-05 |
 | FR-UI-07 | When the KB is empty, the chat view shall tell the user to upload documents first. | S | D | Derived (usability) |
+| FR-UI-08 | The chat view shall show the domain profile's assistant name, welcome text, and example questions. | M | D | D-021 |
 
 ### 4.10 Evaluation (FR-EVAL)
 
@@ -265,27 +282,48 @@ Cases 1–3 are measured on the golden set (refusal accuracy, NFR-QLT-03). Case 
 | FR-EVAL-05 | Each evaluation run shall produce a stored report recording the configuration (models, prompt version, parameters) and the corpus/golden-set version, so results are reproducible and comparable. | M | I | BR §9 |
 | FR-EVAL-06 | The evaluation shall respect provider rate limits (throttling and resumability), so a run can complete within free-tier limits. | S | D | D-010, AS-02 |
 
+### 4.11 Document version management (FR-VER)
+
+| ID | Requirement | P | Verify | Source |
+|---|---|---|---|---|
+| FR-VER-01 | The user shall be able to upload a file as a **new version of an existing document**. The new version gets the next version number. Format may differ between versions (PDF or Markdown). | M | T, D | D-019 |
+| FR-VER-02 | Exactly one version per document shall be active. A newly uploaded version becomes active **only when it reaches `Ready`**. Until then, the previous active version stays retrievable. If the new version fails, the previous one stays active. | M | T | D-019 |
+| FR-VER-03 | The user shall be able to view a document's version history: version number, file name, format, size, upload time, status, and which version is active. | M | T, D | D-019 |
+| FR-VER-04 | The user shall be able to activate (restore) any earlier version that can become `Ready`. The switch shall be atomic: no retrieval may see chunks from two versions of the same document, or a document with no retrievable version, during the switch. | M | T | D-019 |
+| FR-VER-05 | The user shall be able to delete an individual non-active version. The active version cannot be deleted on its own; the user activates another version first or deletes the whole document (FR-DOC-07). | M | T | D-019 |
+| FR-VER-06 | Version history is linear: no branching, merging, or content diffing between versions. | M | I | D-019 (scope bound) |
+| FR-VER-07 | Phase 4 decides, with justification, whether inactive versions keep their chunks and vectors (instant restore, more storage) or have them removed and regenerated on restore (less storage, uses provider quota). Either way, inactive chunks are never retrievable and FR-DOC-09 holds. | M | I | D-019, D-010 |
+
+### 4.12 Use-case specialization (FR-DOM)
+
+| ID | Requirement | P | Verify | Source |
+|---|---|---|---|---|
+| FR-DOM-01 | The system shall be specialized for a use case through a **domain profile** held in configuration: assistant name, scope statement (used in the system prompt), intended users, UI welcome text, and example questions. | M | I, T | D-021 |
+| FR-DOM-02 | Ingestion, retrieval, generation, and validation shall contain **no domain-specific logic**. Re-targeting the system to another domain requires only a new domain profile and corpus, with no code change. | M | I | D-021 |
+| FR-DOM-03 | The initial domain profile targets a **help assistant for a fictional cloud clinic-management platform**. Its intended users are the clinic administrators and staff who use the platform, and it answers from the platform's official documentation. | M | I | D-021 |
+| FR-DOM-04 | The scope statement shall instruct the assistant to answer only about the platform's documentation and to give no clinical or medical advice. Out-of-scope questions follow the insufficient-information rules (§4.7). | M | E | D-021, CON-10 |
+
 ---
 
 ## 5. Non-Functional Requirements
 
-> Numeric targets marked **(proposed)** are Claude's proposals and need owner approval (**P-005**). They assume normal provider availability. Time spent waiting on provider rate limits is reported separately, because it is outside the system's control.
+> Numeric targets marked **(initial)** were approved by the owner as initial targets (D-018). They are re-baselined after the first measurement, and changes require owner approval. They assume normal provider availability. Time spent waiting on provider rate limits is reported separately, because it is outside the system's control.
 
 ### 5.1 Language (NFR-LNG)
 | ID | Requirement | P | Verify |
 |---|---|---|---|
 | NFR-LNG-01 | All user-facing text (UI, messages, errors, answers) is in Arabic. | M | D |
-| NFR-LNG-02 | **(proposed)** On the sample PDFs, extracted text matches the source text with a character error rate ≤ 2% after normalization. | M | T |
+| NFR-LNG-02 | **(initial)** On the sample PDFs, extracted text matches the source text with a character error rate ≤ 2% after normalization. | M | T |
 
 ### 5.2 Performance (NFR-PRF)
 | ID | Requirement | P | Verify |
 |---|---|---|---|
-| NFR-PRF-01 | **(proposed)** Question-to-answer latency: median ≤ 10 s and 95th percentile ≤ 20 s on the sample corpus. | S | T |
-| NFR-PRF-02 | **(proposed)** Retrieval (excluding provider calls) ≤ 1 s for a KB of up to 20,000 chunks. | S | T |
+| NFR-PRF-01 | Answer latency shall be acceptable for interactive use and shall be improvable. **(initial)** Target: median ≤ 10 s and 95th percentile ≤ 20 s on the sample corpus. A baseline is measured in Phase 9; improvements are proposed from the measurements. | S | T |
+| NFR-PRF-02 | **(initial)** Retrieval (excluding provider calls) ≤ 1 s for a KB of up to 20,000 chunks. | S | T |
 | NFR-PRF-03 | Ingestion never blocks the UI or chat. | M | T |
-| NFR-PRF-04 | **(proposed)** Maximum upload size of 20 MB per file. | M | T |
-| NFR-PRF-05 | **(proposed)** Supported KB capacity: at least 100 documents and 20,000 chunks. | S | T |
-| NFR-PRF-06 | **(proposed)** Maximum question length of 1,000 characters. | M | T |
+| NFR-PRF-04 | Maximum upload size of **10 MB** per file (D-018). | M | T |
+| NFR-PRF-05 | **(initial)** Supported KB capacity: at least 100 documents and 20,000 chunks. | S | T |
+| NFR-PRF-06 | **(initial)** Maximum question length of 1,000 characters. | M | T |
 
 ### 5.3 Reliability (NFR-REL)
 | ID | Requirement | P | Verify |
@@ -324,7 +362,8 @@ Cases 1–3 are measured on the golden set (refusal accuracy, NFR-QLT-03). Case 
 ### 5.7 Portability and operability (NFR-OPS)
 | ID | Requirement | P | Verify |
 |---|---|---|---|
-| NFR-OPS-01 | The application installs and runs on the owner's machine from a clean environment by following the README only. | M | D |
+| NFR-OPS-01 | The application installs and runs on the owner's **Windows** machine from a clean environment by following the README only. | M | D |
+| NFR-OPS-04 | Automated tests run on Windows as well as on the development platform, so platform-specific defects (paths, encodings, file locking) are caught before acceptance. | S | T |
 | NFR-OPS-02 | Dependencies are pinned (lockfile) for reproducible installs. | M | I |
 | NFR-OPS-03 | All persistent data lives in one configurable data directory, so it is easy to back up or reset. | S | I |
 
@@ -335,7 +374,7 @@ Cases 1–3 are measured on the golden set (refusal accuracy, NFR-QLT-03). Case 
 | NFR-CST-02 | The free-tier limits of each selected provider, and their effect on ingestion and evaluation, are documented. | M | I |
 
 ### 5.9 Answer quality targets (NFR-QLT)
-> These are **initial targets (proposed)**, measured on the golden set. They are re-baselined in Phase 8 and Phase 9; any change requires owner approval. They are not pass/fail gates for software tests (CLAUDE.md §5: test success is distinct from quality).
+> These are **initial targets approved by the owner** (D-018), measured on the golden set. They are re-baselined in Phase 8 and Phase 9; any change requires owner approval. They are not pass/fail gates for software tests (CLAUDE.md §5: test success is distinct from quality).
 
 | ID | Metric | Initial target |
 |---|---|---|
@@ -422,6 +461,24 @@ The user starts a new, empty conversation (FR-CONV-01).
   3. The system validates the configuration (FR-CFG-04).
 - **Alternative:** The embedding model changed → retrieval is blocked until re-index (FR-RET-03), and the user runs the re-index operation (FR-CFG-05).
 
+### UC-10 Upload a new version of a document
+- **Main flow:**
+  1. The user opens a document.
+  2. The user chooses "upload new version" and selects a file.
+  3. The system validates the file (FR-DOC-02/03/04).
+  4. The system processes the new version in the background (UC-02).
+  5. When the new version is `Ready`, it becomes active (FR-VER-02).
+- **Alternatives:**
+  - 3a. The content is identical to an existing version → rejected with a reference to that version.
+  - 4a. Processing fails → the previous version stays active, and the failed version is shown in the history with its error.
+
+### UC-11 View version history and restore a version
+- **Main flow:**
+  1. The user opens a document's version history (FR-VER-03).
+  2. The user activates an earlier version (FR-VER-04).
+  3. Retrieval switches to that version atomically.
+- **Alternative:** The user deletes a non-active version (FR-VER-05).
+
 ### UC-09 Run evaluation (developer)
 - **Main flow:**
   1. The developer runs the evaluation runner on the golden set.
@@ -434,12 +491,13 @@ The user starts a new, empty conversation (FR-CONV-01).
 
 | Entity | Key attributes | Notes |
 |---|---|---|
-| Document | id, original file name, format, size, content hash, upload time, status, stage, error message, page count, chunk count, embedding model id, processing timestamps | One per uploaded file |
-| Chunk | id, document id, sequence, original text, normalized text (if different), pages, heading path, char offsets, size | Deleted with its document |
+| Document | id, display name, active version id, created time | Logical source with one or more versions |
+| Document version | id, document id, version number, original file name, format, size, content hash, upload time, status, stage, error message, page count, chunk count, embedding model id, processing timestamps | One per uploaded file |
+| Chunk | id, document version id, sequence, original text, normalized text (if different), pages, heading path, char offsets, size | Deleted with its version |
 | Vector | chunk id, embedding model id, dimension, vector | Exactly one per chunk per active model |
 | Conversation | id, title, created and updated times | Single user, so no owner field |
 | Message | id, conversation id, sequence, question, answer, outcome, prompt version, model ids, timestamps | Ordered within the conversation |
-| Citation | message id, chunk id (nullable after deletion), document name snapshot, location snapshot, cited text snapshot, deleted flag | Keeps history readable after deletion |
+| Citation | message id, chunk id (nullable after deletion), document name snapshot, version number snapshot, location snapshot, cited text snapshot | Keeps history readable after deletion or version change |
 | Evaluation run | id, time, configuration snapshot, corpus and golden-set version, metrics, per-question results | Stored as report files or records (decided in Phase 4) |
 
 **Retention:** Data is kept until the user deletes it. No automatic expiry.
@@ -470,6 +528,11 @@ The design and test columns are filled in Phases 4 and 5–11.
 | D-003 Formats | FR-DOC-02/03, FR-ING-04..06 |
 | D-009 Single user | CON-04, NFR-SEC-01 |
 | D-012 Arabic RTL UI | FR-UI-01 |
+| D-017 Windows target | CON-09, NFR-OPS-01, NFR-OPS-04 |
+| D-018 File size and latency | NFR-PRF-01, NFR-PRF-04 |
+| D-019 Version management | FR-VER-01..07, FR-DOC-04..10, FR-RET-04, FR-VAL-04, FR-CONV-05, FR-CFG-05 |
+| D-020 Conversation titles | FR-CONV-06 |
+| D-021 Use-case specialization | FR-DOM-01..04, FR-UI-08, CON-10 |
 
 ---
 
@@ -481,17 +544,14 @@ The design and test columns are filled in Phases 4 and 5–11.
 - Follow-up questions that depend on conversation context (D-011). The design is prepared for it.
 - Paid services, cloud deployment, or network exposure.
 - Agents, multi-agent systems, orchestration, workflow automation (CLAUDE.md §7).
-- Editing documents in the app, document versioning, and multiple knowledge bases.
+- Editing documents in the app, and multiple knowledge bases.
+- Version branching, merging, or diffing (FR-VER-06).
+- Clinical or medical advice (CON-10).
 - Streaming token-by-token responses. A loading state is sufficient (it may be proposed later as a separate change).
 - Deleting conversations and exporting answers (not required by the brief; may be proposed later).
 
 ---
 
-## 10. Open Items Requiring Owner Decision
+## 10. Open Items
 
-| ID | Item | Proposal |
-|---|---|---|
-| P-004 | Owner's operating system | Please state it (Windows, macOS, or Linux). It affects installation and run instructions only. |
-| P-005 | Numeric targets | Approve or adjust the **(proposed)** values in §5.1, §5.2, and §5.9. |
-| P-007 | Re-upload semantics | Approve FR-DOC-04: reject identical content by hash. "Updating" a document = delete it, then upload the new version. No versioning. |
-| OI-01 | Should FR-CONV-06 (automatic conversation titles, priority C) be included? | Include it: a trivial rule (the first question, truncated) costs almost nothing and improves the history list. |
+All Phase 1 open items are resolved: P-004 → D-017, P-005 → D-018, P-007 → D-019, OI-01 → D-020. The corpus topic (P-006) is resolved by D-021 and is detailed in Phase 2.
