@@ -4,7 +4,7 @@
 |---|---|
 | Document ID | CORPUS-001 |
 | Phase | Phase 2: Sample Corpus and Evaluation Dataset |
-| Status | **Awaiting owner approval** |
+| Status | **Approved** (D-024) |
 | Date | 2026-11-13 |
 | Requirements | SRS §4.10 (FR-EVAL), §4.12 (FR-DOM), §4.11 (FR-VER), NFR-LNG-02, NFR-QLT-* |
 | Decisions | D-002, D-003, D-019, D-021, D-022, D-023 |
