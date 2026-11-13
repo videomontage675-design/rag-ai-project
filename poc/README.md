@@ -7,5 +7,6 @@ scripts are not part of the application. Their results feed
 | Folder | Question answered |
 |---|---|
 | `extraction/` | Which PDF text extractor handles the Arabic sample PDFs best? |
+| `retrieval/` | How do extractor, normalization, chunking, BM25, and embedding providers affect retrieval on the golden set? (`run_lexical.py` needs no keys; `run_embeddings.py` needs provider keys.) |
 
 Each folder has a pinned `requirements.txt` and its own virtual environment (`.venv`, not committed).
