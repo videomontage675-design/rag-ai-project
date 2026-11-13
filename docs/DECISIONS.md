@@ -80,7 +80,7 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
   - Document processing must still not block chat.
 
 ## D-010 — Model providers: hosted free tiers, switchable via API
-- **Date:** 2026-11-13 · **Status:** Approved (supersedes D-004)
+- **Date:** 2026-11-13 · **Status:** Approved (supersedes D-004; amended by D-013 regarding local models)
 - **Decision:** Both the LLM and the embedding model are accessed through the free tiers of hosted providers, via API. Providers must be switchable through configuration without changing RAG pipeline logic. Running models locally is out of scope.
 - **Consequences:**
   - A provider abstraction is required for the LLM and the embeddings.
@@ -103,6 +103,15 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
 - **Date:** 2026-11-13 · **Status:** Approved
 - **Decision:** The user interface is in Arabic with right-to-left layout.
 - **Consequence:** UI text is in Arabic, while code identifiers stay in English (D-008). The layout must handle mixed Arabic and Latin content (e.g., file names, numbers).
+
+## D-013 — Local models: not in this release, design ready for them
+- **Date:** 2026-11-13 · **Status:** Approved (amends D-010)
+- **Decision:** No model is downloaded or run locally; all models are used through hosted free-tier APIs (D-010). The design must still allow a provider that runs on the owner's machine behind a local API to be added later, through the same provider-switching mechanism and without changing RAG pipeline logic.
+- **Consequences:**
+  - The provider abstraction must not assume hosted-only traits, e.g., a mandatory API key or a fixed remote endpoint. The endpoint URL, model name, and key must be configuration values.
+  - No local-provider adapter is shipped in this release: it could not be tested without a downloaded model, and untested functionality must not be claimed (CLAUDE.md §5).
+  - Phase 3 considers whether a widely supported API format (for example an OpenAI-compatible interface, which many hosted and local servers expose) would reduce a future local provider to a configuration change. This is a selection criterion, not a pre-made choice.
+  - Switching to a local embedding model later requires re-indexing (see D-010).
 
 ---
 
