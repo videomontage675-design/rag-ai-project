@@ -80,7 +80,24 @@ class Provider:
 
 
 class Gemini(Provider):
-    """Gemini API batchEmbedContents with retrieval task types."""
+    """Gemini API through its official OpenAI-compatible endpoint (Bearer key).
+
+    Note: the compatible endpoint takes no query/document task type, unlike the
+    native batchEmbedContents API (which reads the key from x-goog-api-key).
+    The native variant is kept as GeminiNative for comparison where that header
+    can be supplied.
+    """
+
+    def _embed_batch(self, client, texts, kind):
+        r = client.post("https://generativelanguage.googleapis.com/v1beta/openai/embeddings",
+                        json={"model": self.model, "input": texts},
+                        headers={"Authorization": f"Bearer {self.key}"})
+        r.raise_for_status()
+        return [d["embedding"] for d in sorted(r.json()["data"], key=lambda d: d["index"])]
+
+
+class GeminiNative(Provider):
+    """Gemini native batchEmbedContents with retrieval task types (x-goog-api-key header)."""
 
     def _embed_batch(self, client, texts, kind):
         task = "RETRIEVAL_DOCUMENT" if kind == "document" else "RETRIEVAL_QUERY"
@@ -148,6 +165,7 @@ class HashingTestDouble(Provider):
 # documentation and can be overridden on the command line.
 CANDIDATES = {
     "gemini": lambda m=None: Gemini("gemini", m or "gemini-embedding-001", "GEMINI_API_KEY", batch_size=50, pause_s=2.0),
+    "gemini-native": lambda m=None: GeminiNative("gemini-native", m or "gemini-embedding-001", "GEMINI_API_KEY", batch_size=50, pause_s=2.0),
     "cohere": lambda m=None: Cohere("cohere", m or "embed-multilingual-v3.0", "COHERE_API_KEY", batch_size=96),
     "jina": lambda m=None: Jina("jina", m or "jina-embeddings-v3", "JINA_API_KEY", batch_size=64),
     "mistral": lambda m=None: Mistral("mistral", m or "mistral-embed", "MISTRAL_API_KEY", batch_size=32, pause_s=1.5),
