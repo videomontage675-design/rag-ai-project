@@ -199,6 +199,20 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
 - **Decision:** The owner approved the Phase 2 deliverables, including the platform name (D-022) and the PDF tooling (D-023), and approved the Phase 3 summary (Technology Evaluation and Selection), authorizing its start.
 - **Integration:** Per D-015, Phase 2 goes to `main` through its own pull request. Phase 3 commits are held back until that pull request is merged, so the two phases are not mixed.
 
+## D-025 — Providers for the Phase 3 proof of concept
+- **Date:** 2026-11-13 · **Status:** Approved (Jina pending confirmation)
+- **Decision:** The owner approved these free-tier providers for the Phase 3 PoC:
+  - **Google AI Studio (Gemini):** LLM and embeddings.
+  - **Groq:** alternative LLM and LLM-as-judge candidate.
+  - **Cohere:** multilingual embeddings.
+  - **Mistral:** optional.
+
+  **Jina Embeddings** is proposed as an additional embedding candidate, because the owner already has an account. It awaits the owner's confirmation.
+- **Notes:**
+  - API keys are entered through a secure credential form; they are never sent in chat or stored in Git.
+  - From the cloud development container, only Gemini's host is currently reachable. The others are blocked by the container's network policy (not by the providers) until a credential for that host is saved.
+  - Free-tier data-usage terms (e.g., Gemini and Mistral free tiers may use data to improve models) are acceptable for the fictional corpus. They will be documented per provider as a selection criterion for real data.
+
 ---
 
 ## Pending decisions
