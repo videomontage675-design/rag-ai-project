@@ -53,7 +53,7 @@ What happens to be installed or reachable in the development container is **neve
 | T-07 | Markdown parsing | **markdown-it-py** | Proposed |
 | T-08 | Arabic normalization | Basic set (NFKC, tashkeel/tatweel, digits) for indexing; original text kept for display | Proposed; refined by the embedding PoC |
 | T-09 | Chunking | **Own implementation**: heading-aware, size-bounded, overlapping | Proposed; size tuned after the embedding PoC |
-| T-10 | Embedding provider | **gemini-embedding-001** (interim; Cohere and Mistral not yet measured, Jina balance exhausted) | Partially measured |
+| T-10 | Embedding provider | **gemini-embedding-001** (default); Cohere embed-v5.0-pro as configured alternative | Measured (Mistral key invalid, Jina balance exhausted); **owner decision P-014** |
 | T-11 | LLM provider (generation) | Gemini vs Groq-hosted models vs Mistral | **Pending measurement (keys)** |
 | T-12 | LLM-as-judge (evaluation only) | A different provider from T-11 | Pending T-11 |
 | T-13 | Provider integration | **OpenAI-compatible interface** as the common adapter, plus native adapters where measurement shows they matter | Proposed |
@@ -206,7 +206,9 @@ Measured with `poc/retrieval/run_embeddings.py` on the same 76 chunks as the BM2
 | BM25 baseline (no model) | — | 0.67 | 0.81 | 0.93 | 0.88 | 0.766 | **0.94** |
 | **gemini-embedding-001** | 3072 | **0.84** | **0.98** | **1.00** | 0.97 | **0.913** | 0.90 |
 | gemini-embedding-2 | 3072 | **0.84** | 0.95 | **1.00** | **0.98** | 0.902 | 0.92 |
-| Cohere (multilingual) | — | not measured: the key provided was rejected as invalid | | | | | |
+| Cohere embed-multilingual-v3.0 | 1024 | 0.74 | 0.95 | 0.98 | 0.95 | 0.851 | 0.83 |
+| Cohere embed-v4.0 | 1536 | 0.88 | **1.00** | **1.00** | 0.97 | 0.938 | 0.88 |
+| **Cohere embed-v5.0-pro** | 2048 | **0.95** | **1.00** | **1.00** | **0.98** | **0.977** | 0.92 |
 | Jina (jina-embeddings-v3) | — | not measured: the key's free token balance is exhausted ("Insufficient account balance"); topping up would be a paid service (D-010) | | | | | |
 | Mistral (mistral-embed) | — | not measured: the key provided was rejected as invalid | | | | | |
 
@@ -216,9 +218,16 @@ Measured with `poc/retrieval/run_embeddings.py` on the same 76 chunks as the BM2
 3. **Free-tier constraint observed:** Gemini returned HTTP 429 (per-minute quota) during batch embedding. Throttling with backoff resolved it. Ingestion therefore needs throttling and retries (FR-ING-11).
 4. **Task types:** The native Gemini API accepts query/document task types, but it reads the key from an `x-goog-api-key` header that the development environment's credential mechanism does not support. The native variant (`GeminiNative`) is implemented but not measured. The OpenAI-compatible results above are already strong, and that interface is the one proposed for the application (T-13).
 
-**Interim proposal:** `gemini-embedding-001` (generally available, best MRR), pending:
-- Cohere's measurement, if a valid key is provided;
-- re-tuning chunk size and normalization with this model in later phases.
+5. **Cohere embed-v5.0-pro is the strongest measured model,** but its edge over gemini-embedding-001 is not statistically established. A paired comparison on the same 43 questions (exact McNemar) shows Hit@1: Cohere alone is right on 5 questions (Q013, Q022, Q023, Q028, Q034), Gemini alone on 0, p = 0.062. At Hit@3 the difference is one question (p = 1.0). The direction is consistent, but the golden set is too small to confirm it.
+6. **The terms differ materially** (official sources, §5.1):
+   - **Cohere's trial key** is limited to 1,000 API calls per month and **may not be used for production or commercial purposes**. Each question needs one embed call, and ingestion needs one call per batch of up to 96 chunks.
+   - **Gemini's free tier** has per-minute quotas and **uses the content to improve Google's products**, but it is not restricted to non-production use.
+
+**Proposal (owner decision P-014):**
+- **Default: `gemini-embedding-001`.** It clearly beats the baseline, it is generally available, and its free-tier terms allow ongoing use within the quotas.
+- **Configured alternative: Cohere `embed-v5.0-pro`.** It measured best, but its trial terms and monthly cap make it unsuitable as the default.
+
+Switching is a configuration change plus re-indexing (FR-CFG-05). The choice can be revisited if the owner obtains a production Cohere key, which is paid and outside D-010.
 
 The output dimension (3072) can be reduced if storage or latency requires it; at 3072 dimensions, exact search takes 2.3 ms at 20,000 chunks (T-05).
 
