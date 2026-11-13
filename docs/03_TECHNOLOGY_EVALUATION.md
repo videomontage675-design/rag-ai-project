@@ -4,7 +4,7 @@
 |---|---|
 | Document ID | TECH-001 |
 | Phase | Phase 3: Technology Evaluation and Selection |
-| Status | **Complete, awaiting owner approval.** Every choice below is a **proposal** until the owner approves it, except T-03 and T-06, which are already approved (D-027, D-028). |
+| Status | **Approved** (D-029), together with T-03 (D-027) and T-06 (D-028). |
 | Date | 2026-11-13 |
 | Inputs | `docs/01_SRS.md` (requirements), `docs/02_SAMPLE_CORPUS.md` (corpus and findings), `docs/DECISIONS.md` |
 | PoC code | `poc/extraction/`, `poc/retrieval/`, `poc/storage/` |

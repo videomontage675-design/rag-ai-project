@@ -4,7 +4,7 @@
 | Item | Value |
 |---|---|
 | Document ID | SRS-001 |
-| Version | 1.0 |
+| Version | 1.1 |
 | Phase | Phase 1: Requirements Analysis |
 | Status | **Approved with amendments** (D-016); amendments applied in this version |
 | Date | 2026-11-13 |
@@ -15,6 +15,7 @@
 | Version | Change |
 |---|---|
 | 0.1 | Initial draft. |
+| 1.1 | NFR-LNG-02 redefined (D-029, P-011). |
 | 1.0 | Owner amendments: Windows target (D-017); 10 MB file limit and latency approach (D-018); document version management (D-019, new §4.11); automatic conversation titles (D-020); use-case specialization through a domain profile (D-021, new §4.12). Numeric and quality targets approved as initial targets. |
 
 ---
@@ -313,7 +314,7 @@ Cases 1–3 are measured on the golden set (refusal accuracy, NFR-QLT-03). Case 
 | ID | Requirement | P | Verify |
 |---|---|---|---|
 | NFR-LNG-01 | All user-facing text (UI, messages, errors, answers) is in Arabic. | M | D |
-| NFR-LNG-02 | **(initial)** On the sample PDFs, extracted text matches the source text with a character error rate ≤ 2% after normalization. | M | T |
+| NFR-LNG-02 | On every sample PDF, after extraction and cleaning: (a) the order-insensitive letter error is ≤ 1%, and (b) 100% of golden-set evidence passages remain intact. Letter CER is reported for information only. *(Revised in v1.1, D-029: the former "CER ≤ 2%" target conflated letter correctness with table reading order; see TECH-001 §7.1.)* | M | T |
 
 ### 5.2 Performance (NFR-PRF)
 | ID | Requirement | P | Verify |

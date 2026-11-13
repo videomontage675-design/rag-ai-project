@@ -245,6 +245,29 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
   - Results are re-verified on Windows (NFR-OPS-04, P-011).
   - The extractor sits behind an interface, so it can be replaced.
 
+## D-029 — Phase 3 approved: technology selection
+- **Date:** 2026-11-13 · **Status:** Approved
+- **Owner's condition:** approve proposals that rest on reasons and motives, not on preference.
+- **Basis of each approved proposal** (full evidence in TECH-001):
+
+| Proposal | Choice | Basis |
+|---|---|---|
+| T-01 | Python | Requirements: the document-processing and evaluation tooling measured in Phase 3 is Python; learning goal (CLAUDE.md §3) |
+| T-02 | FastAPI | Requirements: input validation (FR-DOC-03, FR-RET-01) and a generated OpenAPI contract (Phase 4); async I/O for provider calls |
+| T-04 | In-process worker with persisted job state | Requirements FR-ING-01, -02, -14; single user (D-009); simplicity (CLAUDE.md §5) |
+| T-05 | SQLite + exact NumPy search | Consistency requirements FR-DOC-07, FR-VER-04, FR-ING-13 (one transactional store); measured 0.6–2.3 ms at 20,000 chunks |
+| T-07 | markdown-it-py | CommonMark compliance with tables; the same parser family that renders the corpus PDFs |
+| T-08 | Basic Arabic normalization | Measured: required for Arabic-Indic digits and presentation forms; the extra steps showed no gain |
+| T-09 | Own heading-aware chunker | Requirements FR-ING-09 and -10; measured finding that chunks need the full heading path (T-11, finding 6) |
+| T-10 / P-014 | gemini-embedding-001 (default); Cohere embed-v5.0-pro (alternative) | Measured: clearly beats BM25. Official terms: Cohere's trial key is capped and not for production |
+| T-11, T-12 / P-015 | qwen/qwen3.8-27b (Groq), fallback openai/gpt-oss-20b; judge Cohere command-a-plus-05-2026 | Measured: best faithfulness, citation discipline, and version-trap handling. Official quota: Gemini allows 20 generation requests per day. The judge is independent of the generators |
+| T-13 | OpenAI-compatible adapters | Official documentation of Gemini, Groq, Cohere, and Ollama; D-010, D-013 |
+| T-14 | Own pipeline (no LangChain or LlamaIndex) | CLAUDE.md §6 (no black boxes); Arabic and versioning steps are custom anyway |
+| T-15 | pytest, HTTP mocking, ruff, Playwright | NFR-MNT-02 (no real provider calls in tests), NFR-MNT-04 (enforced style), FR-UI end-to-end checks |
+
+- **Note:** T-01, T-02, T-04, T-14, and T-15 rest on requirements and principles rather than measurements; their reasons are stated above. If the owner considers any of these insufficiently justified, it is reopened through change management (`EXECUTION_PROTOCOL.md` §8).
+- **Also authorized:** Phase 4 (Architecture and Technical Design) start. The owner asked for modern, visual Markdown diagrams with clear semantic shapes and icons.
+
 ---
 
 ## Pending decisions
@@ -252,8 +275,5 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
 | ID | Question | Resolve by |
 |---|---|---|
 | P-008 | Lightweight CI (GitHub Actions) for tests and linting, including a Windows runner (D-017) | Phase 5 |
-| P-011 | NFR-LNG-02 (PDF extraction CER ≤ 2%) may need redefinition. The sample pricing PDFs measure 2.6–3.1% letter CER with pdftotext before cleaning, caused entirely by table reflow (`docs/02_SAMPLE_CORPUS.md` §7). The proposal will be based on Phase 3 measurements and needs owner approval. | Phase 3 |
-| P-014 | Default embedding model (TECH-001 T-10): gemini-embedding-001 (recommended: sustainable free-tier terms) or Cohere embed-v5.0-pro (best measured; trial key capped at 1,000 calls/month and not for production) | Phase 3 approval |
-| P-015 | Generator and judge (TECH-001 T-11, T-12): qwen/qwen3.8-27b on Groq with openai/gpt-oss-20b fallback; Cohere command-a-plus-05-2026 as evaluation-only judge | Phase 3 approval |
 
-Resolved: P-001 → D-009 · P-002 → D-011 · P-003 → D-012 · P-004 → D-017 · P-005 → D-018 · P-006 → D-021 · P-007 → D-019 · P-009 → D-014 · P-010 → D-015 · P-012 → D-027 · P-013 → keys provided (Gemini, Groq, Cohere working; Jina balance exhausted; Mistral key invalid).
+Resolved: P-001 → D-009 · P-002 → D-011 · P-003 → D-012 · P-004 → D-017 · P-005 → D-018 · P-006 → D-021 · P-007 → D-019 · P-009 → D-014 · P-010 → D-015 · P-011 → D-029 · P-012 → D-027 · P-014 → D-029 · P-015 → D-029 · P-013 → keys provided (Gemini, Groq, Cohere working; Jina balance exhausted; Mistral key invalid).
