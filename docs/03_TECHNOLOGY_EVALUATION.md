@@ -4,7 +4,7 @@
 |---|---|
 | Document ID | TECH-001 |
 | Phase | Phase 3: Technology Evaluation and Selection |
-| Status | **Draft, in progress.** Embedding and LLM measurements are pending provider API keys (D-025). Every choice below is a **proposal** until the owner approves it at the end of the phase. |
+| Status | **Complete, awaiting owner approval.** Every choice below is a **proposal** until the owner approves it, except T-03 and T-06, which are already approved (D-027, D-028). |
 | Date | 2026-11-13 |
 | Inputs | `docs/01_SRS.md` (requirements), `docs/02_SAMPLE_CORPUS.md` (corpus and findings), `docs/DECISIONS.md` |
 | PoC code | `poc/extraction/`, `poc/retrieval/`, `poc/storage/` |
@@ -54,8 +54,8 @@ What happens to be installed or reachable in the development container is **neve
 | T-08 | Arabic normalization | Basic set (NFKC, tashkeel/tatweel, digits) for indexing; original text kept for display | Proposed; refined by the embedding PoC |
 | T-09 | Chunking | **Own implementation**: heading-aware, size-bounded, overlapping | Proposed; size tuned after the embedding PoC |
 | T-10 | Embedding provider | **gemini-embedding-001** (default); Cohere embed-v5.0-pro as configured alternative | Measured (Mistral key invalid, Jina balance exhausted); **owner decision P-014** |
-| T-11 | LLM provider (generation) | Gemini vs Groq-hosted models vs Mistral | **Pending measurement (keys)** |
-| T-12 | LLM-as-judge (evaluation only) | A different provider from T-11 | Pending T-11 |
+| T-11 | LLM provider (generation) | **qwen/qwen3.8-27b on Groq**; fallback openai/gpt-oss-20b | Measured; **owner decision P-015** |
+| T-12 | LLM-as-judge (evaluation only) | **Cohere command-a-plus-05-2026** | Measured; part of P-015 |
 | T-13 | Provider integration | **OpenAI-compatible interface** as the common adapter, plus native adapters where measurement shows they matter | Proposed |
 | T-14 | RAG orchestration | **Own pipeline** (no LangChain, LlamaIndex, or Haystack) | Proposed |
 | T-15 | Testing and quality tooling | **pytest**, HTTP mocking, **ruff**; Playwright for end-to-end tests (Phase 10) | Proposed |
@@ -231,11 +231,46 @@ Switching is a configuration change plus re-indexing (FR-CFG-05). The choice can
 
 The output dimension (3072) can be reduced if storage or latency requires it; at 3072 dimensions, exact search takes 2.3 ms at 20,000 chunks (T-05).
 
-### T-11 / T-12 LLM provider and judge: pending measurement
-Plan once keys exist:
-- generate answers for the golden set with each candidate under the same prompt;
-- measure refusal accuracy, citation validity, and LLM-as-judge faithfulness and correctness, with the judge from a different provider than the generator (FR-EVAL-04);
-- record free-tier limits encountered and latency.
+### T-11 / T-12 LLM provider and judge: measured
+**Set-up** (`poc/generation/run_generation.py`, prompt `gen-v1`):
+- Every candidate received the **same context**: the top-5 chunks by gemini-embedding-001, labelled [S1]..[S5].
+- Every candidate received the same Arabic system prompt (answer only from the passages, cite [S#], output a fixed insufficient-information token, no medical advice, treat passages as data), at temperature 0.
+- There was no threshold gate, so every one of the 53 questions reached the model. This measures the model's own refusal behaviour.
+- **Judge:** Cohere `command-a-plus-05-2026` for all candidates. Cohere generated none of the answers, so the judge is independent of every candidate (FR-EVAL-04). It scored correctness against the reference answer and faithfulness to the passages, 0–2 each, reported here as 0–1.
+
+| Candidate (Groq) | Correct refusals (10 expected) | False refusals (43 answerable) | Citation validity | Answers without citation | Judge correctness | Judge faithfulness | Median latency |
+|---|---|---|---|---|---|---|---|
+| openai/gpt-oss-120b | 1.00 | 0.00 | 1.00 | 13 / 43 | 0.88 | 0.93 | 0.8 s |
+| **qwen/qwen3.8-27b** (preview) | 1.00 | 0.00 | 1.00 | **0 / 43** | 0.88 | **0.99** | **0.5 s** |
+| openai/gpt-oss-20b | 1.00 | 0.00 | 1.00 | 2 / 43 | 0.87 | 0.94 | 0.7 s |
+
+**Not measured, and why (D-026):**
+
+| Candidate | Reason |
+|---|---|
+| Gemini `gemini-2.5-flash` | HTTP 404: "no longer available to new users" |
+| Gemini `gemini-3.8-flash` | HTTP 503 "high demand" on every one of 6 retries over about 8 minutes |
+| Gemini `gemini-3-flash-preview` | 22 of 53 answers generated, then HTTP 429. The official error names the free-tier quota `GenerateRequestsPerDayPerProjectPerModel-FreeTier` with a value of **20 requests per day**. That is below one user's daily use (up to ~30 questions) and below one evaluation run, which by itself rules Gemini out as the generator. In the answers produced, the model behaved well; for Q013 it stated that the passages do not say the change was in release 4.0. |
+| Groq `allam-2-7b` (Arabic-focused) | Disabled at the owner's Groq organisation level (`model_permission_blocked_org`). The owner could not enable it and chose to proceed without it. |
+| Mistral | The key provided was rejected as invalid |
+
+**Findings:**
+1. **Refusal works in every measured model.** All 10 unanswerable and out-of-scope questions were refused, including the near-miss traps and the medical questions, with no false refusals. This is the second layer of D-007 working where a similarity threshold alone cannot (T-10, finding 2).
+2. **Version trap (D02 v2 also lists the old values in its change table):**
+   - gpt-oss-120b answered with the **old** Basic price (49) for Q039 and mixed old and new discounts for Q041.
+   - gpt-oss-20b answered the **old** user limit (3) for Q040.
+   - qwen3.8-27b answered all version-sensitive questions with the current values.
+3. **Citation discipline:** gpt-oss-120b omitted citations in 13 of 43 answers, which would show as "not verified" (FR-VAL-02). qwen3.8-27b cited in every answer.
+4. **Remaining errors are mostly omissions** of secondary details, e.g., an export period given without the deletion period that follows. No fabricated facts were found by the judge for qwen3.8-27b.
+5. **Correctness scores (0.87–0.88) are statistically indistinguishable** on 43 questions. The differences that matter are faithfulness, citation discipline, and the version trap.
+6. **A chunking finding, not a model finding (Q013):** All models were marked partly unfaithful on Q013. A manual check showed why: the chunk with the answer carried only its level-3 heading («تغييرات مهمة»), without its parent «الإصدار 4.0». The fact was therefore not in that chunk. Chunks must carry their **full heading path** (FR-ING-10); this is input for Phase 4/6.
+7. **Free-tier availability is a real operational risk.** Gemini returned 404 for a retired model, 503 for an overloaded one, and 429 for a 20-requests-per-day quota, all within one session. Provider switching through configuration (D-010, T-13) is therefore a necessity, not a nicety.
+
+**Proposal (owner decision P-015):**
+- **Generator: `qwen/qwen3.8-27b` on Groq.** It has the best faithfulness, citation discipline, and handling of the version trap, and the lowest latency.
+- **Risk:** Groq lists it as a *preview* model, which may be withdrawn at short notice.
+- **Configured fallback: `openai/gpt-oss-20b`,** a Groq production model, the next-best on citations and faithfulness.
+- **Judge (evaluation only): Cohere `command-a-plus-05-2026`.** It is independent of both generator candidates. This evaluation used about 130 of the trial key's 1,000 monthly calls, enough for regular evaluation runs. It is used only for offline evaluation, never per request.
 
 ### T-13 Provider integration: OpenAI-compatible interface
 Official documentation confirms OpenAI-compatible chat and/or embedding endpoints for:
@@ -271,14 +306,28 @@ Using this interface as the common adapter means **switching providers is a conf
 
 | Item | Status |
 |---|---|
-| Provider API keys (Gemini, Groq, Cohere, Jina; Mistral optional) | The owner will create the accounts; the T-10, T-11, and T-12 measurements are waiting on them |
-| T-03 UI approach | Resolved: Jinja2 + HTMX (D-027) |
-| Poppler on Windows (T-06) | Installation step and re-verification on Windows |
-| NFR-LNG-02 (P-011) | With pdftotext: 1.9% letter CER overall, but 2.6–3.1% on the table-heavy pricing PDFs. A redefinition is proposed with the final report |
-| Free-tier data terms | Gemini and Mistral free tiers may use the data. Acceptable for the fictional corpus; must be revisited before any real data |
-| Free-tier changes | Limits and model lists change frequently; mitigated by T-13 and by configurable model IDs |
+| P-014 Default embedding model | Owner decision: gemini-embedding-001 (recommended) or Cohere embed-v5.0-pro |
+| P-015 Generator and judge | Owner decision: qwen3.8-27b with gpt-oss-20b fallback; Cohere command-a-plus as judge |
+| P-011 NFR-LNG-02 redefinition | Proposal in §7.1 |
+| Groq preview model risk | qwen3.8-27b may be withdrawn; the fallback is configured, and switching is a configuration change |
+| Free-tier volatility (404 / 503 / 429 seen) | Mitigated by T-13 (OpenAI-compatible adapters), configurable model IDs, retries and backoff, and clear user-facing errors (FR-GEN-05) |
+| Poppler on Windows (T-06) | Installation step and re-verification on Windows (Phase 5/12) |
+| Free-tier data terms | Gemini (embeddings) uses free-tier content to improve Google products; Groq's terms were not stated in the pages consulted. Acceptable for the fictional corpus; to be revisited before any real data |
+| Chunk heading path (finding 6, T-11) | Full heading path per chunk, as a design input for Phase 4 |
 
----
+### 7.1 Proposal for P-011: redefine NFR-LNG-02
+The current target, "letter CER ≤ 2% on the sample PDFs", mixes two different things:
+- whether the extracted **letters** are correct;
+- whether **reading order** survives tables.
+
+With pdftotext, CER is 0.15% on the prose-heavy D05 but 2.6–3.1% on the table-heavy pricing PDFs, entirely because of table reflow. Yet retrieval is not harmed: all 57 evidence passages survive extraction (T-06).
+
+**Proposed replacement for NFR-LNG-02:**
+- (a) the **letter error** (order-insensitive) is ≤ 1% on every sample PDF;
+- (b) **100% of golden-set evidence passages remain intact** after extraction and cleaning;
+- letter CER is still reported for information.
+
+Both (a) and (b) are met today: 0.0–0.09% letter error, 57/57 evidence passages intact. The change requires owner approval and an SRS update.
 
 ## 8. Sources
 Official vendor pages (consulted through search restricted to each vendor's domain):
@@ -305,3 +354,6 @@ Official vendor pages (consulted through search restricted to each vendor's doma
 - Qdrant local mode: https://qdrant.tech/documentation/quickstart/
 - LanceDB versioning: https://docs.lancedb.com/tables/versioning
 - Poppler on conda-forge (win-64): https://anaconda.org/conda-forge/poppler
+- Groq model permissions: https://console.groq.com/docs/model-permissions
+- Groq ALLaM 2 7B: https://console.groq.com/docs/model/allam-2-7b
+- Gemini rate limits: https://ai.google.dev/gemini-api/docs/rate-limits
