@@ -178,6 +178,22 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
   - 2 are converted to PDF and 3 stay as Markdown.
   - A golden set of 40–60 questions.
 
+## D-022 — Platform name: «ضفيرة» (Dafira)
+- **Date:** 2026-11-13 · **Status:** Approved by delegation; owner confirmation at the Phase 2 review
+- **Context:** The owner set the naming criteria: technical identity, fitting the use case, not a common name, and inspired by a story from the history of software and technology. The owner delegated the choice to Claude.
+- **Decision:** «ضفيرة» (*braid*). It is inspired by the hand-woven core rope memory that stored the Apollo Guidance Computer's software, where a wire through a magnetic core encoded 1 and a wire around it encoded 0. The name maps to weaving a clinic's strands into one reliable cord. Full rationale and sources: `docs/02_SAMPLE_CORPUS.md` §2.
+
+## D-023 — Corpus PDF production: Chromium (Playwright) with the Amiri font
+- **Date:** 2026-11-13 · **Status:** Approved by delegation; owner confirmation at the Phase 2 review
+- **Context:** The owner delegated the choice of Markdown-to-PDF tool, with justification.
+- **Decision:** Markdown is converted to HTML with markdown-it, and then to PDF with headless Chromium via Playwright. The font is Amiri (SIL OFL 1.1) with kerning disabled. This is development tooling only (`tools/corpus/`).
+- **Evidence:**
+  - Measured against WeasyPrint, LibreOffice, and five other fonts (`docs/02_SAMPLE_CORPUS.md` §5).
+  - It had the best text-layer quality: pdftotext letter error 0.1%, letter CER 1.9%, word recall 84%.
+- **Consequences:**
+  - The tooling needs Node.js; there is no runtime role.
+  - The corpus PDF acceptance criterion is the letter-multiset error (§5.5).
+
 ---
 
 ## Pending decisions
@@ -185,5 +201,6 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
 | ID | Question | Resolve by |
 |---|---|---|
 | P-008 | Lightweight CI (GitHub Actions) for tests and linting, including a Windows runner (D-017) | Phase 5 |
+| P-011 | NFR-LNG-02 (PDF extraction CER ≤ 2%) may need redefinition. The sample pricing PDFs measure 2.6–3.1% letter CER with pdftotext before cleaning, caused entirely by table reflow (`docs/02_SAMPLE_CORPUS.md` §7). The proposal will be based on Phase 3 measurements and needs owner approval. | Phase 3 |
 
 Resolved: P-001 → D-009 · P-002 → D-011 · P-003 → D-012 · P-004 → D-017 · P-005 → D-018 · P-006 → D-021 · P-007 → D-019 · P-009 → D-014 · P-010 → D-015.
