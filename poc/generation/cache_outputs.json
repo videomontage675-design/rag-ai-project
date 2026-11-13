@@ -1016,5 +1016,49 @@
  "gen-v1|groq:openai/gpt-oss-20b|Q041": {
   "answer": "نسبة الخصم عند الدفع السنوي هي 20 % من مجموع الأسعار الشهرية للسنة. [S1] [S2]",
   "latency_s": 0.7
+ },
+ "gen-v1|groq:openai/gpt-oss-20b|Q042": {
+  "answer": "الخطة الاحترافية تتضمن 1,500 رسالة نصية شهرية. [S2] [S3]",
+  "latency_s": 15.59
+ },
+ "gen-v1|groq:openai/gpt-oss-20b|Q043": {
+  "answer": "ستُطبق الأسعار الجديدة عند أول تجديد بعد 1 يوليو 2026، حيث يُحل الإصدار الجديد محل الإصدار السابق ويُسري على الاشتراكات القائمة عند أول تجديد بعد ذلك التاريخ. [S1] [S2]",
+  "latency_s": 0.65
+ },
+ "gen-v1|groq:openai/gpt-oss-20b|Q044": {
+  "answer": "INSUFFICIENT_INFORMATION",
+  "latency_s": 0.27
+ },
+ "gen-v1|groq:openai/gpt-oss-20b|Q045": {
+  "answer": "INSUFFICIENT_INFORMATION",
+  "latency_s": 15.77
+ },
+ "gen-v1|groq:openai/gpt-oss-20b|Q046": {
+  "answer": "INSUFFICIENT_INFORMATION",
+  "latency_s": 2.27
+ },
+ "gen-v1|groq:openai/gpt-oss-20b|Q047": {
+  "answer": "INSUFFICIENT_INFORMATION",
+  "latency_s": 0.72
+ },
+ "gen-v1|groq:openai/gpt-oss-20b|Q048": {
+  "answer": "INSUFFICIENT_INFORMATION",
+  "latency_s": 0.37
+ },
+ "gen-v1|groq:openai/gpt-oss-20b|Q049": {
+  "answer": "INSUFFICIENT_INFORMATION",
+  "latency_s": 15.85
+ },
+ "gen-v1|groq:openai/gpt-oss-20b|Q050": {
+  "answer": "INSUFFICIENT_INFORMATION",
+  "latency_s": 1.29
+ },
+ "gen-v1|groq:openai/gpt-oss-20b|Q051": {
+  "answer": "INSUFFICIENT_INFORMATION",
+  "latency_s": 0.94
+ },
+ "gen-v1|groq:openai/gpt-oss-20b|Q052": {
+  "answer": "INSUFFICIENT_INFORMATION",
+  "latency_s": 0.26
  }
 }
