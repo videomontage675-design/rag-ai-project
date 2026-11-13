@@ -66,8 +66,8 @@ class Provider:
         arr = np.array([cache[k] for k in keys], dtype=np.float32)
         return arr / np.linalg.norm(arr, axis=1, keepdims=True)
 
-    def _with_retry(self, client: httpx.Client, texts: list[str], kind: str, attempts: int = 5):
-        delay = 2.0
+    def _with_retry(self, client: httpx.Client, texts: list[str], kind: str, attempts: int = 6):
+        delay = 15.0  # free tiers enforce per-minute quotas; back off generously
         for attempt in range(attempts):
             try:
                 return self._embed_batch(client, texts, kind)
@@ -77,6 +77,14 @@ class Provider:
                     delay *= 2
                     continue
                 raise RuntimeError(f"{self.name}: HTTP {e.response.status_code}: {e.response.text[:300]}") from e
+
+
+def _ordered(data: list[dict]) -> list[list[float]]:
+    """OpenAI-style 'data' list in input order; 'index' is optional in some
+    compatible implementations (e.g. Gemini), which return items in order."""
+    if all("index" in d for d in data):
+        data = sorted(data, key=lambda d: d["index"])
+    return [d["embedding"] for d in data]
 
 
 class Gemini(Provider):
@@ -93,7 +101,7 @@ class Gemini(Provider):
                         json={"model": self.model, "input": texts},
                         headers={"Authorization": f"Bearer {self.key}"})
         r.raise_for_status()
-        return [d["embedding"] for d in sorted(r.json()["data"], key=lambda d: d["index"])]
+        return _ordered(r.json()["data"])
 
 
 class GeminiNative(Provider):
@@ -164,7 +172,7 @@ class HashingTestDouble(Provider):
 # Candidate models (D-025). Model IDs are taken from each provider's public
 # documentation and can be overridden on the command line.
 CANDIDATES = {
-    "gemini": lambda m=None: Gemini("gemini", m or "gemini-embedding-001", "GEMINI_API_KEY", batch_size=50, pause_s=2.0),
+    "gemini": lambda m=None: Gemini("gemini", m or "gemini-embedding-001", "GEMINI_API_KEY", batch_size=20, pause_s=20.0),
     "gemini-native": lambda m=None: GeminiNative("gemini-native", m or "gemini-embedding-001", "GEMINI_API_KEY", batch_size=50, pause_s=2.0),
     "cohere": lambda m=None: Cohere("cohere", m or "embed-multilingual-v3.0", "COHERE_API_KEY", batch_size=96),
     "jina": lambda m=None: Jina("jina", m or "jina-embeddings-v3", "JINA_API_KEY", batch_size=64),
