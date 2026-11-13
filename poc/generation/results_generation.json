@@ -1,0 +1,32 @@
+{
+  "groq:openai/gpt-oss-120b": {
+    "refusal_accuracy": 1.0,
+    "false_refusal_rate": 0.0,
+    "citation_validity": 1.0,
+    "answers_without_citation": 13,
+    "judge_correctness": 0.8837209302325582,
+    "judge_faithfulness": 0.9302325581395349,
+    "judged_answers": 43,
+    "median_latency_s": 0.76
+  },
+  "groq:qwen/qwen3.8-27b": {
+    "refusal_accuracy": 1.0,
+    "false_refusal_rate": 0.0,
+    "citation_validity": 1.0,
+    "answers_without_citation": 0,
+    "judge_correctness": 0.8837209302325582,
+    "judge_faithfulness": 0.9883720930232558,
+    "judged_answers": 43,
+    "median_latency_s": 0.5
+  },
+  "groq:openai/gpt-oss-20b": {
+    "refusal_accuracy": 1.0,
+    "false_refusal_rate": 0.0,
+    "citation_validity": 1.0,
+    "answers_without_citation": 2,
+    "judge_correctness": 0.872093023255814,
+    "judge_faithfulness": 0.9418604651162791,
+    "judged_answers": 43,
+    "median_latency_s": 0.72
+  }
+}

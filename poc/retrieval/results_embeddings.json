@@ -1,0 +1,1007 @@
+{
+  "gemini:gemini-embedding-001": {
+    "answerable_questions": 43,
+    "hit@1": 0.8372093023255814,
+    "hit@3": 0.9767441860465116,
+    "hit@5": 1.0,
+    "hit@10": 1.0,
+    "recall@1": 0.7364341085271318,
+    "recall@3": 0.9496124031007752,
+    "recall@5": 0.9689922480620156,
+    "recall@10": 1.0,
+    "mrr": 0.9127906976744186,
+    "per_question": {
+      "Q001": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7214531898498535
+      },
+      "Q002": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7913269996643066
+      },
+      "Q003": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8639869689941406
+      },
+      "Q004": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7343894243240356
+      },
+      "Q005": {
+        "first_relevant_rank": 1,
+        "top_score": 0.832897961139679
+      },
+      "Q006": {
+        "first_relevant_rank": 1,
+        "top_score": 0.809885561466217
+      },
+      "Q007": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8336073160171509
+      },
+      "Q008": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7452479004859924
+      },
+      "Q009": {
+        "first_relevant_rank": 1,
+        "top_score": 0.725552499294281
+      },
+      "Q010": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7220622301101685
+      },
+      "Q011": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8079754114151001
+      },
+      "Q012": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6787314414978027
+      },
+      "Q013": {
+        "first_relevant_rank": 2,
+        "top_score": 0.7225909233093262
+      },
+      "Q014": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8405404686927795
+      },
+      "Q015": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8168110847473145
+      },
+      "Q016": {
+        "first_relevant_rank": 1,
+        "top_score": 0.739032506942749
+      },
+      "Q017": {
+        "first_relevant_rank": 1,
+        "top_score": 0.79429030418396
+      },
+      "Q018": {
+        "first_relevant_rank": 1,
+        "top_score": 0.811663031578064
+      },
+      "Q019": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6786565780639648
+      },
+      "Q020": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7703045606613159
+      },
+      "Q021": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6865853071212769
+      },
+      "Q022": {
+        "first_relevant_rank": 2,
+        "top_score": 0.6865551471710205
+      },
+      "Q023": {
+        "first_relevant_rank": 2,
+        "top_score": 0.7066916227340698
+      },
+      "Q024": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7875129580497742
+      },
+      "Q025": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7671557664871216
+      },
+      "Q026": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7585698366165161
+      },
+      "Q027": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8459715247154236
+      },
+      "Q028": {
+        "first_relevant_rank": 4,
+        "top_score": 0.7484427094459534
+      },
+      "Q029": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7812901735305786
+      },
+      "Q030": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7912782430648804
+      },
+      "Q031": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7190424203872681
+      },
+      "Q032": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7582373023033142
+      },
+      "Q033": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8192653656005859
+      },
+      "Q034": {
+        "first_relevant_rank": 2,
+        "top_score": 0.7441301345825195
+      },
+      "Q035": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8287873268127441
+      },
+      "Q036": {
+        "first_relevant_rank": 2,
+        "top_score": 0.7726873159408569
+      },
+      "Q037": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8050590753555298
+      },
+      "Q038": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8483617305755615
+      },
+      "Q039": {
+        "first_relevant_rank": 1,
+        "top_score": 0.759224534034729
+      },
+      "Q040": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7537913918495178
+      },
+      "Q041": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8498262166976929
+      },
+      "Q042": {
+        "first_relevant_rank": 2,
+        "top_score": 0.7634063363075256
+      },
+      "Q043": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7681119441986084
+      }
+    },
+    "unanswerable_top_scores": [
+      0.6652022004127502,
+      0.6960705518722534,
+      0.7084260582923889,
+      0.7614609003067017,
+      0.6801976561546326,
+      0.7536668181419373,
+      0.6672968864440918,
+      0.5459096431732178,
+      0.5543338656425476,
+      0.5592950582504272
+    ],
+    "auroc_answerable_vs_unanswerable": 0.8953488372093024,
+    "model": "gemini-embedding-001",
+    "dimension": 3072
+  },
+  "gemini:gemini-embedding-2": {
+    "answerable_questions": 43,
+    "hit@1": 0.8372093023255814,
+    "hit@3": 0.9534883720930233,
+    "hit@5": 1.0,
+    "hit@10": 1.0,
+    "recall@1": 0.7131782945736433,
+    "recall@3": 0.9147286821705427,
+    "recall@5": 0.9806201550387598,
+    "recall@10": 0.9806201550387598,
+    "mrr": 0.9019379844961242,
+    "per_question": {
+      "Q001": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7870711088180542
+      },
+      "Q002": {
+        "first_relevant_rank": 1,
+        "top_score": 0.730255663394928
+      },
+      "Q003": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8270442485809326
+      },
+      "Q004": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7094713449478149
+      },
+      "Q005": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7687867283821106
+      },
+      "Q006": {
+        "first_relevant_rank": 1,
+        "top_score": 0.791344165802002
+      },
+      "Q007": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7925437688827515
+      },
+      "Q008": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7667191624641418
+      },
+      "Q009": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7597364187240601
+      },
+      "Q010": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7925527095794678
+      },
+      "Q011": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8197289705276489
+      },
+      "Q012": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7111162543296814
+      },
+      "Q013": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7573283314704895
+      },
+      "Q014": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8274208903312683
+      },
+      "Q015": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8157697319984436
+      },
+      "Q016": {
+        "first_relevant_rank": 5,
+        "top_score": 0.7058167457580566
+      },
+      "Q017": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6273666024208069
+      },
+      "Q018": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8358932137489319
+      },
+      "Q019": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6791425347328186
+      },
+      "Q020": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7336668372154236
+      },
+      "Q021": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6563235521316528
+      },
+      "Q022": {
+        "first_relevant_rank": 4,
+        "top_score": 0.6677959561347961
+      },
+      "Q023": {
+        "first_relevant_rank": 2,
+        "top_score": 0.7057772874832153
+      },
+      "Q024": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7916787266731262
+      },
+      "Q025": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7870336174964905
+      },
+      "Q026": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6965187788009644
+      },
+      "Q027": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7932208180427551
+      },
+      "Q028": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7267516255378723
+      },
+      "Q029": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8129169344902039
+      },
+      "Q030": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8293746709823608
+      },
+      "Q031": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6901657581329346
+      },
+      "Q032": {
+        "first_relevant_rank": 1,
+        "top_score": 0.757636547088623
+      },
+      "Q033": {
+        "first_relevant_rank": 1,
+        "top_score": 0.807197093963623
+      },
+      "Q034": {
+        "first_relevant_rank": 2,
+        "top_score": 0.6869686841964722
+      },
+      "Q035": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7767193913459778
+      },
+      "Q036": {
+        "first_relevant_rank": 1,
+        "top_score": 0.766049325466156
+      },
+      "Q037": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8106197118759155
+      },
+      "Q038": {
+        "first_relevant_rank": 1,
+        "top_score": 0.8044195175170898
+      },
+      "Q039": {
+        "first_relevant_rank": 3,
+        "top_score": 0.6736694574356079
+      },
+      "Q040": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6748448610305786
+      },
+      "Q041": {
+        "first_relevant_rank": 1,
+        "top_score": 0.786714494228363
+      },
+      "Q042": {
+        "first_relevant_rank": 2,
+        "top_score": 0.7407008409500122
+      },
+      "Q043": {
+        "first_relevant_rank": 2,
+        "top_score": 0.7503272294998169
+      }
+    },
+    "unanswerable_top_scores": [
+      0.6233426332473755,
+      0.6633186340332031,
+      0.6533433198928833,
+      0.7643637657165527,
+      0.6318686604499817,
+      0.685905396938324,
+      0.6635923385620117,
+      0.5186420679092407,
+      0.5410864353179932,
+      0.5519042015075684
+    ],
+    "auroc_answerable_vs_unanswerable": 0.9232558139534883,
+    "model": "gemini-embedding-2",
+    "dimension": 3072
+  },
+  "cohere:embed-multilingual-v3.0": {
+    "answerable_questions": 43,
+    "hit@1": 0.7441860465116279,
+    "hit@3": 0.9534883720930233,
+    "hit@5": 0.9767441860465116,
+    "hit@10": 0.9767441860465116,
+    "recall@1": 0.6550387596899224,
+    "recall@3": 0.9031007751937985,
+    "recall@5": 0.9457364341085273,
+    "recall@10": 0.9689922480620156,
+    "mrr": 0.8507751937984495,
+    "per_question": {
+      "Q001": {
+        "first_relevant_rank": 3,
+        "top_score": 0.5498971343040466
+      },
+      "Q002": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7035982012748718
+      },
+      "Q003": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7589341402053833
+      },
+      "Q004": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6834193468093872
+      },
+      "Q005": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7228946089744568
+      },
+      "Q006": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7024588584899902
+      },
+      "Q007": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6809033751487732
+      },
+      "Q008": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6035258769989014
+      },
+      "Q009": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7367140650749207
+      },
+      "Q010": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6824566125869751
+      },
+      "Q011": {
+        "first_relevant_rank": 4,
+        "top_score": 0.6181703805923462
+      },
+      "Q012": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5486911535263062
+      },
+      "Q013": {
+        "first_relevant_rank": 2,
+        "top_score": 0.5717029571533203
+      },
+      "Q014": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7298665046691895
+      },
+      "Q015": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7527651786804199
+      },
+      "Q016": {
+        "first_relevant_rank": 2,
+        "top_score": 0.6566901206970215
+      },
+      "Q017": {
+        "first_relevant_rank": 1,
+        "top_score": 0.685858428478241
+      },
+      "Q018": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7536519169807434
+      },
+      "Q019": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6086809635162354
+      },
+      "Q020": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7478684186935425
+      },
+      "Q021": {
+        "first_relevant_rank": null,
+        "top_score": 0.5871336460113525
+      },
+      "Q022": {
+        "first_relevant_rank": 2,
+        "top_score": 0.5245903134346008
+      },
+      "Q023": {
+        "first_relevant_rank": 2,
+        "top_score": 0.5821572542190552
+      },
+      "Q024": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6166611313819885
+      },
+      "Q025": {
+        "first_relevant_rank": 1,
+        "top_score": 0.627384603023529
+      },
+      "Q026": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6386793851852417
+      },
+      "Q027": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7427899837493896
+      },
+      "Q028": {
+        "first_relevant_rank": 2,
+        "top_score": 0.6054441332817078
+      },
+      "Q029": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7675209045410156
+      },
+      "Q030": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6499822735786438
+      },
+      "Q031": {
+        "first_relevant_rank": 1,
+        "top_score": 0.677620530128479
+      },
+      "Q032": {
+        "first_relevant_rank": 1,
+        "top_score": 0.663999617099762
+      },
+      "Q033": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7244852781295776
+      },
+      "Q034": {
+        "first_relevant_rank": 2,
+        "top_score": 0.6310499906539917
+      },
+      "Q035": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7584341764450073
+      },
+      "Q036": {
+        "first_relevant_rank": 2,
+        "top_score": 0.7036705613136292
+      },
+      "Q037": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7647994756698608
+      },
+      "Q038": {
+        "first_relevant_rank": 1,
+        "top_score": 0.7975918054580688
+      },
+      "Q039": {
+        "first_relevant_rank": 1,
+        "top_score": 0.738155722618103
+      },
+      "Q040": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6756212711334229
+      },
+      "Q041": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6477956771850586
+      },
+      "Q042": {
+        "first_relevant_rank": 2,
+        "top_score": 0.678835391998291
+      },
+      "Q043": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6604298949241638
+      }
+    },
+    "unanswerable_top_scores": [
+      0.5749614238739014,
+      0.5382918119430542,
+      0.5498510599136353,
+      0.7277374863624573,
+      0.578398585319519,
+      0.6668742299079895,
+      0.629105269908905,
+      0.44008299708366394,
+      0.47341272234916687,
+      0.4212416410446167
+    ],
+    "auroc_answerable_vs_unanswerable": 0.8302325581395349,
+    "model": "embed-multilingual-v3.0",
+    "dimension": 1024
+  },
+  "cohere:embed-v4.0": {
+    "answerable_questions": 43,
+    "hit@1": 0.8837209302325582,
+    "hit@3": 1.0,
+    "hit@5": 1.0,
+    "hit@10": 1.0,
+    "recall@1": 0.748062015503876,
+    "recall@3": 0.9496124031007752,
+    "recall@5": 0.9689922480620156,
+    "recall@10": 0.992248062015504,
+    "mrr": 0.9379844961240309,
+    "per_question": {
+      "Q001": {
+        "first_relevant_rank": 1,
+        "top_score": 0.3835992217063904
+      },
+      "Q002": {
+        "first_relevant_rank": 1,
+        "top_score": 0.609539270401001
+      },
+      "Q003": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6976632475852966
+      },
+      "Q004": {
+        "first_relevant_rank": 1,
+        "top_score": 0.46729379892349243
+      },
+      "Q005": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5667809247970581
+      },
+      "Q006": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5193848609924316
+      },
+      "Q007": {
+        "first_relevant_rank": 1,
+        "top_score": 0.49041521549224854
+      },
+      "Q008": {
+        "first_relevant_rank": 1,
+        "top_score": 0.4792543649673462
+      },
+      "Q009": {
+        "first_relevant_rank": 1,
+        "top_score": 0.568837583065033
+      },
+      "Q010": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5056864619255066
+      },
+      "Q011": {
+        "first_relevant_rank": 1,
+        "top_score": 0.4398096799850464
+      },
+      "Q012": {
+        "first_relevant_rank": 1,
+        "top_score": 0.35190868377685547
+      },
+      "Q013": {
+        "first_relevant_rank": 1,
+        "top_score": 0.41383522748947144
+      },
+      "Q014": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5800031423568726
+      },
+      "Q015": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6630578637123108
+      },
+      "Q016": {
+        "first_relevant_rank": 2,
+        "top_score": 0.3943818211555481
+      },
+      "Q017": {
+        "first_relevant_rank": 1,
+        "top_score": 0.4870861768722534
+      },
+      "Q018": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6324342489242554
+      },
+      "Q019": {
+        "first_relevant_rank": 1,
+        "top_score": 0.4222695231437683
+      },
+      "Q020": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5545583963394165
+      },
+      "Q021": {
+        "first_relevant_rank": 1,
+        "top_score": 0.3511466979980469
+      },
+      "Q022": {
+        "first_relevant_rank": 3,
+        "top_score": 0.33806556463241577
+      },
+      "Q023": {
+        "first_relevant_rank": 1,
+        "top_score": 0.37755727767944336
+      },
+      "Q024": {
+        "first_relevant_rank": 1,
+        "top_score": 0.43696004152297974
+      },
+      "Q025": {
+        "first_relevant_rank": 1,
+        "top_score": 0.561853289604187
+      },
+      "Q026": {
+        "first_relevant_rank": 1,
+        "top_score": 0.4572080969810486
+      },
+      "Q027": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6075477600097656
+      },
+      "Q028": {
+        "first_relevant_rank": 1,
+        "top_score": 0.3584747016429901
+      },
+      "Q029": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5337285995483398
+      },
+      "Q030": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5212568044662476
+      },
+      "Q031": {
+        "first_relevant_rank": 1,
+        "top_score": 0.3912065625190735
+      },
+      "Q032": {
+        "first_relevant_rank": 1,
+        "top_score": 0.46051841974258423
+      },
+      "Q033": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5376828908920288
+      },
+      "Q034": {
+        "first_relevant_rank": 2,
+        "top_score": 0.45279598236083984
+      },
+      "Q035": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6079890131950378
+      },
+      "Q036": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5708049535751343
+      },
+      "Q037": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5442256331443787
+      },
+      "Q038": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6191983222961426
+      },
+      "Q039": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5135990381240845
+      },
+      "Q040": {
+        "first_relevant_rank": 2,
+        "top_score": 0.34969428181648254
+      },
+      "Q041": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5678349137306213
+      },
+      "Q042": {
+        "first_relevant_rank": 1,
+        "top_score": 0.4329236149787903
+      },
+      "Q043": {
+        "first_relevant_rank": 2,
+        "top_score": 0.4665539264678955
+      }
+    },
+    "unanswerable_top_scores": [
+      0.32828840613365173,
+      0.360821396112442,
+      0.3231165111064911,
+      0.49477070569992065,
+      0.41384756565093994,
+      0.40222644805908203,
+      0.354190468788147,
+      0.21878878772258759,
+      0.1771845817565918,
+      0.13433846831321716
+    ],
+    "auroc_answerable_vs_unanswerable": 0.8837209302325582,
+    "model": "embed-v4.0",
+    "dimension": 1536
+  },
+  "cohere:embed-v5.0-pro": {
+    "answerable_questions": 43,
+    "hit@1": 0.9534883720930233,
+    "hit@3": 1.0,
+    "hit@5": 1.0,
+    "hit@10": 1.0,
+    "recall@1": 0.817829457364341,
+    "recall@3": 0.9728682170542636,
+    "recall@5": 0.9806201550387598,
+    "recall@10": 0.992248062015504,
+    "mrr": 0.9767441860465116,
+    "per_question": {
+      "Q001": {
+        "first_relevant_rank": 1,
+        "top_score": 0.36202096939086914
+      },
+      "Q002": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5721091032028198
+      },
+      "Q003": {
+        "first_relevant_rank": 1,
+        "top_score": 0.614642858505249
+      },
+      "Q004": {
+        "first_relevant_rank": 1,
+        "top_score": 0.43688255548477173
+      },
+      "Q005": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5337241291999817
+      },
+      "Q006": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5480186939239502
+      },
+      "Q007": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5914365649223328
+      },
+      "Q008": {
+        "first_relevant_rank": 1,
+        "top_score": 0.43335914611816406
+      },
+      "Q009": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5450127124786377
+      },
+      "Q010": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5491492748260498
+      },
+      "Q011": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5765507221221924
+      },
+      "Q012": {
+        "first_relevant_rank": 1,
+        "top_score": 0.38264554738998413
+      },
+      "Q013": {
+        "first_relevant_rank": 1,
+        "top_score": 0.42323580384254456
+      },
+      "Q014": {
+        "first_relevant_rank": 1,
+        "top_score": 0.574664831161499
+      },
+      "Q015": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5961636304855347
+      },
+      "Q016": {
+        "first_relevant_rank": 1,
+        "top_score": 0.4747963547706604
+      },
+      "Q017": {
+        "first_relevant_rank": 1,
+        "top_score": 0.4958788752555847
+      },
+      "Q018": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6063156127929688
+      },
+      "Q019": {
+        "first_relevant_rank": 1,
+        "top_score": 0.3704281449317932
+      },
+      "Q020": {
+        "first_relevant_rank": 1,
+        "top_score": 0.594204843044281
+      },
+      "Q021": {
+        "first_relevant_rank": 1,
+        "top_score": 0.2605031430721283
+      },
+      "Q022": {
+        "first_relevant_rank": 1,
+        "top_score": 0.3554763197898865
+      },
+      "Q023": {
+        "first_relevant_rank": 1,
+        "top_score": 0.4717767834663391
+      },
+      "Q024": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5303781032562256
+      },
+      "Q025": {
+        "first_relevant_rank": 1,
+        "top_score": 0.4631316661834717
+      },
+      "Q026": {
+        "first_relevant_rank": 1,
+        "top_score": 0.4482564330101013
+      },
+      "Q027": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5729973912239075
+      },
+      "Q028": {
+        "first_relevant_rank": 1,
+        "top_score": 0.3488474488258362
+      },
+      "Q029": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5336052179336548
+      },
+      "Q030": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5785216093063354
+      },
+      "Q031": {
+        "first_relevant_rank": 1,
+        "top_score": 0.4643316864967346
+      },
+      "Q032": {
+        "first_relevant_rank": 1,
+        "top_score": 0.49694475531578064
+      },
+      "Q033": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6041955351829529
+      },
+      "Q034": {
+        "first_relevant_rank": 1,
+        "top_score": 0.44823402166366577
+      },
+      "Q035": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5505074858665466
+      },
+      "Q036": {
+        "first_relevant_rank": 2,
+        "top_score": 0.5658812522888184
+      },
+      "Q037": {
+        "first_relevant_rank": 1,
+        "top_score": 0.552520215511322
+      },
+      "Q038": {
+        "first_relevant_rank": 1,
+        "top_score": 0.6465777158737183
+      },
+      "Q039": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5591775178909302
+      },
+      "Q040": {
+        "first_relevant_rank": 1,
+        "top_score": 0.475403368473053
+      },
+      "Q041": {
+        "first_relevant_rank": 1,
+        "top_score": 0.5777439475059509
+      },
+      "Q042": {
+        "first_relevant_rank": 2,
+        "top_score": 0.4694374203681946
+      },
+      "Q043": {
+        "first_relevant_rank": 1,
+        "top_score": 0.46127820014953613
+      }
+    },
+    "unanswerable_top_scores": [
+      0.24764420092105865,
+      0.2990870475769043,
+      0.32856664061546326,
+      0.5310652256011963,
+      0.3626554608345032,
+      0.42168906331062317,
+      0.2918815314769745,
+      0.1727757304906845,
+      0.1336771845817566,
+      0.11335897445678711
+    ],
+    "auroc_answerable_vs_unanswerable": 0.9209302325581395,
+    "model": "embed-v5.0-pro",
+    "dimension": 2048
+  }
+}

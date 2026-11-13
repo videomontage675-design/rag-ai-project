@@ -1,0 +1,210 @@
+{
+  "pdftotext (poppler)": {
+    "02_plans_pricing_v1": {
+      "letter_error": 0.0009013068949977468,
+      "letter_cer": 0.03064443442992339,
+      "punct_cer": 0.040492957746478875,
+      "word_recall": 0.8636363636363636,
+      "presentation_forms": 0,
+      "ms": 16.988904999948318
+    },
+    "02_plans_pricing_v2": {
+      "letter_error": 0.0007680491551459293,
+      "letter_cer": 0.026113671274961597,
+      "punct_cer": 0.03600900225056264,
+      "word_recall": 0.8423076923076923,
+      "presentation_forms": 0,
+      "ms": 21.306297000023733
+    },
+    "05_privacy_security": {
+      "letter_error": 0.0,
+      "letter_cer": 0.0014754703061600886,
+      "punct_cer": 0.014270424545130217,
+      "word_recall": 0.8686679174484052,
+      "presentation_forms": 0,
+      "ms": 16.539904999945065
+    }
+  },
+  "pypdf": {
+    "02_plans_pricing_v1": {
+      "letter_error": 0.023433979269941414,
+      "letter_cer": 0.6570527264533573,
+      "punct_cer": 0.6615316901408451,
+      "word_recall": 0.8318181818181818,
+      "presentation_forms": 42,
+      "ms": 95.5354369999668
+    },
+    "02_plans_pricing_v2": {
+      "letter_error": 0.019969278033794162,
+      "letter_cer": 0.6501536098310292,
+      "punct_cer": 0.654913728432108,
+      "word_recall": 0.8192307692307692,
+      "presentation_forms": 42,
+      "ms": 112.10130500001014
+    },
+    "05_privacy_security": {
+      "letter_error": 0.018443378827001106,
+      "letter_cer": 0.699741792696422,
+      "punct_cer": 0.7110239029611131,
+      "word_recall": 0.9512195121951219,
+      "presentation_forms": 42,
+      "ms": 112.43431000002602
+    }
+  },
+  "pypdf (layout mode)": {
+    "02_plans_pricing_v1": {
+      "letter_error": 0.023433979269941414,
+      "letter_cer": 0.8030644434429923,
+      "punct_cer": 0.8072183098591549,
+      "word_recall": 0.09545454545454546,
+      "presentation_forms": 42,
+      "ms": 102.55775500002073
+    },
+    "02_plans_pricing_v2": {
+      "letter_error": 0.019969278033794162,
+      "letter_cer": 0.804915514592934,
+      "punct_cer": 0.8090772693173294,
+      "word_recall": 0.11153846153846154,
+      "presentation_forms": 42,
+      "ms": 118.93057299994325
+    },
+    "05_privacy_security": {
+      "letter_error": 0.018443378827001106,
+      "letter_cer": 0.8019181113980081,
+      "punct_cer": 0.8119871566179094,
+      "word_recall": 0.075046904315197,
+      "presentation_forms": 42,
+      "ms": 130.2579709999918
+    }
+  },
+  "pdfminer.six": {
+    "02_plans_pricing_v1": {
+      "letter_error": 0.023433979269941414,
+      "letter_cer": 0.8039657503379901,
+      "punct_cer": 0.8089788732394366,
+      "word_recall": 0.09545454545454546,
+      "presentation_forms": 42,
+      "ms": 166.1585350000223
+    },
+    "02_plans_pricing_v2": {
+      "letter_error": 0.019969278033794162,
+      "letter_cer": 0.8056835637480799,
+      "punct_cer": 0.8105776444111028,
+      "word_recall": 0.11153846153846154,
+      "presentation_forms": 42,
+      "ms": 222.96104400004424
+    },
+    "05_privacy_security": {
+      "letter_error": 0.018443378827001106,
+      "letter_cer": 0.8022869789745481,
+      "punct_cer": 0.8130574384587942,
+      "word_recall": 0.075046904315197,
+      "presentation_forms": 42,
+      "ms": 211.23981199991704
+    }
+  },
+  "pdfplumber": {
+    "02_plans_pricing_v1": {
+      "letter_error": 0.023433979269941414,
+      "letter_cer": 0.8030644434429923,
+      "punct_cer": 0.8072183098591549,
+      "word_recall": 0.09545454545454546,
+      "presentation_forms": 42,
+      "ms": 224.5905390000189
+    },
+    "02_plans_pricing_v2": {
+      "letter_error": 0.019969278033794162,
+      "letter_cer": 0.804915514592934,
+      "punct_cer": 0.8090772693173294,
+      "word_recall": 0.11153846153846154,
+      "presentation_forms": 42,
+      "ms": 294.5416889999706
+    },
+    "05_privacy_security": {
+      "letter_error": 0.018443378827001106,
+      "letter_cer": 0.8019181113980081,
+      "punct_cer": 0.8119871566179094,
+      "word_recall": 0.075046904315197,
+      "presentation_forms": 42,
+      "ms": 249.23672900001748
+    }
+  },
+  "pypdfium2": {
+    "02_plans_pricing_v1": {
+      "letter_error": 0.02433528616493916,
+      "letter_cer": 0.07480847228481298,
+      "punct_cer": 0.08318661971830986,
+      "word_recall": 0.9363636363636364,
+      "presentation_forms": 0,
+      "ms": 12.243555000054585
+    },
+    "02_plans_pricing_v2": {
+      "letter_error": 0.020737327188940093,
+      "letter_cer": 0.06758832565284179,
+      "punct_cer": 0.07614403600900226,
+      "word_recall": 0.9403846153846154,
+      "presentation_forms": 0,
+      "ms": 13.21058299993183
+    },
+    "05_privacy_security": {
+      "letter_error": 0.01881224640354113,
+      "letter_cer": 0.07192917742530432,
+      "punct_cer": 0.08062789867998572,
+      "word_recall": 0.924953095684803,
+      "presentation_forms": 0,
+      "ms": 12.971252000056666
+    }
+  },
+  "PyMuPDF": {
+    "02_plans_pricing_v1": {
+      "letter_error": 0.03064443442992339,
+      "letter_cer": 0.6588553402433529,
+      "punct_cer": 0.6650528169014085,
+      "word_recall": 0.9068181818181819,
+      "presentation_forms": 0,
+      "ms": 13.162588000000142
+    },
+    "02_plans_pricing_v2": {
+      "letter_error": 0.027265745007680493,
+      "letter_cer": 0.652073732718894,
+      "punct_cer": 0.6582895723930983,
+      "word_recall": 0.8980769230769231,
+      "presentation_forms": 0,
+      "ms": 13.364394999939577
+    },
+    "05_privacy_security": {
+      "letter_error": 0.025451862781261526,
+      "letter_cer": 0.6993729251198819,
+      "punct_cer": 0.7142347484837674,
+      "word_recall": 0.9212007504690432,
+      "presentation_forms": 0,
+      "ms": 14.371823000033146
+    }
+  },
+  "PyMuPDF (sort=True)": {
+    "02_plans_pricing_v1": {
+      "letter_error": 0.030193780982424517,
+      "letter_cer": 0.701216764308247,
+      "punct_cer": 0.7112676056338029,
+      "word_recall": 0.9431818181818182,
+      "presentation_forms": 0,
+      "ms": 26.92722100005085
+    },
+    "02_plans_pricing_v2": {
+      "letter_error": 0.026881720430107527,
+      "letter_cer": 0.6981566820276498,
+      "punct_cer": 0.7096774193548387,
+      "word_recall": 0.9403846153846154,
+      "presentation_forms": 0,
+      "ms": 29.678689000093073
+    },
+    "05_privacy_security": {
+      "letter_error": 0.025082995204721504,
+      "letter_cer": 0.699741792696422,
+      "punct_cer": 0.7149482697110239,
+      "word_recall": 0.9212007504690432,
+      "presentation_forms": 0,
+      "ms": 32.8921940000555
+    }
+  }
+}

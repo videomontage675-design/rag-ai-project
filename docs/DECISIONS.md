@@ -188,7 +188,7 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
 - **Context:** The owner delegated the choice of Markdown-to-PDF tool, with justification.
 - **Decision:** Markdown is converted to HTML with markdown-it, and then to PDF with headless Chromium via Playwright. The font is Amiri (SIL OFL 1.1) with kerning disabled. This is development tooling only (`tools/corpus/`).
 - **Evidence:**
-  - Measured against WeasyPrint, LibreOffice, and five other fonts (`docs/02_SAMPLE_CORPUS.md` §5).
+  - Measured against WeasyPrint and LibreOffice, each with the same six fonts (`docs/02_SAMPLE_CORPUS.md` §5). The LibreOffice comparison was corrected on 2026-11-13 to use the same fonts (D-026); the decision did not change.
   - It had the best text-layer quality: pdftotext letter error 0.1%, letter CER 1.9%, word recall 84%.
 - **Consequences:**
   - The tooling needs Node.js; there is no runtime role.
@@ -199,6 +199,75 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
 - **Decision:** The owner approved the Phase 2 deliverables, including the platform name (D-022) and the PDF tooling (D-023), and approved the Phase 3 summary (Technology Evaluation and Selection), authorizing its start.
 - **Integration:** Per D-015, Phase 2 goes to `main` through its own pull request. Phase 3 commits are held back until that pull request is merged, so the two phases are not mixed.
 
+## D-025 — Providers for the Phase 3 proof of concept
+- **Date:** 2026-11-13 · **Status:** Approved
+- **Decision:** The owner approved these free-tier providers for the Phase 3 PoC:
+  - **Google AI Studio (Gemini):** LLM and embeddings.
+  - **Groq:** alternative LLM and LLM-as-judge candidate.
+  - **Cohere:** multilingual embeddings.
+  - **Mistral:** optional.
+
+  **Jina Embeddings** was added as an embedding candidate at the owner's confirmation; the owner already has an account.
+- **Notes:**
+  - The owner will create the accounts in due course. Work that needs keys is prepared so it runs as soon as keys are entered, and it does not block the rest of Phase 3.
+  - API keys are entered through a secure credential form; they are never sent in chat or stored in Git.
+  - From the cloud development container, only Gemini's host is currently reachable. The others are blocked by the container's network policy (not by the providers) until a credential for that host is saved.
+  - Free-tier data-usage terms (e.g., Gemini and Mistral free tiers may use data to improve models) are acceptable for the fictional corpus. They will be documented per provider as a selection criterion for real data.
+
+## D-026 — Evaluation principle: evidence, not the development environment
+- **Date:** 2026-11-13 · **Status:** Approved (owner instruction)
+- **Context:** The owner objected that technology candidates must not be nominated, evaluated, or chosen on the basis of the cloud development environment Claude works in. They must be chosen on reliable information and sources and on known efficiency.
+- **Decision:** Technology choices rest only on the following, in this order:
+  1. **Project requirements**, including the **target environment**: the owner's Windows machine (D-017), single user, free hosted providers (D-010).
+  2. **Authoritative sources:** official documentation, licenses, official pricing and data-usage terms, maintenance status, and recognised public benchmarks (e.g., MTEB/MMTEB for embeddings). Third-party aggregator sites are used only as leads, never as evidence.
+  3. **Reproducible measurements on the project's own Arabic corpus and golden set**, with pinned versions, so the results do not depend on the machine they run on. Where a result can depend on the OS (e.g., native binaries), it is re-verified on Windows.
+- **Never a criterion:** what happens to be installed, pre-installed, or reachable in the development container.
+  - Container limitations affect only *how* a measurement is run: the missing access or tool is set up, or the measurement runs on the owner's machine.
+  - A candidate that cannot be measured is reported as "not measured". It is not dropped.
+- **Corrections made:**
+  - The PDF-tool comparison in Phase 2 had tested LibreOffice with one font only, because of what was installed in the container. It was re-run with the same fonts as the other tools; the conclusion stands.
+  - The rationale "Chromium was already available" was replaced with a portable, environment-independent property.
+  - The provider shortlist (D-025) is a lead from web research. Each provider's free-tier limits and data terms will be verified on its official pages in Phase 3 before any decision.
+
+## D-027 — User interface: server-rendered Jinja2 + HTMX
+- **Date:** 2026-11-13 · **Status:** Approved (resolves P-012)
+- **Decision:** The UI is server-rendered HTML with Jinja2 templates and HTMX for partial updates (e.g., processing status), in Arabic with a right-to-left layout. React SPA was the alternative considered (TECH-001 T-03).
+- **Consequences:**
+  - One language (Python) and one runtime; no Node.js is needed on the owner's machine.
+  - The backend still exposes a documented JSON API, so the UI can be replaced later without changing the pipeline.
+
+## D-028 — PDF text extraction: pdftotext (Poppler)
+- **Date:** 2026-11-13 · **Status:** Approved
+- **Decision:** PDF text is extracted with Poppler's `pdftotext`, invoked as a separate process.
+- **Evidence:** TECH-001 T-06. All 57 evidence passages stay intact, and BM25 Hit@5 is 0.93, versus 52 intact and 0.81 for pypdfium2.
+- **Consequences:**
+  - Windows needs a separate installation step (a conda-forge Poppler build). The owner accepts this. The step is documented in the README and checked at start-up (FR-CFG-04).
+  - Results are re-verified on Windows (NFR-OPS-04, P-011).
+  - The extractor sits behind an interface, so it can be replaced.
+
+## D-029 — Phase 3 approved: technology selection
+- **Date:** 2026-11-13 · **Status:** Approved
+- **Owner's condition:** approve proposals that rest on reasons and motives, not on preference.
+- **Basis of each approved proposal** (full evidence in TECH-001):
+
+| Proposal | Choice | Basis |
+|---|---|---|
+| T-01 | Python | Requirements: the document-processing and evaluation tooling measured in Phase 3 is Python; learning goal (CLAUDE.md §3) |
+| T-02 | FastAPI | Requirements: input validation (FR-DOC-03, FR-RET-01) and a generated OpenAPI contract (Phase 4); async I/O for provider calls |
+| T-04 | In-process worker with persisted job state | Requirements FR-ING-01, -02, -14; single user (D-009); simplicity (CLAUDE.md §5) |
+| T-05 | SQLite + exact NumPy search | Consistency requirements FR-DOC-07, FR-VER-04, FR-ING-13 (one transactional store); measured 0.6–2.3 ms at 20,000 chunks |
+| T-07 | markdown-it-py | CommonMark compliance with tables; the same parser family that renders the corpus PDFs |
+| T-08 | Basic Arabic normalization | Measured: required for Arabic-Indic digits and presentation forms; the extra steps showed no gain |
+| T-09 | Own heading-aware chunker | Requirements FR-ING-09 and -10; measured finding that chunks need the full heading path (T-11, finding 6) |
+| T-10 / P-014 | gemini-embedding-001 (default); Cohere embed-v5.0-pro (alternative) | Measured: clearly beats BM25. Official terms: Cohere's trial key is capped and not for production |
+| T-11, T-12 / P-015 | qwen/qwen3.8-27b (Groq), fallback openai/gpt-oss-20b; judge Cohere command-a-plus-05-2026 | Measured: best faithfulness, citation discipline, and version-trap handling. Official quota: Gemini allows 20 generation requests per day. The judge is independent of the generators |
+| T-13 | OpenAI-compatible adapters | Official documentation of Gemini, Groq, Cohere, and Ollama; D-010, D-013 |
+| T-14 | Own pipeline (no LangChain or LlamaIndex) | CLAUDE.md §6 (no black boxes); Arabic and versioning steps are custom anyway |
+| T-15 | pytest, HTTP mocking, ruff, Playwright | NFR-MNT-02 (no real provider calls in tests), NFR-MNT-04 (enforced style), FR-UI end-to-end checks |
+
+- **Note:** T-01, T-02, T-04, T-14, and T-15 rest on requirements and principles rather than measurements; their reasons are stated above. If the owner considers any of these insufficiently justified, it is reopened through change management (`EXECUTION_PROTOCOL.md` §8).
+- **Also authorized:** Phase 4 (Architecture and Technical Design) start. The owner asked for modern, visual Markdown diagrams with clear semantic shapes and icons.
+
 ---
 
 ## Pending decisions
@@ -206,6 +275,5 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
 | ID | Question | Resolve by |
 |---|---|---|
 | P-008 | Lightweight CI (GitHub Actions) for tests and linting, including a Windows runner (D-017) | Phase 5 |
-| P-011 | NFR-LNG-02 (PDF extraction CER ≤ 2%) may need redefinition. The sample pricing PDFs measure 2.6–3.1% letter CER with pdftotext before cleaning, caused entirely by table reflow (`docs/02_SAMPLE_CORPUS.md` §7). The proposal will be based on Phase 3 measurements and needs owner approval. | Phase 3 |
 
-Resolved: P-001 → D-009 · P-002 → D-011 · P-003 → D-012 · P-004 → D-017 · P-005 → D-018 · P-006 → D-021 · P-007 → D-019 · P-009 → D-014 · P-010 → D-015.
+Resolved: P-001 → D-009 · P-002 → D-011 · P-003 → D-012 · P-004 → D-017 · P-005 → D-018 · P-006 → D-021 · P-007 → D-019 · P-009 → D-014 · P-010 → D-015 · P-011 → D-029 · P-012 → D-027 · P-014 → D-029 · P-015 → D-029 · P-013 → keys provided (Gemini, Groq, Cohere working; Jina balance exhausted; Mistral key invalid).

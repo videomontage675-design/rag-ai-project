@@ -1,0 +1,1208 @@
+{
+  "pdftotext | norm=basic | stem=off | chunk=800/150": {
+    "answerable_questions": 43,
+    "hit@1": 0.6744186046511628,
+    "hit@3": 0.813953488372093,
+    "hit@5": 0.9302325581395349,
+    "hit@10": 0.9534883720930233,
+    "recall@1": 0.5387596899224806,
+    "recall@3": 0.7403100775193798,
+    "recall@5": 0.8759689922480621,
+    "recall@10": 0.9224806201550388,
+    "mrr": 0.7660852713178293,
+    "per_question": {
+      "Q001": {
+        "first_relevant_rank": 1,
+        "top_score": 10.95650689213795
+      },
+      "Q002": {
+        "first_relevant_rank": 1,
+        "top_score": 9.493636754942157
+      },
+      "Q003": {
+        "first_relevant_rank": 1,
+        "top_score": 24.810469521691097
+      },
+      "Q004": {
+        "first_relevant_rank": 1,
+        "top_score": 8.958082256732316
+      },
+      "Q005": {
+        "first_relevant_rank": 1,
+        "top_score": 20.365808571113025
+      },
+      "Q006": {
+        "first_relevant_rank": 1,
+        "top_score": 9.953058830904647
+      },
+      "Q007": {
+        "first_relevant_rank": 1,
+        "top_score": 17.853954410364963
+      },
+      "Q008": {
+        "first_relevant_rank": 1,
+        "top_score": 12.35811971729419
+      },
+      "Q009": {
+        "first_relevant_rank": 1,
+        "top_score": 15.20292719364858
+      },
+      "Q010": {
+        "first_relevant_rank": 1,
+        "top_score": 27.235611721549464
+      },
+      "Q011": {
+        "first_relevant_rank": 2,
+        "top_score": 5.07083721338038
+      },
+      "Q012": {
+        "first_relevant_rank": 1,
+        "top_score": 20.09622760991265
+      },
+      "Q013": {
+        "first_relevant_rank": 8,
+        "top_score": 12.575781943507868
+      },
+      "Q014": {
+        "first_relevant_rank": 1,
+        "top_score": 15.201277999901293
+      },
+      "Q015": {
+        "first_relevant_rank": 1,
+        "top_score": 18.782436535815044
+      },
+      "Q016": {
+        "first_relevant_rank": 4,
+        "top_score": 7.560629128443695
+      },
+      "Q017": {
+        "first_relevant_rank": 1,
+        "top_score": 5.243877397778036
+      },
+      "Q018": {
+        "first_relevant_rank": 2,
+        "top_score": 23.827518450929798
+      },
+      "Q019": {
+        "first_relevant_rank": 3,
+        "top_score": 13.075385108156887
+      },
+      "Q020": {
+        "first_relevant_rank": 1,
+        "top_score": 19.5223377832818
+      },
+      "Q021": {
+        "first_relevant_rank": null,
+        "top_score": 6.133782086211591
+      },
+      "Q022": {
+        "first_relevant_rank": null,
+        "top_score": 5.311772673429703
+      },
+      "Q023": {
+        "first_relevant_rank": 3,
+        "top_score": 4.315953574719626
+      },
+      "Q024": {
+        "first_relevant_rank": 1,
+        "top_score": 13.300535238649028
+      },
+      "Q025": {
+        "first_relevant_rank": 2,
+        "top_score": 7.213399138599265
+      },
+      "Q026": {
+        "first_relevant_rank": 5,
+        "top_score": 6.668399629046045
+      },
+      "Q027": {
+        "first_relevant_rank": 2,
+        "top_score": 7.479310430836721
+      },
+      "Q028": {
+        "first_relevant_rank": 1,
+        "top_score": 4.942355728024086
+      },
+      "Q029": {
+        "first_relevant_rank": 1,
+        "top_score": 14.906713937808195
+      },
+      "Q030": {
+        "first_relevant_rank": 1,
+        "top_score": 22.65322415213133
+      },
+      "Q031": {
+        "first_relevant_rank": 1,
+        "top_score": 11.426415111600367
+      },
+      "Q032": {
+        "first_relevant_rank": 1,
+        "top_score": 11.42865887387875
+      },
+      "Q033": {
+        "first_relevant_rank": 1,
+        "top_score": 9.96455544076142
+      },
+      "Q034": {
+        "first_relevant_rank": 1,
+        "top_score": 12.862215780458786
+      },
+      "Q035": {
+        "first_relevant_rank": 1,
+        "top_score": 11.692420259978418
+      },
+      "Q036": {
+        "first_relevant_rank": 1,
+        "top_score": 14.318738895486945
+      },
+      "Q037": {
+        "first_relevant_rank": 1,
+        "top_score": 19.037979430187892
+      },
+      "Q038": {
+        "first_relevant_rank": 1,
+        "top_score": 14.748323136694914
+      },
+      "Q039": {
+        "first_relevant_rank": 5,
+        "top_score": 6.963770413044651
+      },
+      "Q040": {
+        "first_relevant_rank": 4,
+        "top_score": 7.10476535020815
+      },
+      "Q041": {
+        "first_relevant_rank": 1,
+        "top_score": 8.713842342642188
+      },
+      "Q042": {
+        "first_relevant_rank": 4,
+        "top_score": 6.775505255236705
+      },
+      "Q043": {
+        "first_relevant_rank": 1,
+        "top_score": 9.286849223137395
+      }
+    },
+    "unanswerable_top_scores": [
+      3.950744472014003,
+      4.597974381647485,
+      3.5010986891485913,
+      6.742980913314913,
+      6.491994979813682,
+      6.58330307111355,
+      6.3018198263318785,
+      4.119988045810441,
+      2.959271675345395,
+      1.3947905870746078
+    ],
+    "chunks": 76,
+    "evidence_missing": []
+  },
+  "pypdfium2 | norm=basic | stem=off | chunk=800/150": {
+    "answerable_questions": 43,
+    "hit@1": 0.627906976744186,
+    "hit@3": 0.7441860465116279,
+    "hit@5": 0.813953488372093,
+    "hit@10": 0.9069767441860465,
+    "recall@1": 0.503875968992248,
+    "recall@3": 0.6627906976744186,
+    "recall@5": 0.7713178294573645,
+    "recall@10": 0.8527131782945737,
+    "mrr": 0.7107235142118863,
+    "per_question": {
+      "Q001": {
+        "first_relevant_rank": 1,
+        "top_score": 10.912599527063922
+      },
+      "Q002": {
+        "first_relevant_rank": 1,
+        "top_score": 9.571762864769315
+      },
+      "Q003": {
+        "first_relevant_rank": 1,
+        "top_score": 25.207795485499066
+      },
+      "Q004": {
+        "first_relevant_rank": 1,
+        "top_score": 9.28418601008967
+      },
+      "Q005": {
+        "first_relevant_rank": 1,
+        "top_score": 21.088873354184543
+      },
+      "Q006": {
+        "first_relevant_rank": 1,
+        "top_score": 10.055472287175986
+      },
+      "Q007": {
+        "first_relevant_rank": 1,
+        "top_score": 17.97787968837899
+      },
+      "Q008": {
+        "first_relevant_rank": 1,
+        "top_score": 12.557175546137007
+      },
+      "Q009": {
+        "first_relevant_rank": 1,
+        "top_score": 15.480094981163312
+      },
+      "Q010": {
+        "first_relevant_rank": 1,
+        "top_score": 26.893757288149253
+      },
+      "Q011": {
+        "first_relevant_rank": null,
+        "top_score": 4.841618193367807
+      },
+      "Q012": {
+        "first_relevant_rank": 1,
+        "top_score": 21.57653246739496
+      },
+      "Q013": {
+        "first_relevant_rank": 8,
+        "top_score": 12.262262054422159
+      },
+      "Q014": {
+        "first_relevant_rank": 1,
+        "top_score": 15.31581727351629
+      },
+      "Q015": {
+        "first_relevant_rank": 1,
+        "top_score": 19.28592536446166
+      },
+      "Q016": {
+        "first_relevant_rank": 9,
+        "top_score": 7.650089202015206
+      },
+      "Q017": {
+        "first_relevant_rank": 1,
+        "top_score": 5.146192744159238
+      },
+      "Q018": {
+        "first_relevant_rank": 2,
+        "top_score": 24.884687697599393
+      },
+      "Q019": {
+        "first_relevant_rank": 3,
+        "top_score": 13.121998595296546
+      },
+      "Q020": {
+        "first_relevant_rank": null,
+        "top_score": 19.701540197330736
+      },
+      "Q021": {
+        "first_relevant_rank": 4,
+        "top_score": 5.590590854648575
+      },
+      "Q022": {
+        "first_relevant_rank": null,
+        "top_score": 5.353694641561168
+      },
+      "Q023": {
+        "first_relevant_rank": 2,
+        "top_score": 4.301512065069537
+      },
+      "Q024": {
+        "first_relevant_rank": 1,
+        "top_score": 13.583945336939053
+      },
+      "Q025": {
+        "first_relevant_rank": 2,
+        "top_score": 7.540349051996923
+      },
+      "Q026": {
+        "first_relevant_rank": 5,
+        "top_score": 6.8919303322497685
+      },
+      "Q027": {
+        "first_relevant_rank": null,
+        "top_score": 7.015967327660286
+      },
+      "Q028": {
+        "first_relevant_rank": 1,
+        "top_score": 5.041960534372853
+      },
+      "Q029": {
+        "first_relevant_rank": 1,
+        "top_score": 15.140867765172416
+      },
+      "Q030": {
+        "first_relevant_rank": 1,
+        "top_score": 22.745131313633255
+      },
+      "Q031": {
+        "first_relevant_rank": 1,
+        "top_score": 11.603193824285938
+      },
+      "Q032": {
+        "first_relevant_rank": 1,
+        "top_score": 11.67089778978878
+      },
+      "Q033": {
+        "first_relevant_rank": 1,
+        "top_score": 9.922471847959876
+      },
+      "Q034": {
+        "first_relevant_rank": 1,
+        "top_score": 12.507473504318064
+      },
+      "Q035": {
+        "first_relevant_rank": 6,
+        "top_score": 11.659345079509977
+      },
+      "Q036": {
+        "first_relevant_rank": 1,
+        "top_score": 14.615685814774254
+      },
+      "Q037": {
+        "first_relevant_rank": 1,
+        "top_score": 19.183232722836596
+      },
+      "Q038": {
+        "first_relevant_rank": 1,
+        "top_score": 14.853426820543872
+      },
+      "Q039": {
+        "first_relevant_rank": 8,
+        "top_score": 6.659607186827042
+      },
+      "Q040": {
+        "first_relevant_rank": 4,
+        "top_score": 6.988933378832444
+      },
+      "Q041": {
+        "first_relevant_rank": 1,
+        "top_score": 8.582080771297901
+      },
+      "Q042": {
+        "first_relevant_rank": 2,
+        "top_score": 8.668580628027593
+      },
+      "Q043": {
+        "first_relevant_rank": 1,
+        "top_score": 8.523336890311862
+      }
+    },
+    "unanswerable_top_scores": [
+      3.8249936150807784,
+      4.064299521977969,
+      3.6435883917773997,
+      6.782510053444806,
+      6.555321222820781,
+      6.246601419298692,
+      5.829992977870038,
+      4.209610520988883,
+      2.867950926829744,
+      1.4483384034209574
+    ],
+    "chunks": 73,
+    "evidence_missing": [
+      "Q011:D05:٣. استضافة البيانات وتشفيرها",
+      "Q020:D05:٤. النسخ الاحتياطي والتعافي من الكوارث",
+      "Q027:D05:٨. الاحتفاظ بالبيانات وحذفها",
+      "Q035:D05:٧. سجل التدقيق",
+      "Q038:D05:٨. الاحتفاظ بالبيانات وحذفها"
+    ]
+  },
+  "pdftotext | norm=full | stem=off | chunk=800/150": {
+    "answerable_questions": 43,
+    "hit@1": 0.6744186046511628,
+    "hit@3": 0.813953488372093,
+    "hit@5": 0.9302325581395349,
+    "hit@10": 0.9534883720930233,
+    "recall@1": 0.5387596899224806,
+    "recall@3": 0.7403100775193798,
+    "recall@5": 0.8759689922480621,
+    "recall@10": 0.9224806201550388,
+    "mrr": 0.7660852713178293,
+    "per_question": {
+      "Q001": {
+        "first_relevant_rank": 1,
+        "top_score": 10.95650689213795
+      },
+      "Q002": {
+        "first_relevant_rank": 1,
+        "top_score": 9.493636754942157
+      },
+      "Q003": {
+        "first_relevant_rank": 1,
+        "top_score": 24.810469521691097
+      },
+      "Q004": {
+        "first_relevant_rank": 1,
+        "top_score": 8.958082256732316
+      },
+      "Q005": {
+        "first_relevant_rank": 1,
+        "top_score": 20.365808571113025
+      },
+      "Q006": {
+        "first_relevant_rank": 1,
+        "top_score": 9.953058830904647
+      },
+      "Q007": {
+        "first_relevant_rank": 1,
+        "top_score": 17.853954410364963
+      },
+      "Q008": {
+        "first_relevant_rank": 1,
+        "top_score": 12.35811971729419
+      },
+      "Q009": {
+        "first_relevant_rank": 1,
+        "top_score": 15.20292719364858
+      },
+      "Q010": {
+        "first_relevant_rank": 1,
+        "top_score": 27.235611721549464
+      },
+      "Q011": {
+        "first_relevant_rank": 2,
+        "top_score": 5.07083721338038
+      },
+      "Q012": {
+        "first_relevant_rank": 1,
+        "top_score": 20.09622760991265
+      },
+      "Q013": {
+        "first_relevant_rank": 8,
+        "top_score": 12.575781943507868
+      },
+      "Q014": {
+        "first_relevant_rank": 1,
+        "top_score": 15.201277999901293
+      },
+      "Q015": {
+        "first_relevant_rank": 1,
+        "top_score": 18.782436535815044
+      },
+      "Q016": {
+        "first_relevant_rank": 4,
+        "top_score": 7.560629128443695
+      },
+      "Q017": {
+        "first_relevant_rank": 1,
+        "top_score": 5.243877397778036
+      },
+      "Q018": {
+        "first_relevant_rank": 2,
+        "top_score": 23.827518450929798
+      },
+      "Q019": {
+        "first_relevant_rank": 3,
+        "top_score": 13.075385108156887
+      },
+      "Q020": {
+        "first_relevant_rank": 1,
+        "top_score": 19.5223377832818
+      },
+      "Q021": {
+        "first_relevant_rank": null,
+        "top_score": 6.133782086211591
+      },
+      "Q022": {
+        "first_relevant_rank": null,
+        "top_score": 5.311772673429703
+      },
+      "Q023": {
+        "first_relevant_rank": 3,
+        "top_score": 4.315953574719626
+      },
+      "Q024": {
+        "first_relevant_rank": 1,
+        "top_score": 13.300535238649028
+      },
+      "Q025": {
+        "first_relevant_rank": 2,
+        "top_score": 7.213399138599265
+      },
+      "Q026": {
+        "first_relevant_rank": 5,
+        "top_score": 6.668399629046045
+      },
+      "Q027": {
+        "first_relevant_rank": 2,
+        "top_score": 7.479310430836721
+      },
+      "Q028": {
+        "first_relevant_rank": 1,
+        "top_score": 4.942355728024086
+      },
+      "Q029": {
+        "first_relevant_rank": 1,
+        "top_score": 14.906713937808195
+      },
+      "Q030": {
+        "first_relevant_rank": 1,
+        "top_score": 22.65322415213133
+      },
+      "Q031": {
+        "first_relevant_rank": 1,
+        "top_score": 11.426415111600367
+      },
+      "Q032": {
+        "first_relevant_rank": 1,
+        "top_score": 11.42865887387875
+      },
+      "Q033": {
+        "first_relevant_rank": 1,
+        "top_score": 9.96455544076142
+      },
+      "Q034": {
+        "first_relevant_rank": 1,
+        "top_score": 12.862215780458786
+      },
+      "Q035": {
+        "first_relevant_rank": 1,
+        "top_score": 11.692420259978418
+      },
+      "Q036": {
+        "first_relevant_rank": 1,
+        "top_score": 14.318738895486945
+      },
+      "Q037": {
+        "first_relevant_rank": 1,
+        "top_score": 19.037979430187892
+      },
+      "Q038": {
+        "first_relevant_rank": 1,
+        "top_score": 14.748323136694914
+      },
+      "Q039": {
+        "first_relevant_rank": 5,
+        "top_score": 6.963770413044651
+      },
+      "Q040": {
+        "first_relevant_rank": 4,
+        "top_score": 7.10476535020815
+      },
+      "Q041": {
+        "first_relevant_rank": 1,
+        "top_score": 8.713842342642188
+      },
+      "Q042": {
+        "first_relevant_rank": 4,
+        "top_score": 6.775505255236705
+      },
+      "Q043": {
+        "first_relevant_rank": 1,
+        "top_score": 9.286849223137395
+      }
+    },
+    "unanswerable_top_scores": [
+      3.950744472014003,
+      4.597974381647485,
+      3.5010986891485913,
+      6.742980913314913,
+      6.491994979813682,
+      6.58330307111355,
+      6.3018198263318785,
+      4.119988045810441,
+      2.959271675345395,
+      1.3947905870746078
+    ],
+    "chunks": 76,
+    "evidence_missing": []
+  },
+  "pdftotext | norm=full | stem=on | chunk=800/150": {
+    "answerable_questions": 43,
+    "hit@1": 0.6744186046511628,
+    "hit@3": 0.8837209302325582,
+    "hit@5": 0.9302325581395349,
+    "hit@10": 0.9534883720930233,
+    "recall@1": 0.5503875968992248,
+    "recall@3": 0.8294573643410854,
+    "recall@5": 0.8875968992248063,
+    "recall@10": 0.9224806201550388,
+    "mrr": 0.7829457364341083,
+    "per_question": {
+      "Q001": {
+        "first_relevant_rank": 1,
+        "top_score": 11.097386685346011
+      },
+      "Q002": {
+        "first_relevant_rank": 1,
+        "top_score": 9.944661851858815
+      },
+      "Q003": {
+        "first_relevant_rank": 1,
+        "top_score": 31.982409417343
+      },
+      "Q004": {
+        "first_relevant_rank": 1,
+        "top_score": 10.873321136913724
+      },
+      "Q005": {
+        "first_relevant_rank": 1,
+        "top_score": 23.30345556500457
+      },
+      "Q006": {
+        "first_relevant_rank": 1,
+        "top_score": 9.953058830904647
+      },
+      "Q007": {
+        "first_relevant_rank": 1,
+        "top_score": 19.190378337047676
+      },
+      "Q008": {
+        "first_relevant_rank": 1,
+        "top_score": 15.025573001484908
+      },
+      "Q009": {
+        "first_relevant_rank": 1,
+        "top_score": 15.20292719364858
+      },
+      "Q010": {
+        "first_relevant_rank": 1,
+        "top_score": 27.248278728307284
+      },
+      "Q011": {
+        "first_relevant_rank": 2,
+        "top_score": 5.619469153947812
+      },
+      "Q012": {
+        "first_relevant_rank": 1,
+        "top_score": 20.09622760991265
+      },
+      "Q013": {
+        "first_relevant_rank": 2,
+        "top_score": 11.794141034625062
+      },
+      "Q014": {
+        "first_relevant_rank": 1,
+        "top_score": 16.822025073854363
+      },
+      "Q015": {
+        "first_relevant_rank": 1,
+        "top_score": 18.661662005349587
+      },
+      "Q016": {
+        "first_relevant_rank": 6,
+        "top_score": 8.694186751179936
+      },
+      "Q017": {
+        "first_relevant_rank": 1,
+        "top_score": 10.826029515712555
+      },
+      "Q018": {
+        "first_relevant_rank": 2,
+        "top_score": 24.899846026774053
+      },
+      "Q019": {
+        "first_relevant_rank": 2,
+        "top_score": 11.740345633066717
+      },
+      "Q020": {
+        "first_relevant_rank": 1,
+        "top_score": 19.776973000749226
+      },
+      "Q021": {
+        "first_relevant_rank": null,
+        "top_score": 6.133782086211591
+      },
+      "Q022": {
+        "first_relevant_rank": null,
+        "top_score": 4.936480168305196
+      },
+      "Q023": {
+        "first_relevant_rank": 3,
+        "top_score": 4.315953574719626
+      },
+      "Q024": {
+        "first_relevant_rank": 1,
+        "top_score": 10.80151366129555
+      },
+      "Q025": {
+        "first_relevant_rank": 4,
+        "top_score": 7.067050796366914
+      },
+      "Q026": {
+        "first_relevant_rank": 3,
+        "top_score": 7.209857117866405
+      },
+      "Q027": {
+        "first_relevant_rank": 2,
+        "top_score": 7.7594513068442685
+      },
+      "Q028": {
+        "first_relevant_rank": 2,
+        "top_score": 5.887462593915565
+      },
+      "Q029": {
+        "first_relevant_rank": 1,
+        "top_score": 17.931401383754334
+      },
+      "Q030": {
+        "first_relevant_rank": 1,
+        "top_score": 20.848066060985968
+      },
+      "Q031": {
+        "first_relevant_rank": 1,
+        "top_score": 11.1529972005991
+      },
+      "Q032": {
+        "first_relevant_rank": 1,
+        "top_score": 11.743296867273457
+      },
+      "Q033": {
+        "first_relevant_rank": 1,
+        "top_score": 20.270827016199366
+      },
+      "Q034": {
+        "first_relevant_rank": 1,
+        "top_score": 12.862215780458786
+      },
+      "Q035": {
+        "first_relevant_rank": 1,
+        "top_score": 11.301081019702714
+      },
+      "Q036": {
+        "first_relevant_rank": 1,
+        "top_score": 22.140816903624152
+      },
+      "Q037": {
+        "first_relevant_rank": 1,
+        "top_score": 19.78745185744224
+      },
+      "Q038": {
+        "first_relevant_rank": 1,
+        "top_score": 12.67770178225533
+      },
+      "Q039": {
+        "first_relevant_rank": 3,
+        "top_score": 8.754036462418664
+      },
+      "Q040": {
+        "first_relevant_rank": 4,
+        "top_score": 7.822979294515911
+      },
+      "Q041": {
+        "first_relevant_rank": 1,
+        "top_score": 14.188385872906245
+      },
+      "Q042": {
+        "first_relevant_rank": 1,
+        "top_score": 7.6028279308279165
+      },
+      "Q043": {
+        "first_relevant_rank": 1,
+        "top_score": 7.105023719563688
+      }
+    },
+    "unanswerable_top_scores": [
+      3.950744472014003,
+      4.597974381647485,
+      3.5010986891485913,
+      9.260349728915852,
+      6.491994979813682,
+      6.097558524516743,
+      8.043202081928053,
+      5.714875469743285,
+      2.959271675345395,
+      2.620533947806087
+    ],
+    "chunks": 76,
+    "evidence_missing": []
+  },
+  "pdftotext | norm=basic | stem=off | chunk=500/100": {
+    "answerable_questions": 43,
+    "hit@1": 0.6744186046511628,
+    "hit@3": 0.7906976744186046,
+    "hit@5": 0.9302325581395349,
+    "hit@10": 0.9534883720930233,
+    "recall@1": 0.5387596899224806,
+    "recall@3": 0.7054263565891472,
+    "recall@5": 0.8875968992248063,
+    "recall@10": 0.9224806201550388,
+    "mrr": 0.7595238095238094,
+    "per_question": {
+      "Q001": {
+        "first_relevant_rank": 1,
+        "top_score": 10.986074625841422
+      },
+      "Q002": {
+        "first_relevant_rank": 1,
+        "top_score": 9.681516890057603
+      },
+      "Q003": {
+        "first_relevant_rank": 1,
+        "top_score": 24.363060109286078
+      },
+      "Q004": {
+        "first_relevant_rank": 1,
+        "top_score": 9.003381447314784
+      },
+      "Q005": {
+        "first_relevant_rank": 1,
+        "top_score": 20.451511061675006
+      },
+      "Q006": {
+        "first_relevant_rank": 1,
+        "top_score": 9.051261679092265
+      },
+      "Q007": {
+        "first_relevant_rank": 1,
+        "top_score": 18.122358353307035
+      },
+      "Q008": {
+        "first_relevant_rank": 1,
+        "top_score": 12.297517444542443
+      },
+      "Q009": {
+        "first_relevant_rank": 1,
+        "top_score": 14.984809647488387
+      },
+      "Q010": {
+        "first_relevant_rank": 1,
+        "top_score": 27.391962537201973
+      },
+      "Q011": {
+        "first_relevant_rank": 2,
+        "top_score": 5.1411906954110425
+      },
+      "Q012": {
+        "first_relevant_rank": 1,
+        "top_score": 20.23039951766917
+      },
+      "Q013": {
+        "first_relevant_rank": 7,
+        "top_score": 12.26749130107736
+      },
+      "Q014": {
+        "first_relevant_rank": 1,
+        "top_score": 15.106558837911074
+      },
+      "Q015": {
+        "first_relevant_rank": 1,
+        "top_score": 18.784767387324738
+      },
+      "Q016": {
+        "first_relevant_rank": 4,
+        "top_score": 7.657152936465948
+      },
+      "Q017": {
+        "first_relevant_rank": 1,
+        "top_score": 5.237888537782628
+      },
+      "Q018": {
+        "first_relevant_rank": 2,
+        "top_score": 23.450089516053733
+      },
+      "Q019": {
+        "first_relevant_rank": 3,
+        "top_score": 13.288691666626459
+      },
+      "Q020": {
+        "first_relevant_rank": 1,
+        "top_score": 19.63901946466477
+      },
+      "Q021": {
+        "first_relevant_rank": null,
+        "top_score": 6.251759138926407
+      },
+      "Q022": {
+        "first_relevant_rank": null,
+        "top_score": 5.388595339500277
+      },
+      "Q023": {
+        "first_relevant_rank": 3,
+        "top_score": 4.326724343587913
+      },
+      "Q024": {
+        "first_relevant_rank": 1,
+        "top_score": 13.355541625691856
+      },
+      "Q025": {
+        "first_relevant_rank": 4,
+        "top_score": 7.087612925236911
+      },
+      "Q026": {
+        "first_relevant_rank": 5,
+        "top_score": 6.664687859341299
+      },
+      "Q027": {
+        "first_relevant_rank": 2,
+        "top_score": 7.604171005618863
+      },
+      "Q028": {
+        "first_relevant_rank": 1,
+        "top_score": 5.165495407124361
+      },
+      "Q029": {
+        "first_relevant_rank": 1,
+        "top_score": 15.015956100226981
+      },
+      "Q030": {
+        "first_relevant_rank": 1,
+        "top_score": 22.999036401989308
+      },
+      "Q031": {
+        "first_relevant_rank": 1,
+        "top_score": 11.521045864552665
+      },
+      "Q032": {
+        "first_relevant_rank": 1,
+        "top_score": 11.496356764279133
+      },
+      "Q033": {
+        "first_relevant_rank": 1,
+        "top_score": 10.096623940466422
+      },
+      "Q034": {
+        "first_relevant_rank": 1,
+        "top_score": 12.741109833065131
+      },
+      "Q035": {
+        "first_relevant_rank": 1,
+        "top_score": 11.743415795698107
+      },
+      "Q036": {
+        "first_relevant_rank": 1,
+        "top_score": 14.409121907854692
+      },
+      "Q037": {
+        "first_relevant_rank": 1,
+        "top_score": 18.94622444673371
+      },
+      "Q038": {
+        "first_relevant_rank": 1,
+        "top_score": 14.999718836918312
+      },
+      "Q039": {
+        "first_relevant_rank": 5,
+        "top_score": 7.08382427861531
+      },
+      "Q040": {
+        "first_relevant_rank": 4,
+        "top_score": 7.217836551851992
+      },
+      "Q041": {
+        "first_relevant_rank": 1,
+        "top_score": 8.611631995998556
+      },
+      "Q042": {
+        "first_relevant_rank": 5,
+        "top_score": 6.892644636198434
+      },
+      "Q043": {
+        "first_relevant_rank": 1,
+        "top_score": 9.375072599991501
+      }
+    },
+    "unanswerable_top_scores": [
+      5.1558789699632515,
+      4.724309825127773,
+      4.835008041746915,
+      6.761634173697414,
+      6.554523881210027,
+      6.787543744045542,
+      6.344344534805652,
+      4.1991027410869215,
+      3.207469025760745,
+      1.4546820120890196
+    ],
+    "chunks": 83,
+    "evidence_missing": []
+  },
+  "pdftotext | norm=basic | stem=off | chunk=1200/200": {
+    "answerable_questions": 43,
+    "hit@1": 0.6744186046511628,
+    "hit@3": 0.813953488372093,
+    "hit@5": 0.9302325581395349,
+    "hit@10": 0.9534883720930233,
+    "recall@1": 0.5387596899224806,
+    "recall@3": 0.7403100775193798,
+    "recall@5": 0.8875968992248063,
+    "recall@10": 0.9224806201550388,
+    "mrr": 0.7660852713178293,
+    "per_question": {
+      "Q001": {
+        "first_relevant_rank": 1,
+        "top_score": 10.949245751361012
+      },
+      "Q002": {
+        "first_relevant_rank": 1,
+        "top_score": 9.462992074489415
+      },
+      "Q003": {
+        "first_relevant_rank": 1,
+        "top_score": 24.76080129006277
+      },
+      "Q004": {
+        "first_relevant_rank": 1,
+        "top_score": 8.948331464637656
+      },
+      "Q005": {
+        "first_relevant_rank": 1,
+        "top_score": 20.329834604642414
+      },
+      "Q006": {
+        "first_relevant_rank": 1,
+        "top_score": 9.927507478775775
+      },
+      "Q007": {
+        "first_relevant_rank": 1,
+        "top_score": 17.792141815691977
+      },
+      "Q008": {
+        "first_relevant_rank": 1,
+        "top_score": 12.337913972625639
+      },
+      "Q009": {
+        "first_relevant_rank": 1,
+        "top_score": 15.187045833615826
+      },
+      "Q010": {
+        "first_relevant_rank": 1,
+        "top_score": 27.289544547027745
+      },
+      "Q011": {
+        "first_relevant_rank": 2,
+        "top_score": 5.041299565280054
+      },
+      "Q012": {
+        "first_relevant_rank": 1,
+        "top_score": 20.059425890017575
+      },
+      "Q013": {
+        "first_relevant_rank": 8,
+        "top_score": 12.51267734189547
+      },
+      "Q014": {
+        "first_relevant_rank": 1,
+        "top_score": 15.172312949133348
+      },
+      "Q015": {
+        "first_relevant_rank": 1,
+        "top_score": 18.745328838453784
+      },
+      "Q016": {
+        "first_relevant_rank": 4,
+        "top_score": 7.53019190718029
+      },
+      "Q017": {
+        "first_relevant_rank": 1,
+        "top_score": 5.243176121433265
+      },
+      "Q018": {
+        "first_relevant_rank": 2,
+        "top_score": 23.74614680781403
+      },
+      "Q019": {
+        "first_relevant_rank": 3,
+        "top_score": 13.041251045489751
+      },
+      "Q020": {
+        "first_relevant_rank": 1,
+        "top_score": 19.500054966047408
+      },
+      "Q021": {
+        "first_relevant_rank": null,
+        "top_score": 6.114568077692946
+      },
+      "Q022": {
+        "first_relevant_rank": null,
+        "top_score": 5.285019246043136
+      },
+      "Q023": {
+        "first_relevant_rank": 3,
+        "top_score": 4.313351553947539
+      },
+      "Q024": {
+        "first_relevant_rank": 1,
+        "top_score": 13.288730508770303
+      },
+      "Q025": {
+        "first_relevant_rank": 2,
+        "top_score": 7.177534354651435
+      },
+      "Q026": {
+        "first_relevant_rank": 5,
+        "top_score": 6.657369976371446
+      },
+      "Q027": {
+        "first_relevant_rank": 2,
+        "top_score": 7.447634053153621
+      },
+      "Q028": {
+        "first_relevant_rank": 1,
+        "top_score": 4.475096975252605
+      },
+      "Q029": {
+        "first_relevant_rank": 1,
+        "top_score": 14.886743823279648
+      },
+      "Q030": {
+        "first_relevant_rank": 1,
+        "top_score": 22.597700000044227
+      },
+      "Q031": {
+        "first_relevant_rank": 1,
+        "top_score": 11.409425787849255
+      },
+      "Q032": {
+        "first_relevant_rank": 1,
+        "top_score": 11.405099174185636
+      },
+      "Q033": {
+        "first_relevant_rank": 1,
+        "top_score": 9.942316644123045
+      },
+      "Q034": {
+        "first_relevant_rank": 1,
+        "top_score": 12.835732467378538
+      },
+      "Q035": {
+        "first_relevant_rank": 1,
+        "top_score": 11.654405945949982
+      },
+      "Q036": {
+        "first_relevant_rank": 1,
+        "top_score": 14.301110065016116
+      },
+      "Q037": {
+        "first_relevant_rank": 1,
+        "top_score": 18.976225834299107
+      },
+      "Q038": {
+        "first_relevant_rank": 1,
+        "top_score": 14.707448740717135
+      },
+      "Q039": {
+        "first_relevant_rank": 5,
+        "top_score": 6.943511667825473
+      },
+      "Q040": {
+        "first_relevant_rank": 4,
+        "top_score": 7.0856505722906
+      },
+      "Q041": {
+        "first_relevant_rank": 1,
+        "top_score": 8.69051249987628
+      },
+      "Q042": {
+        "first_relevant_rank": 4,
+        "top_score": 6.755691898166441
+      },
+      "Q043": {
+        "first_relevant_rank": 1,
+        "top_score": 9.271024638750994
+      }
+    },
+    "unanswerable_top_scores": [
+      3.951397923877036,
+      4.564137053395387,
+      3.498880163725059,
+      6.722150786017161,
+      6.462356543844667,
+      6.535222718036216,
+      6.29375657147218,
+      4.093205433859308,
+      2.9523550008036112,
+      1.3724455679593701
+    ],
+    "chunks": 75,
+    "evidence_missing": []
+  }
+}

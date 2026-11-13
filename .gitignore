@@ -17,3 +17,9 @@ node_modules/
 Thumbs.db
 .vscode/
 .idea/
+
+# PoC caches (may contain provider outputs)
+.embedding_cache/
+.venv
+poc/**/run.log
+poc/**/run_*.log

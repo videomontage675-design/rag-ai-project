@@ -126,6 +126,9 @@ Version-sensitive questions use `by_state`, which gives the expected outcome, th
 Two documents (D02 in both versions, and D05) must be **text-based PDFs** (D-003) rendered from the Markdown sources, so the reference text is known. The PDFs must have a correct Arabic text layer, and their layout should resemble real-world PDFs.
 
 ### 5.2 Method
+
+The selection was based on measured behaviour and documented properties of each tool, **not** on what happened to be installed in the development environment (D-026).
+
 Every candidate rendered the same three document versions. Text was then extracted with two independent extractors, poppler's `pdftotext` and `pypdf`, and compared with the reference text that the renderer itself produced (`reference_text/`). Three metrics were computed, after Unicode NFKC normalization (which folds presentation forms) and after removing bidi control characters, tashkeel, tatweel, and the page footer:
 
 | Metric | Definition | What it detects |
@@ -138,22 +141,28 @@ Every candidate rendered the same three document versions. Text was then extract
 
 | Producer | Font | pdftotext letter error | pdftotext letter CER | pdftotext word recall | pypdf letter error | pypdf letter CER | pypdf word recall |
 |---|---|---|---|---|---|---|---|
-| **Chromium** | **Amiri** | **0.1%** | **1.9%** | **84.0%** | 2.1% | 66.9% | 86.7% |
+| **Chromium** | **Amiri** | 0.1% | 1.9% | 84.0% | 2.1% | 66.9% | 86.7% |
 | Chromium | Noto Naskh Arabic | 0.0% | 3.8% | 23.8% | 51.5% | 69.9% | 15.2% |
 | Chromium | Noto Sans Arabic | 0.4% | 5.6% | 33.1% | 53.2% | 69.6% | 13.5% |
 | Chromium | IBM Plex Sans Arabic | 0.0% | 13.3% | 64.0% | 2.0% | 65.9% | 87.1% |
 | Chromium | Tajawal | 0.9% | 7.9% | 77.1% | 2.9% | 66.4% | 87.1% |
 | Chromium | Cairo | 0.4% | 12.7% | 65.4% | 2.4% | 66.0% | 87.4% |
+| LibreOffice | Amiri | 0.4% | 12.0% | 85.9% | 0.9% | 29.0% | 66.4% |
+| LibreOffice | Noto Naskh Arabic | 0.4% | 9.8% | 25.8% | 32.5% | 72.7% | 6.2% |
+| LibreOffice | Noto Sans Arabic | 0.9% | 9.4% | 34.7% | 29.8% | 72.2% | 5.6% |
+| LibreOffice | IBM Plex Sans Arabic | 0.3% | 13.4% | 64.9% | 1.4% | 19.1% | 71.8% |
+| LibreOffice | Tajawal | 0.6% | 6.3% | 77.4% | 1.6% | 19.2% | 72.2% |
+| LibreOffice | Cairo | 0.9% | 18.2% | 65.8% | 2.1% | 19.7% | 73.6% |
+| LibreOffice | DejaVu Sans | 0.6% | 7.0% | 78.0% | 1.8% | 19.3% | 72.0% |
 | WeasyPrint 69.0 | Amiri | 14.0% | 14.2% | 47.4% | 56.3% | 59.8% | 33.9% |
 | WeasyPrint 69.0 | Noto Naskh Arabic | 42.0% | 54.6% | 5.5% | 51.3% | 57.4% | 12.8% |
 | WeasyPrint 69.0 | IBM Plex Sans Arabic | 4.3% | 23.5% | 62.5% | 18.9% | 25.8% | 66.8% |
 | WeasyPrint 69.0 | Tajawal | 6.8% | 23.3% | 69.5% | 35.2% | 42.0% | 52.6% |
-| LibreOffice | DejaVu Sans | 0.6% | 7.0% | 78.0% | 1.8% | 19.3% | 72.0% |
 
 Notes:
 - The Chromium rows used right alignment and default OpenType features. Alignment (justified vs. right) made no measurable difference. Disabling kerning raised word recall for Amiri from 84.4% to 86.2%, so it is part of the final configuration.
 - pypdf's high letter CER with Chromium output comes from extracting right-to-left lines in **visual** (reversed) word order. Its word recall is high, so the words themselves are correct.
-- LibreOffice could only be tested with system fonts (it cannot use WOFF2 web fonts). It is a credible alternative, but it did not beat Chromium + Amiri.
+- LibreOffice cannot use WOFF2 web fonts, so it was tested with the same six fonts installed as TTF system fonts, plus DejaVu Sans. Its best result (Tajawal: letter CER 6.3%; with Amiri: 12.0%) does not reach Chromium + Amiri. *Correction (2026-11-13): an earlier version of this table tested LibreOffice with DejaVu Sans only, because only that font was installed in the development container. That was an unfair comparison and has been fixed; the conclusion did not change.*
 - **Not evaluated:**
   - Pandoc with LaTeX: it needs a multi-gigabyte TeX installation, and Arabic in LaTeX needs special packages; the installation cost was not justified once a good option had been measured.
   - ReportLab: it requires manual reshaping into visual order, which by construction yields a poor text layer.
@@ -165,7 +174,7 @@ Notes:
 Rationale:
 - **Best measured result:** the lowest letter CER and the highest pdftotext word recall, with a correct text layer (0.1% letter error).
 - **Correct rendering:** HarfBuzz shaping and native CSS right-to-left layout. The rendering was checked visually.
-- **Lightweight:** Playwright's Chromium was already available, so no heavy install was needed.
+- **Portable:** Playwright downloads a pinned Chromium build with one command on Windows, macOS, and Linux, so the tool behaves the same on any machine.
 - **Realistic:** "print to PDF" from a browser is a very common way real PDFs are produced.
 - **Reproducible:** a pinned script (`tools/corpus/package-lock.json`).
 
