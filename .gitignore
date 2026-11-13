@@ -22,3 +22,4 @@ Thumbs.db
 .embedding_cache/
 .venv
 poc/**/run.log
+poc/**/run_*.log

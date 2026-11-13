@@ -1114,5 +1114,170 @@
   "correctness": 2,
   "faithfulness": 2,
   "notes": "الإجابة تذكر بشكل صحيح أن ضفيرة لا تستخدم بيانات المرضى في تدريب نماذج الذكاء الاصطناعي، وهو ما تدعمه المعلومات الواردة في المصدر S1."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q011": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تذكر بشكل صحيح معيار تشفير البيانات المخزنة AES-256، وبروتوكول TLS 1.2 أو أحدث للاتصالات، وإدارة المفاتيح في خدمة مستقلة، وتضيف تفصيلاً مدعومًا حول تقييد الوصول لمهندسي التشغيل."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q012": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تتطابق مع المصدر S1 الذي ينص على أن الجلسة تنتهي بعد 30 دقيقة من عدم النشاط."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q013": {
+  "correctness": 2,
+  "faithfulness": 0,
+  "notes": "تحدد الإجابة بشكل صحيح متصفح Internet Explorer، لكن الادعاء بأنه توقف دعمه في الإصدار 4.0 غير مدعوم بالنصوص المقدمة."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q014": {
+  "correctness": 1,
+  "faithfulness": 2,
+  "notes": "أجاب المساعد عن وجود مشكلة معروفة ووصفها بدقة، لكنه أغفل ذكر أن التأخير لا يؤثر في معالجة المطالبة، وهي معلومة أساسية في الإجابة المرجعية. جميع المعلومات المقدمة مدعومة بالمصادر."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q015": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تذكر بشكل صحيح المدة المستهدفة وهي ساعة واحدة لطلبات P2 في الخطة المؤسسية وفقًا للمستند S1."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q016": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تذكر بشكل صحيح أن الخطة الاحترافية توفر 100 جيجابايت من مساحة التخزين، وهو ما تؤكده المقارنة في المستند S1."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q017": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تذكر السعر بشكل صحيح ومدعومة بالكامل بالمصدر."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q018": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تقدم بشكل صحيح التعويض البالغ 25% وتذكر جميع المتطلبات الأساسية؛ جميع الادعاءات مدعومة بالنصوص المصدر."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q019": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تذكر بشكل صحيح أن الحد الأقصى لمجموع التعويضات هو 50% من الرسوم الشهرية للخطة، وهو ما يتطابق مع الإجابة المرجعية ومدعوم بالكامل من النص S1."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q020": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تذكر بشكل صحيح أن النسخ الاحتياطية تؤخذ كل 6 ساعات وتُحفظ لمدة 35 يومًا، وكلاهما مدعوم بالنصوص المصدرية."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q021": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تذكر بشكل صحيح قيمتي RPO وهي 6 ساعات وRTO وهي 8 ساعات، وكلاهما مدعوم بالكامل من النص S1."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q022": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تحدد بشكل صحيح عدد الفروع لكل خطة وتستشهد بالمصدر ذي الصلة."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q023": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تذكر بشكل صحيح إقفال الحساب بعد 5 محاولات فاشلة والخطوات الموصى بها (الانتظار 15 دقيقة أو طلب إعادة تعيين كلمة المرور من المدير)، وكلها مدعومة بالنصوص المصدر."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q024": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تذكر بشكل صحيح أن المريض يستطيع إلغاء الموعد بنفسه عبر رابط في التذكير حتى 6 ساعات قبل الموعد، وبعد ذلك يجب الاتصال بالعيادة، وكل ذلك مدعوم بالمستند S1."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q025": {
+  "correctness": 1,
+  "faithfulness": 2,
+  "notes": "الإجابة تذكر بشكل صحيح أن التقارير الأسبوعية التلقائية متاحة في الخطتين الاحترافية والمؤسسية، لكنها لا تشير إلى أن الخطة الأساسية لا تدعمها."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q026": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة توضح بشكل صحيح أن التخفيض يسري مع بداية دورة الفوترة التالية وأن البيانات الزائدة تبقى متاحة للقراءة فقط لمدة 60 يومًا، وكلاهما مدعوم بالمقطع S1."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q027": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تذكر بشكل صحيح 90 يومًا لتصدير البيانات و30 يومًا إضافيًا قبل الحذف النهائي، وكلاهما مدعوم مباشرة من المستند S1."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q028": {
+  "correctness": 1,
+  "faithfulness": 0,
+  "notes": "المساعد يذكر الطبيب فقط؛ ويتجاهل مدير العيادة ومالك الحساب اللذين يمكنهما رؤية الملاحظات الطبية وفقًا لـ S5."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q029": {
+  "correctness": 1,
+  "faithfulness": 2,
+  "notes": "أجاب المساعد بشكل صحيح بأن العيادة على الخطة الأساسية لا يمكنها رفع صور DICOM ولكنه أغفل تاريخ إضافة الميزة؛ كلا الادعاءين مدعومان بالوثائق المرفقة."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q030": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تذكر بشكل صحيح الحد الحالي (25 ميجابايت) والحد السابق (10 ميجابايت)؛ كلاهما مدعوم بالمصادر."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q031": {
+  "correctness": 1,
+  "faithfulness": 1,
+  "notes": "قدم المساعد تاريخ الإلزامية الصحيح لكنه أغفل تاريخ الإتاحة للإصدار/التاريخ. الادعاء بأن التحقق الثنائي متاح منذ إصدار واجهة المستخدم الجديدة غير مدعوم مباشرة بالنصوص."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q032": {
+  "correctness": 0,
+  "faithfulness": 2,
+  "notes": "قدمت المدة الخاطئة للرد الأول (3 أيام عمل لـ P4) بدلاً من ساعة واحدة لـ P1 الحرجة؛ القنوات المذكورة صحيحة ومدعومة."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q033": {
+  "correctness": 1,
+  "faithfulness": 2,
+  "notes": "قدمت المدة الصحيحة البالغة 30 يوماً ولكنها أغفلت معلومات الإصدار؛ جميع الادعاءات مدعومة بالمصادر."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q034": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة توضح بشكل صحيح أن المحاسب لا يستطيع تصدير سجل التدقيق، وأن التصدير مقتصر على مالك الحساب ومدير العيادة في الخطتين الاحترافية والمؤسسية، وهو ما تدعمه النصوص المصدرية بشكل كامل."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q035": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تذكر بشكل صحيح مدة الاحتفاظ البالغة 24 شهرًا وتصدير سجل التدقيق، وهو ما تدعمه المصادر (S1 للاحتفاظ، S3 للتصدير بصيغة CSV)."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q036": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تذكر بشكل صحيح أن رسائل التذكير تتوقف حتى بداية الشهر التالي أو حتى شراء باقة إضافية، وأن سعر الباقة الإضافية هو 10 دولارات لكل 500 رسالة، وكلاهما مدعوم بالمصادر."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q037": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "كلا الحقيقتان صحيحتان ومدعومتان بالكامل من النصوص المصدر."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q038": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تذكر بشكل صحيح أنه يمكن استعادة الملف المحذوف خلال 30 يوماً بواسطة مدير العيادة فقط، وهو ما تدعمه المعلومات الواردة في المستندين S1 وS2."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q039": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تذكر بشكل صحيح سعر الخطة الأساسية الشهري وهو 59 دولارًا، وهو مدعوم بالمصادر."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q040": {
+  "correctness": 0,
+  "faithfulness": 2,
+  "notes": "أجاب المساعد بأن هناك 3 مستخدمين، مما يتعارض مع الإجابة المرجعية التي تقول إن هناك 5 مستخدمين، لكن الادعاء مدعوم بالمقطع S1."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q041": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تذكر الخصم بنسبة 20% بشكل صحيح ومدعومة بالكامل بالمستند S1 (وS2)."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q042": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تذكر بشكل صحيح 1,500 رسالة نصية شهرية وتستشهد بالمصادر الداعمة S2 وS3."
+ },
+ "judge-v1|command-a-plus-05-2026|gen-v1|groq:openai/gpt-oss-20b|Q043": {
+  "correctness": 2,
+  "faithfulness": 2,
+  "notes": "الإجابة تذكر بشكل صحيح أن الأسعار الجديدة تُطبق عند أول تجديد بعد 1 يوليو 2026 على الاشتراكات القائمة، وهي مدعومة بالنصوص. كما أن الإشارة إلى أن الإصدار الجديد يحل محل الإصدار السابق مدعومة أيضًا بالمصادر."
  }
 }
