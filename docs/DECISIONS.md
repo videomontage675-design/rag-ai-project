@@ -237,5 +237,7 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
 |---|---|---|
 | P-008 | Lightweight CI (GitHub Actions) for tests and linting, including a Windows runner (D-017) | Phase 5 |
 | P-011 | NFR-LNG-02 (PDF extraction CER ≤ 2%) may need redefinition. The sample pricing PDFs measure 2.6–3.1% letter CER with pdftotext before cleaning, caused entirely by table reflow (`docs/02_SAMPLE_CORPUS.md` §7). The proposal will be based on Phase 3 measurements and needs owner approval. | Phase 3 |
+| P-012 | User-interface approach (TECH-001 T-03): server-rendered Jinja2 + HTMX (recommended) or React SPA | Phase 3 approval |
+| P-013 | Provider API keys for the embedding and LLM measurements (TECH-001 T-10, T-11, T-12) | Before Phase 3 can close |
 
 Resolved: P-001 → D-009 · P-002 → D-011 · P-003 → D-012 · P-004 → D-017 · P-005 → D-018 · P-006 → D-021 · P-007 → D-019 · P-009 → D-014 · P-010 → D-015.
