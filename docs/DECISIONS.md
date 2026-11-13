@@ -2,7 +2,7 @@
 
 This log records decisions explicitly approved by the project owner. Each decision is also reflected in the relevant reference document (`docs/PROJECT_BRIEF.md`, `docs/EXECUTION_PROTOCOL.md`, or `CLAUDE.md`). Changes to an approved decision follow the change-management procedure in `docs/EXECUTION_PROTOCOL.md` §8.
 
-Status values: **Approved** (decided by the owner) · **Pending** (open, with the phase by which it must be resolved).
+Status values: **Approved** (decided by the owner) · **Superseded** (replaced by a later decision) · **Pending** (open, with the phase by which it must be resolved).
 
 ---
 
@@ -31,7 +31,7 @@ Status values: **Approved** (decided by the owner) · **Pending** (open, with th
 - **Consequence:** The sample corpus must include at least one document in each format.
 
 ## D-004 — Model providers: free, switchable via API
-- **Date:** 2026-11-13 · **Status:** Approved
+- **Date:** 2026-11-13 · **Status:** Superseded by D-010 (narrowed to hosted free tiers)
 - **Decision:** LLM and embedding providers must be free of charge and accessed through an API: either free tiers of hosted providers, or open models served locally behind a local API. Providers must be switchable through configuration without changing RAG pipeline logic.
 - **Consequences:**
   - A provider abstraction is required for the LLM and the embeddings.
@@ -43,10 +43,10 @@ Status values: **Approved** (decided by the owner) · **Pending** (open, with th
 ## D-005 — Deployment: the owner's machine
 - **Date:** 2026-11-13 · **Status:** Approved
 - **Decision:** The application initially runs on the owner's machine.
-- **Consequence:** Installation must work from a clean environment on that machine. Its specifications (OS, RAM, GPU) are still pending (P-004).
+- **Consequence:** Installation must work from a clean environment on that machine. Its operating system is still pending (P-004).
 
 ## D-006 — Users: 15–30, no authentication
-- **Date:** 2026-11-13 · **Status:** Approved
+- **Date:** 2026-11-13 · **Status:** Superseded by D-009
 - **Decision:** The system serves about 15–30 users over the local network, with no authentication.
 - **Consequences:**
   - The system must not be exposed to the public internet.
@@ -70,18 +70,52 @@ Status values: **Approved** (decided by the owner) · **Pending** (open, with th
   - Communication and phase reports to the owner are in Arabic.
   - The Phase 0 report (`docs/planning/PHASE_0_DISCOVERY_AND_PLAN.md`) was written in Arabic before this decision and is kept as is.
 
+## D-009 — Single user, no authentication
+- **Date:** 2026-11-13 · **Status:** Approved (supersedes D-006)
+- **Decision:** The system serves a single user on their own machine, with no authentication.
+- **Consequences:**
+  - There is one knowledge base and one conversation history, both belonging to that user. This resolves the old P-001 and is consistent with the brief's "private knowledge base" (§1).
+  - Access is restricted to the local machine: the server binds to localhost and is not exposed to the network or the internet.
+  - Multi-user support is out of scope.
+  - Document processing must still not block chat.
+
+## D-010 — Model providers: hosted free tiers, switchable via API
+- **Date:** 2026-11-13 · **Status:** Approved (supersedes D-004)
+- **Decision:** Both the LLM and the embedding model are accessed through the free tiers of hosted providers, via API. Providers must be switchable through configuration without changing RAG pipeline logic. Running models locally is out of scope.
+- **Consequences:**
+  - A provider abstraction is required for the LLM and the embeddings.
+  - Free-tier rate limits and quotas must be handled gracefully (clear errors, retry and backoff, batched embedding during ingestion).
+  - Document chunks and questions leave the machine. Each candidate provider's free-tier data-usage terms (e.g., whether data may be used for training) must be documented in Phase 3, and they are a selection criterion.
+  - Changing the embedding model invalidates stored vectors, so the model ID must be stored with the vectors and re-indexing must be supported.
+  - Free-tier terms change over time. This is a delivery risk that the provider abstraction mitigates.
+  - API keys are required, even for free tiers, and are supplied through environment variables only.
+  - Concrete providers will be selected in Phase 3, with Arabic quality measured on the golden set.
+
+## D-011 — Conversation handling: independent questions, follow-up-ready design
+- **Date:** 2026-11-13 · **Status:** Approved
+- **Decision:** In this release, each question is processed independently; earlier turns are not used for retrieval or generation. The design must allow follow-up support to be added later without rebuilding the pipeline.
+- **Consequences (kept minimal, with no unused machinery):**
+  - Conversation messages are persisted in order.
+  - Query processing is a separate, replaceable stage, so a query-rewriting stage can be added later.
+  - No conversation context is sent to the LLM in this release.
+
+## D-012 — UI language: Arabic, right-to-left
+- **Date:** 2026-11-13 · **Status:** Approved
+- **Decision:** The user interface is in Arabic with right-to-left layout.
+- **Consequence:** UI text is in Arabic, while code identifiers stay in English (D-008). The layout must handle mixed Arabic and Latin content (e.g., file names, numbers).
+
 ---
 
 ## Pending decisions
 
 | ID | Question | Resolve by |
 |---|---|---|
-| P-001 | Data ownership without authentication: one shared knowledge base or per-user ones? How are conversation histories separated? Who may delete documents? | Phase 1 |
-| P-002 | Conversation nature: independent questions, or context-dependent follow-ups (needs query rewriting)? | Phase 1 |
-| P-003 | UI language (Arabic RTL recommended, given Arabic users and content) | Phase 1 |
-| P-004 | Specifications of the owner's machine (OS, RAM, GPU), which determine whether local models are feasible | Phase 3 (preferably Phase 1) |
+| P-004 | Operating system of the owner's machine (affects installation and run instructions) | Phase 1 |
 | P-005 | Quantitative non-functional targets (latency, maximum file size, number of documents) | Phase 1 |
 | P-006 | Topic of the sample corpus (a fictional but realistic domain is recommended) | Phase 2 |
 | P-007 | Re-upload and update semantics (content-hash deduplication recommended) | Phase 1 |
 | P-008 | Lightweight CI (GitHub Actions) for tests and linting | Phase 5 |
 | P-009 | Approval of the revised phase plan (T1–T6 in the Phase 0 report) | Before Phase 1 |
+| P-010 | Git integration policy: when and how approved work reaches `main` | Before Phase 1 |
+
+Resolved: P-001 → D-009 · P-002 → D-011 · P-003 → D-012.
