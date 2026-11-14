@@ -7,6 +7,7 @@ from dataclasses import dataclass
 import rag_app
 from rag_app.config.settings import Settings
 from rag_app.storage.db import Database
+from rag_app.storage.repositories.indexing import IndexingRepository
 from rag_app.storage.repositories.system import read_snapshot
 
 
@@ -30,20 +31,29 @@ class SystemStatus:
     active_chunks: int
     conversations: int
     index_embedding_model: str
+    index_embedding_dim: int
     configured_embedding_model: str
+    configured_embedding_dim: int | None
     reindex_required: bool
+    versions_needing_index: int
     providers: tuple[ProviderInfo, ...]
 
 
 def get_system_status(settings: Settings, db: Database) -> SystemStatus:
     """Read the current state of the knowledge base and configuration.
 
-    ``reindex_required`` is true when vectors exist for a different embedding model than the
-    configured one (FR-RET-03); an empty index never requires re-indexing.
+    ``reindex_required`` is true when the index holds vectors of another model or dimension
+    than configured (FR-RET-03, D-039); an empty index never requires re-indexing.
+    ``versions_needing_index`` counts ready versions without current vectors, e.g. those
+    processed before Phase 7; ``rag reindex`` embeds them (FR-CFG-05).
     """
     snap = read_snapshot(db)
     configured = settings.providers.embedding.model
-    reindex_required = bool(snap.index_embedding_model) and snap.index_embedding_model != configured
+    dims = settings.providers.embedding.dimensions
+    reindex_required = bool(snap.index_embedding_model) and (
+        snap.index_embedding_model != configured
+        or (dims is not None and snap.index_embedding_dim != dims)
+    )
     providers = [
         ProviderInfo("embedding", settings.providers.embedding.model, None),
         ProviderInfo("chat", settings.providers.chat.model, settings.providers.chat.fallback_model),
@@ -56,7 +66,10 @@ def get_system_status(settings: Settings, db: Database) -> SystemStatus:
         active_chunks=snap.active_chunks,
         conversations=snap.conversations,
         index_embedding_model=snap.index_embedding_model,
+        index_embedding_dim=snap.index_embedding_dim,
         configured_embedding_model=configured,
+        configured_embedding_dim=dims,
         reindex_required=reindex_required,
+        versions_needing_index=IndexingRepository(db).count_stale(configured, dims),
         providers=tuple(providers),
     )

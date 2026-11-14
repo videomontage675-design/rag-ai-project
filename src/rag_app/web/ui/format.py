@@ -75,6 +75,13 @@ def register(env: Environment) -> None:
             .removeprefix(str(n))
             .strip()
         ),
+        versions_unindexed_label=lambda n: arabic_count(
+            n,
+            "نسخة واحدة غير مفهرسة،",
+            "نسختان غير مفهرستين،",
+            "نسخ غير مفهرسة،",
+            "نسخة غير مفهرسة،",
+        ),
         documents_processing_label=lambda n: arabic_count(
             n,
             "مستند قيد المعالجة",
