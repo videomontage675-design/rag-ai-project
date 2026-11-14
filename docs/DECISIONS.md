@@ -311,7 +311,7 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
 - **Evidence:** The owner installed the dependencies and tools on their Windows machine, configured the keys, ran the checks, and started the app. `http://127.0.0.1:8000` showed the Arabic welcome page with the knowledge-base status (0 documents). This is the first real-machine confirmation of the Windows target (D-017, D-031). The full clean-install check remains part of Phase 12.
 
 ## D-034 — Phase 6 authorized, with the documents UI and the visual identity brought forward
-- **Date:** 2026-11-15 · **Status:** Approved
+- **Date:** 2026-11-14 · **Status:** Approved
 - **Decision:** Phase 6 (document ingestion up to chunks) is authorized. At the owner's request, it also delivers:
   1. **the documents user interface:** upload, list, status, version history, activate, delete. It was planned for Phase 10;
   2. **a visual identity for «ضفيرة»**, applied with user-experience and UI best practices.
@@ -319,11 +319,34 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
   The chat UI stays with generation (Phases 9–10), because it depends on embeddings and answers.
 - **Consequence for document status:** Phase 6 runs stages 1–4 (validate, extract, clean and normalize, chunk), and its one-commit transaction stores the chunks and activates the version (DESIGN-001 §7.1) **without vectors**. Retrieval cannot see such versions, because `active_chunk_vectors` requires embeddings. Phase 7 adds stage 5 to the same commit and embeds already-processed versions through the documented re-index operation (FR-CFG-05).
 
+## D-035 — Local-only guard against browser-based access *(proposed)*
+- **Date:** 2026-11-14 · **Status:** Proposed — implemented in Phase 6, awaiting owner approval
+- **Problem:** CLAUDE.md §12 requires the login-free app to be reachable only from this machine. Listening on 127.0.0.1 blocks other computers, but **any web page open in the owner's browser** can still send requests to `http://127.0.0.1:8000`:
+  - by submitting a hidden form that uploads or deletes documents (cross-site request forgery);
+  - by pointing a domain it controls at 127.0.0.1 (DNS rebinding) and then reading the responses.
+- **Decision:** A middleware refuses, with `403 FORBIDDEN_ORIGIN` and an Arabic message:
+  - any request whose `Host` is not a loopback name;
+  - any state-changing request whose `Origin` is not the app itself, or that the browser marks `Sec-Fetch-Site: cross-site`.
+
+  Every response also carries a strict Content-Security-Policy, `nosniff`, `no-referrer`, and frame denial.
+- **Cost:** about 60 lines and 15 tests. curl and scripts (no `Origin` header) keep working. Setting `server.allow_non_local = true` (an explicit owner choice) disables the host check.
+- **Alternatives rejected:** CSRF tokens (more moving parts in every form and HTMX call, and no protection against DNS rebinding); doing nothing (leaves a known hole in the §12 requirement).
+
+## D-036 — Visual identity and interface patterns (UI-001) *(proposed)*
+- **Date:** 2026-11-14 · **Status:** Proposed — implemented in Phase 6, awaiting owner approval
+- **Decision:** The identity and interface rules in `docs/07_UI_AND_IDENTITY.md`:
+  - **the mark:** a three-strand plait («ضفيرة» = braid), which also serves as the processing indicator;
+  - **typefaces:** Noto Kufi Arabic for headings, linked to braided Kufic calligraphy; IBM Plex Sans Arabic for text;
+  - **colours:** a three-strand palette (indigo = actions, teal = ready and approved, saffron = brand and in progress), with all text at WCAG AA contrast or better;
+  - **interface patterns:** a real table for the library, a version timeline, one Arabic alert region, and confirmation dialogs for destructive actions.
+- **Basis:** D-034, which asks for an identity suited to a clinic-management platform and for UX best practices. All assets are self-hosted and openly licensed (OFL 1.1, 0BSD).
+
 ---
 
 ## Pending decisions
 
 | ID | Question | Resolve by |
 |---|---|---|
+| P-017 | **Wrapped PDF table cells (NFR-LNG-02b).** In `02_plans_pricing_v1.pdf` one evidence passage («حتى 3 مستخدمين») is split by pdftotext's reading order (DESIGN-001 §19). Options: (a) accept and record it as a known limitation of text-PDF tables, keeping the strict xfail; (b) build table-aware extraction from pdftotext's word coordinates (`-bbox-layout`), estimated at 1–2 days with risk, because Arabic glyph order in that output is visual; (c) correct the golden-set snippet, which is not recommended because it hides a real limitation | Owner, at Phase 6 approval |
 
 Resolved: P-016 → D-032 · P-008 → D-031 · P-001 → D-009 · P-002 → D-011 · P-003 → D-012 · P-004 → D-017 · P-005 → D-018 · P-006 → D-021 · P-007 → D-019 · P-009 → D-014 · P-010 → D-015 · P-011 → D-029 · P-012 → D-027 · P-014 → D-029 · P-015 → D-029 · P-013 → keys provided (Gemini, Groq, Cohere working; Jina balance exhausted; Mistral key invalid).

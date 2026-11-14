@@ -8,9 +8,11 @@ The initial deployment is a help assistant for «ضفيرة», a **fictional** c
 managing medical clinics. All use-case wording lives in `config/domain_profile.toml`; the core
 is domain-agnostic.
 
-> **Status:** Phase 5 (project foundation). The app starts and has a health endpoint, a status
-> API, and an Arabic RTL welcome page. Uploading documents and asking questions arrive in
-> Phases 6–10. The roadmap is in `docs/planning/PHASE_0_DISCOVERY_AND_PLAN.md`.
+> **Status:** Phase 6 (document ingestion). You can build the document library: upload PDF and
+> Markdown files, follow their processing, keep versions, choose the version the assistant
+> uses, and delete documents, from the Arabic interface or the JSON API. Documents are split
+> into chunks, but not yet embedded (Phase 7), so **asking questions is not available yet**
+> (Phases 8–10). The roadmap is in `docs/planning/PHASE_0_DISCOVERY_AND_PLAN.md`.
 
 ---
 
@@ -50,10 +52,26 @@ uv run rag serve
 ```
 
 Open <http://127.0.0.1:8000>. The app listens **only on this computer**: it has no login, so
-it refuses to start on a network address.
+it refuses to start on a network address. It also refuses requests that come from other
+websites open in your browser (cross-site requests and DNS rebinding), so a web page cannot
+upload or delete documents behind your back.
 
 `rag check` reports each item as ✔ OK, ! WARN, or ✘ FAIL with the reason. Fix every FAIL
 before `rag serve`.
+
+**5. Build the library**
+
+Open **المستندات** (Documents), then drag a file onto the upload area or choose one. Accepted:
+text-based PDF and UTF-8 Markdown, up to 10 MB. The status changes from «بانتظار المعالجة» to
+«جاهز» within seconds. To try it with the sample documents, upload the files in
+`data/sample_corpus/source/` and `data/sample_corpus/pdf/`.
+
+| You want to | Do this |
+|---|---|
+| Update a document | Open it and use «رفع نسخة جديدة». The current version keeps serving answers until the new one is ready |
+| Go back to an older version | Open the document and click «اعتماد هذه النسخة» on that version |
+| Fix a failed version | Read its Arabic error message, then «إعادة المعالجة» or upload a corrected version |
+| Remove a document | «حذف المستند» (asks for confirmation; removes all its versions and files) |
 
 ---
 
@@ -101,6 +119,7 @@ uv run lint-imports       # architecture layer rules
 | [`docs/06_DEVELOPER_GUIDE.md`](docs/06_DEVELOPER_GUIDE.md) | Project structure, request flow, how the API works, how to add features, **where every document lives** |
 | [`docs/05_ENGINEERING_STANDARDS.md`](docs/05_ENGINEERING_STANDARDS.md) | Binding coding, testing, Git, and writing standards |
 | [`docs/04_ARCHITECTURE_AND_DESIGN.md`](docs/04_ARCHITECTURE_AND_DESIGN.md) | Architecture, data model, pipelines, API contract |
+| [`docs/07_UI_AND_IDENTITY.md`](docs/07_UI_AND_IDENTITY.md) | The Dafira visual identity, interface patterns, accessibility, and third-party assets |
 | [`docs/01_SRS.md`](docs/01_SRS.md) | Requirements |
 | [`docs/DECISIONS.md`](docs/DECISIONS.md) | Every approved decision and its reasons |
 
@@ -113,4 +132,6 @@ uv run lint-imports       # architecture layer rules
 | `✘ FAIL poppler (pdftotext)` | Poppler is not on `PATH`. Set `paths.poppler_bin_dir` to the folder that contains `pdftotext.exe` |
 | `✘ FAIL API key: embedding` | `GEMINI_API_KEY` is missing in `.env` |
 | `CONFIG_INVALID … server.host` | The host is not `127.0.0.1`. The app has no login, so it only runs locally |
+| A document stays «تعذّرت المعالجة» with a PDF message | The PDF is scanned (no text layer), password-protected, or damaged. Export a text PDF or upload the Markdown source |
+| `FORBIDDEN_ORIGIN` (403) | The request came from another website or host name. Open the app at `http://127.0.0.1:8000` |
 | Arabic text shows as `?` in the terminal | Use Windows Terminal; the app forces UTF-8 output, but the old console may lack fonts |

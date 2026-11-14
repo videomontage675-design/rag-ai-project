@@ -54,30 +54,42 @@ rag-ai-project/
 │   ├── web/                        🖥️ interface: HTTP only, no business rules, no SQL
 │   │   ├── app.py                     composition root: builds and wires every dependency
 │   │   ├── context.py                 AppContext handed to request handlers
-│   │   ├── middleware.py              X-Request-ID + request timing log
-│   │   ├── errors.py                  every error → one JSON shape
-│   │   ├── api/                       JSON API under /api/v1 (schemas.py = response models)
-│   │   ├── ui/ · templates/ · static/ Arabic RTL pages (Jinja2, HTMX from Phase 10)
+│   │   ├── middleware.py              X-Request-ID · upload size guard · local-only guard + security headers
+│   │   ├── errors.py                  every error → one JSON shape (or an Arabic alert for HTMX)
+│   │   ├── api/                       JSON API under /api/v1: system.py · documents.py · schemas.py
+│   │   ├── ui/                        pages.py (pages + HTMX fragments) · format.py (Arabic labels, dates)
+│   │   ├── templates/                 base.html · index.html · documents/ · partials/
+│   │   └── static/                    app.css · app.js · brand/ · fonts/ · vendor/htmx (UI-001)
 │   ├── services/                   ⚙️ use cases: the only entry point for web and CLI
+│   │   ├── documents.py               DocumentService: upload, versions, activate, retry, delete
+│   │   ├── ingestion_worker.py        IngestionWorker: background thread, recovery, cancellation
 │   │   ├── system.py                  knowledge-base status
 │   │   └── diagnostics.py             checks behind `rag check`
-│   ├── ingestion/ retrieval/       🔶 RAG pipeline stages (filled in Phases 6–9)
-│   │   generation/ evaluation/
-│   │   └── ingestion/poppler.py       finds pdftotext/pdfinfo (D-028)
-│   ├── storage/                    🗄️ the only place with SQL
+│   ├── ingestion/                  🔶 stages 1–4, pure functions (no SQL, no network)
+│   │   ├── validation.py              type by content, UTF-8, display name
+│   │   ├── extract_pdf.py · poppler.py   pdfinfo/pdftotext with timeouts (D-028)
+│   │   ├── extract_markdown.py        headings, lists, table rows (markdown-it-py)
+│   │   ├── cleaning.py                PDF clean-up rules measured on the corpus
+│   │   ├── normalization.py           text used for search (NFKC, tashkeel, digits)
+│   │   ├── chunking.py                structure-aware chunks with full heading paths
+│   │   └── pipeline.py                process_file(): stages 2–4 in order
+│   ├── retrieval/ generation/      🔶 RAG pipeline stages (Phases 7–9)
+│   │   evaluation/
+│   ├── storage/                    🗄️ the only place with SQL and the uploads folder
 │   │   ├── db.py                      connections, pragmas, transactions
 │   │   ├── migrate.py                 applies numbered migrations atomically
-│   │   ├── migrations/0001_init.sql   schema, indexes, active_chunk_vectors view
-│   │   └── repositories/              queries grouped by aggregate
+│   │   ├── migrations/                0001 schema + indexes + view · 0002 version counter
+│   │   ├── files.py                   FileStore: streamed uploads, generated names, orphan sweep
+│   │   └── repositories/              system.py · documents.py (documents, versions, chunks, jobs)
 │   ├── providers/                  ☁️ model providers behind interfaces (Phase 7)
 │   ├── config/                     🧩 typed settings and domain profile loaders
 │   ├── core/                       🧩 errors (catalog), logging, ids, clock
 │   └── domain/                     🧩 shared vocabulary: statuses, formats, outcomes
-├── tests/  unit/ integration/      mirrors src/; network blocked by default
+├── tests/  unit/ integration/      mirrors src/; network blocked by default; support/ = shared helpers
 ├── config/ settings.toml domain_profile.toml
 ├── docs/                           all project documents (§7)
 ├── data/sample_corpus/ eval/       Phase 2 corpus and golden set (read-only for tests)
-├── poc/ tools/                     Phase 2–4 measurement and documentation tools
+├── poc/ tools/                     measurement tools; tools/brand/make_braid.py draws the logo
 ├── .github/workflows/ci.yml        CI on Linux and Windows
 └── pyproject.toml uv.lock          dependencies (locked) and tool configuration
 ```
@@ -154,27 +166,66 @@ CI runs all of these on **Linux and Windows** for every push. A red check blocks
 | Status codes | Taken from the error catalog (`core/errors.py`). Examples: 400 invalid input, 404 not found, 409 conflict, 413 too large, 422 unprocessable file, 429 rate-limited provider, 503 provider unavailable |
 | Tracing | Every response has `X-Request-ID`. Send your own (8–64 safe characters) to correlate client and server logs |
 | Documentation | Generated from the code: **<http://127.0.0.1:8000/docs>** (interactive) and `/openapi.json`. The contract is designed in DESIGN-001 §11.1 |
-| Long work | Uploads return `202 Accepted` and are processed in the background; clients poll the document status (Phase 6) |
+| Long work | Uploads return `202 Accepted` and are processed in the background; clients poll `GET /documents/{id}` until no version is `uploaded` or `processing` (`is_processing: false`) |
+| Who may call | Only this machine. Requests with a non-loopback `Host`, or changes sent from another website (`Origin`, `Sec-Fetch-Site`), get `403 FORBIDDEN_ORIGIN`. Tools such as curl are unaffected |
 
-### 5.2 Endpoints available now (Phase 5)
+### 5.2 Endpoints available now (Phase 6)
 | Method | Path | Returns |
 |---|---|---|
-| GET | `/health` | `{"status": "ok", "version": "0.1.0"}` |
+| GET | `/health` | `{"status": "ok", "version": "0.2.0"}` |
 | GET | `/api/v1/system/status` | Document and chunk counts, schema version, index embedding model, whether re-indexing is needed, and provider models (never keys) |
+| POST | `/api/v1/documents` | Upload a new document (multipart field `file`) → **202** `DocumentDetail` |
+| GET | `/api/v1/documents` | `DocumentSummary[]`, most recently updated first |
+| GET | `/api/v1/documents/{id}` | `DocumentDetail` with the version history, newest first |
+| DELETE | `/api/v1/documents/{id}` | **204**; all versions and files are removed; processing is cancelled |
+| POST | `/api/v1/documents/{id}/versions` | Upload a new version → **202** `VersionInfo` |
+| POST | `/api/v1/documents/{id}/versions/{vid}/activate` | Approve a ready version for answers → `DocumentDetail` (409 `VERSION_NOT_READY`) |
+| DELETE | `/api/v1/documents/{id}/versions/{vid}` | **204** (409 `VERSION_IS_ACTIVE`); deleting the last version deletes the document |
+| POST | `/api/v1/documents/{id}/versions/{vid}/retry` | Queue a failed version again → **202** (409 `VERSION_NOT_FAILED`) |
 
 ```bash
-curl -s http://127.0.0.1:8000/api/v1/system/status
+curl -s -F "file=@guide.md" http://127.0.0.1:8000/api/v1/documents
+curl -s http://127.0.0.1:8000/api/v1/documents/<id>
 ```
 
 ```json
-{"app_version": "0.1.0", "schema_version": 1, "documents": 0, "versions_by_status": {},
- "active_chunks": 0, "conversations": 0, "index_embedding_model": "",
- "configured_embedding_model": "gemini-embedding-001", "reindex_required": false,
- "providers": [{"role": "embedding", "model": "gemini-embedding-001", "fallback_model": null},
-               {"role": "chat", "model": "qwen/qwen3.8-27b", "fallback_model": "openai/gpt-oss-20b"}]}
+{"id": "6a25…", "display_name": "دليل المستخدم", "active_version_id": "b638…",
+ "is_processing": false, "created_at": "2026-11-14T20:49:01+00:00", "updated_at": "…",
+ "versions": [{"id": "b638…", "version_number": 1, "status": "ready", "stage": null,
+               "is_active": true, "original_filename": "دليل المستخدم.md", "format": "markdown",
+               "size_bytes": 12034, "page_count": null, "chunk_count": 19, "error": null,
+               "uploaded_at": "…", "processing_finished_at": "…"}]}
 ```
 
-The document, version, and conversation endpoints of DESIGN-001 §11.1 are added in Phases 6–9.
+A failed version carries `"error": {"code": "PDF_NO_TEXT", "message": "<Arabic>"}`. The conversation endpoints of DESIGN-001 §11.1 are added in Phases 9–10.
+
+### 5.2.1 What happens after an upload
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as 👤 User
+    participant A as 🖥️ web (API or page)
+    participant S as ⚙️ DocumentService
+    participant F as 🗄️ FileStore
+    participant W as ⚙️ IngestionWorker (thread)
+    participant P as 🔶 ingestion.pipeline
+    participant R as 🗄️ DocumentRepository
+
+    U->>A: POST file
+    A->>S: upload_document(name, stream)
+    S->>F: receive(): stream to .part, size limit, SHA-256
+    S->>S: type by content, UTF-8, duplicate check
+    S->>F: accept(): rename to <uuid>.pdf|.md
+    S->>R: create document + version + queued job (one transaction)
+    S-->>W: wake()
+    A-->>U: 202 (status: uploaded)
+    W->>R: claim_next_job() → processing
+    W->>P: process_file(): extract → clean → chunk (in memory)
+    P-->>W: chunks (or an AppError → version failed, Arabic message)
+    W->>R: complete_ingestion(): chunks + ready + approve + index_generation (one transaction)
+    Note over W,R: If the version was deleted meanwhile, the stage update or the final<br/>check finds it gone and nothing is written (DD-02)
+```
 
 ### 5.3 Adding an endpoint (recipe)
 1. Write or extend a **service** function that takes and returns plain types or dataclasses.
@@ -198,6 +249,8 @@ The document, version, and conversation endpoints of DESIGN-001 §11.1 are added
 | Proof | `tests/integration/storage/test_migrations.py` checks `EXPLAIN QUERY PLAN` for every hot query | A future change that drops an index fails CI |
 | Similarity search | Exact cosine in NumPy over the active vectors, cached in memory (Phase 7–8) | Measured 0.6–2.3 ms at 20,000 chunks (TECH-001 T-05); far under the 1 s target |
 
+**Version numbers** come from `documents.last_version_number` (migration 0002), so a deleted version's number is never reused and old citations stay unambiguous.
+
 **Schema changes:** add `storage/migrations/000N_<what>.sql`. Never edit an applied migration. The app applies pending migrations at start-up, each in its own transaction.
 
 ---
@@ -216,6 +269,7 @@ The document, version, and conversation endpoints of DESIGN-001 §11.1 are added
 | [`docs/03_TECHNOLOGY_EVALUATION.md`](03_TECHNOLOGY_EVALUATION.md) | **Why** these technologies? (measurements, sources) | A technology is reconsidered |
 | [`docs/04_ARCHITECTURE_AND_DESIGN.md`](04_ARCHITECTURE_AND_DESIGN.md) | **How** is it built? (architecture, data, pipelines, API) | Any structural change, in the same PR |
 | [`docs/05_ENGINEERING_STANDARDS.md`](05_ENGINEERING_STANDARDS.md) | What rules must code and docs follow? | A rule changes (owner approval) |
+| [`docs/07_UI_AND_IDENTITY.md`](07_UI_AND_IDENTITY.md) | How does the interface look and behave, and why? (identity, colours, type, patterns, accessibility, assets) | Any UI change |
 | `docs/06_DEVELOPER_GUIDE.md` (this file) | Where is everything and how do I work with it? | Structure, endpoints, or workflow change |
 | [`docs/DECISIONS.md`](DECISIONS.md) | What was decided, when, and why? | Every approved decision |
 | [`CHANGELOG.md`](../CHANGELOG.md) | What changed in each release? | Each phase PR |
@@ -268,5 +322,6 @@ From STD-001 §14.2, with an example of each:
 | One test file, verbose | `uv run pytest tests/integration/storage/test_migrations.py -v` |
 | Coverage report | `uv run pytest --cov` |
 | Lint, format, types, layers | `uv run ruff check` · `uv run ruff format` · `uv run mypy` · `uv run lint-imports` |
+| Regenerate the braid logo after a colour change | `python tools/brand/make_braid.py` |
 | Add a runtime or dev dependency | `uv add <pkg>` or `uv add --dev <pkg>`, then explain why in the commit (STD-001 §2.2) |
 | Before every commit | the review checklist, STD-001 §13 |
