@@ -20,6 +20,7 @@ class ErrorCode(StrEnum):
     POPPLER_MISSING = "POPPLER_MISSING"
     # Generic request errors
     NOT_FOUND = "NOT_FOUND"
+    FORBIDDEN_ORIGIN = "FORBIDDEN_ORIGIN"
     VALIDATION_ERROR = "VALIDATION_ERROR"
     INTERNAL_ERROR = "INTERNAL_ERROR"
     # Documents and versions
@@ -59,6 +60,9 @@ CATALOG: Mapping[ErrorCode, ErrorSpec] = {
         500, "أداة استخراج نص PDF غير مثبتة. راجع تعليمات التثبيت."
     ),
     ErrorCode.NOT_FOUND: ErrorSpec(404, "العنصر المطلوب غير موجود."),
+    ErrorCode.FORBIDDEN_ORIGIN: ErrorSpec(
+        403, "رُفض الطلب لأنه لم يصدر من واجهة التطبيق على هذا الجهاز."
+    ),
     ErrorCode.VALIDATION_ERROR: ErrorSpec(400, "البيانات المرسلة غير صالحة."),
     ErrorCode.INTERNAL_ERROR: ErrorSpec(500, "حدث خطأ غير متوقع. حاول مرة أخرى."),
     ErrorCode.FILE_TOO_LARGE: ErrorSpec(

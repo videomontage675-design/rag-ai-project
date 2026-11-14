@@ -18,6 +18,7 @@ from rag_app.storage.migrate import apply_migrations
 from rag_app.web.app import create_app
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+LOCAL = "http://127.0.0.1:8000"
 
 
 @pytest.fixture
@@ -50,7 +51,8 @@ def db(settings: Settings) -> Database:
 
 @pytest.fixture
 def client(settings: Settings) -> Iterator[TestClient]:
-    with TestClient(create_app(settings)) as test_client:
+    # The app only answers loopback host names (local-only guard).
+    with TestClient(create_app(settings), base_url=LOCAL) as test_client:
         yield test_client
 
 
