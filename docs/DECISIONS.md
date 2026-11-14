@@ -366,5 +366,6 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
 
 | ID | Question | Resolve by |
 |---|---|---|
+| P-018 | **Embedding dimension.** 3072 was the model's default, not a measured choice. Measured (TECH-001, T-10 addendum): 256 to 3072 dimensions give the same quality within noise on the golden set, while 3072 costs four times the memory and search time of 768. Proposal: 768 dimensions, normalized in the adapter, configurable | Owner, before Phase 7 starts |
 
 Resolved: P-017 → D-037 · P-016 → D-032 · P-008 → D-031 · P-001 → D-009 · P-002 → D-011 · P-003 → D-012 · P-004 → D-017 · P-005 → D-018 · P-006 → D-021 · P-007 → D-019 · P-009 → D-014 · P-010 → D-015 · P-011 → D-029 · P-012 → D-027 · P-014 → D-029 · P-015 → D-029 · P-013 → keys provided (Gemini, Groq, Cohere working; Jina balance exhausted; Mistral key invalid).

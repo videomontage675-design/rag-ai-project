@@ -231,6 +231,32 @@ Switching is a configuration change plus re-indexing (FR-CFG-05). The choice can
 
 The output dimension (3072) can be reduced if storage or latency requires it; at 3072 dimensions, exact search takes 2.3 ms at 20,000 chunks (T-05).
 
+#### T-10 addendum (2026-11-14): output dimension, measured after the owner's question
+**Correction of record:** 3072 was **not chosen**. It is the model's default output, and Phase 3 never passed a dimension or compared sizes; the tables above only report the size that came back. This addendum supplies the missing comparison.
+
+**Official facts** (Google AI for Developers):
+- gemini-embedding-001 is trained with Matryoshka Representation Learning (MRL). `output_dimensionality` truncates the vector, and Google recommends 3072, 1536, or 768.
+- Only the 3072-dimension output is normalized. Smaller outputs must be L2-normalized by the caller.
+
+**Measured** (`poc/retrieval/run_dimensions.py`): the same 76 chunks and 43 answerable questions as above. Vectors are embedded once at 3072 dimensions, then truncated and renormalized locally. The 3072 row reproduces the Phase 3 result exactly.
+
+| Dim | Hit@1 | Hit@3 | Hit@5 | Recall@5 | MRR | AUROC | Bytes per chunk | Memory at 20,000 chunks |
+|---|---|---|---|---|---|---|---|---|
+| 3072 (default) | 0.84 | 0.98 | 1.00 | 0.97 | 0.913 | 0.90 | 12,288 | 246 MB |
+| 1536 | 0.84 | 1.00 | 1.00 | 0.98 | 0.915 | 0.90 | 6,144 | 123 MB |
+| 768 | 0.86 | 0.98 | 1.00 | 0.98 | 0.924 | 0.89 | 3,072 | 61 MB |
+| 256 | 0.86 | 1.00 | 1.00 | 0.98 | 0.926 | 0.90 | 1,024 | 20 MB |
+
+- **The OpenAI-compatible endpoint accepts `dimensions`.** A request with `dimensions: 768` returned 768 values with norm 0.59, so the vector is not normalized. Its cosine with the locally truncated vector is 1.0000, so the server does plain truncation.
+- **Search time** grows linearly with dimension: 0.63 ms at 768 and 2.30 ms at 3072 for 20,000 chunks (T-05).
+
+**Conclusions:**
+1. On this corpus, every size from 256 to 3072 is within the noise margin (§1.3). The largest difference is one question out of 43. **The evidence does not support 3072 over 768.**
+2. The corpus is small: 76 chunks with few near-duplicates. Lower dimensions usually lose quality where many similar passages compete, and this corpus cannot show that. So the measurement does not prove that 256 is safe at scale; it only shows that 3072 brings no measurable gain here.
+3. The costs of 3072 are certain: four times the storage, memory, and search time of 768.
+
+**Proposal (P-018, owner decision before Phase 7):** use **768** dimensions, Google's smallest recommended size, and L2-normalize the vectors in the adapter. The dimension becomes a setting (`providers.embedding.dimensions`). It must be fixed **before** the first real embedding: changing it later requires re-indexing (FR-CFG-05), like changing the model.
+
 ### T-11 / T-12 LLM provider and judge: measured
 **Set-up** (`poc/generation/run_generation.py`, prompt `gen-v1`):
 - Every candidate received the **same context**: the top-5 chunks by gemini-embedding-001, labelled [S1]..[S5].
