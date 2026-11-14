@@ -1,0 +1,96 @@
+# Continuous integration (D-031, STD-001 §15).
+# Every push and pull request is checked on Linux AND Windows, the owner's target (D-017).
+# Third-party actions are pinned to full commit SHAs; every job has a timeout.
+# Real model providers are never called here: tests block the network (NFR-MNT-02).
+
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: test (${{ matrix.os }}, Python ${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, python: "3.13" }
+          - { os: windows-latest, python: "3.13" }
+          - { os: ubuntu-latest, python: "3.12" }
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install uv and Python ${{ matrix.python }}
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          python-version: ${{ matrix.python }}
+          enable-cache: true
+
+      - name: Install Poppler from conda-forge (same source as the owner's install, D-028)
+        uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39 # v3.2.1
+        with:
+          environment-name: poppler
+          create-args: poppler
+          condarc: |
+            channels:
+              - conda-forge
+          cache-environment: true
+
+      - name: Put Poppler on PATH
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            echo "$MAMBA_ROOT_PREFIX/envs/poppler/Library/bin" >> "$GITHUB_PATH"
+          else
+            echo "$MAMBA_ROOT_PREFIX/envs/poppler/bin" >> "$GITHUB_PATH"
+          fi
+
+      - name: Install locked dependencies
+        run: uv sync --locked
+
+      - name: Lint
+        run: uv run ruff check src tests
+
+      - name: Formatting
+        run: uv run ruff format --check src tests
+
+      - name: Types (mypy --strict)
+        run: uv run mypy
+
+      - name: Architecture layer rules
+        run: uv run lint-imports
+
+      - name: Tests with coverage
+        run: uv run pytest --cov --cov-report=term
+
+  diagrams:
+    name: documentation diagrams
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: tools/docs
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install pinned tools
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Render every Mermaid diagram with Mermaid 11 and 12
+        run: node check_mermaid.mjs ../../docs/*.md ../../README.md
