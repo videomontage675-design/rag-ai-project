@@ -32,6 +32,7 @@ class ErrorCode(StrEnum):
     PDF_ENCRYPTED = "PDF_ENCRYPTED"
     PDF_CORRUPT = "PDF_CORRUPT"
     EXTRACTION_TIMEOUT = "EXTRACTION_TIMEOUT"
+    INTERRUPTED = "INTERRUPTED"
     VERSION_IS_ACTIVE = "VERSION_IS_ACTIVE"
     VERSION_NOT_READY = "VERSION_NOT_READY"
     VERSION_NOT_FAILED = "VERSION_NOT_FAILED"
@@ -77,6 +78,9 @@ CATALOG: Mapping[ErrorCode, ErrorSpec] = {
     ErrorCode.PDF_ENCRYPTED: ErrorSpec(422, "ملف PDF محمي بكلمة مرور ولا يمكن معالجته."),
     ErrorCode.PDF_CORRUPT: ErrorSpec(422, "ملف PDF تالف أو لا يمكن قراءته."),
     ErrorCode.EXTRACTION_TIMEOUT: ErrorSpec(422, "استغرق استخراج النص وقتاً أطول من المسموح."),
+    ErrorCode.INTERRUPTED: ErrorSpec(
+        500, "توقفت معالجة الملف عدة مرات بسبب إعادة تشغيل التطبيق. أعد المحاولة."
+    ),
     ErrorCode.VERSION_IS_ACTIVE: ErrorSpec(
         409, "لا يمكن حذف النسخة النشطة. فعّل نسخة أخرى أو احذف المستند كاملاً."
     ),
