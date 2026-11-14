@@ -72,6 +72,9 @@ class IngestionSettings(_Strict):
     poll_seconds: float = Field(default=2.0, gt=0, le=60)
     max_attempts: int = Field(default=3, ge=1, le=10)  # FR-ING-14
     extraction_timeout_seconds: float = Field(default=60.0, gt=0, le=600)
+    # Provider retries during ingestion (FR-ING-11): patient, because free tiers rate-limit.
+    embed_max_attempts: int = Field(default=5, ge=1, le=10)
+    embed_first_backoff_seconds: float = Field(default=15.0, ge=0, le=300)
 
 
 class RagSettings(_Strict):
@@ -102,6 +105,8 @@ class ProviderSettings(_Strict):
     model: str
     api_key_env: str | None = None
     fallback_model: str | None = None
+    # Embeddings only: requested output size (D-039). None = the model's default size.
+    dimensions: int | None = Field(default=None, ge=64, le=8192)
     batch_size: int = Field(default=20, ge=1, le=256)
     min_seconds_between_batches: float = Field(default=0.0, ge=0.0)
     timeout_seconds: float = Field(default=60.0, gt=0.0)

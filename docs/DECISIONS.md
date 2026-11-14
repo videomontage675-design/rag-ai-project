@@ -360,12 +360,26 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
   - screenshots on desktop and phone.
 - **Next:** one PR for Phase 6 (D-015). Phase 7 (embeddings and re-indexing) starts only on the owner's explicit approval.
 
+## D-039 — Embedding dimension 768 (resolves P-018)
+- **Date:** 2026-11-14 · **Status:** Approved
+- **Decision:** gemini-embedding-001 vectors use **768 dimensions** by default (`providers.embedding.dimensions`), L2-normalized by the adapter.
+- **Basis:** TECH-001, T-10 addendum.
+  - 3072 had been the model's unexamined default.
+  - Measured: 256 to 3072 dimensions are within noise on the golden set.
+  - 768 is Google's smallest recommended size, and costs a quarter of the memory and search time of 3072.
+- **Consequences:**
+  - The dimension is part of the index identity, together with the model. Changing either requires `rag reindex`.
+  - Retrieval quality at larger scale is re-checked in the Phase 8 evaluation.
+
+## D-040 — Phase 7 authorized
+- **Date:** 2026-11-14 · **Status:** Approved
+- **Decision:** Phase 7 is authorized: embeddings (stage 5) in the one-commit ingestion, the model and dimension stored with every vector, and re-indexing. Re-indexing also embeds the versions that Phase 6 stored without vectors (D-034).
+
 ---
 
 ## Pending decisions
 
 | ID | Question | Resolve by |
 |---|---|---|
-| P-018 | **Embedding dimension.** 3072 was the model's default, not a measured choice. Measured (TECH-001, T-10 addendum): 256 to 3072 dimensions give the same quality within noise on the golden set, while 3072 costs four times the memory and search time of 768. Proposal: 768 dimensions, normalized in the adapter, configurable | Owner, before Phase 7 starts |
 
-Resolved: P-017 → D-037 · P-016 → D-032 · P-008 → D-031 · P-001 → D-009 · P-002 → D-011 · P-003 → D-012 · P-004 → D-017 · P-005 → D-018 · P-006 → D-021 · P-007 → D-019 · P-009 → D-014 · P-010 → D-015 · P-011 → D-029 · P-012 → D-027 · P-014 → D-029 · P-015 → D-029 · P-013 → keys provided (Gemini, Groq, Cohere working; Jina balance exhausted; Mistral key invalid).
+Resolved: P-018 → D-039 · P-017 → D-037 · P-016 → D-032 · P-008 → D-031 · P-001 → D-009 · P-002 → D-011 · P-003 → D-012 · P-004 → D-017 · P-005 → D-018 · P-006 → D-021 · P-007 → D-019 · P-009 → D-014 · P-010 → D-015 · P-011 → D-029 · P-012 → D-027 · P-014 → D-029 · P-015 → D-029 · P-013 → keys provided (Gemini, Groq, Cohere working; Jina balance exhausted; Mistral key invalid).
