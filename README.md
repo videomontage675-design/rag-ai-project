@@ -8,11 +8,11 @@ The initial deployment is a help assistant for «ضفيرة», a **fictional** c
 managing medical clinics. All use-case wording lives in `config/domain_profile.toml`; the core
 is domain-agnostic.
 
-> **Status:** Phase 6 (document ingestion). You can build the document library: upload PDF and
-> Markdown files, follow their processing, keep versions, choose the version the assistant
-> uses, and delete documents, from the Arabic interface or the JSON API. Documents are split
-> into chunks, but not yet embedded (Phase 7), so **asking questions is not available yet**
-> (Phases 8–10). The roadmap is in `docs/planning/PHASE_0_DISCOVERY_AND_PLAN.md`.
+> **Status:** Phase 7 (embeddings and indexing). You can build the document library: upload PDF
+> and Markdown files, follow their processing, keep versions, choose the version the assistant
+> uses, and delete documents, from the Arabic interface or the JSON API. Each document is split
+> into chunks and embedded (Gemini, 768 dimensions), so it is ready for search. **Asking
+> questions arrives in Phases 8–10.** The roadmap is in `docs/planning/PHASE_0_DISCOVERY_AND_PLAN.md`.
 
 ---
 
@@ -72,6 +72,16 @@ text-based PDF and UTF-8 Markdown, up to 10 MB. The status changes from «بان
 | Go back to an older version | Open the document and click «اعتماد هذه النسخة» on that version |
 | Fix a failed version | Read its Arabic error message, then «إعادة المعالجة» or upload a corrected version |
 | Remove a document | «حذف المستند» (asks for confirmation; removes all its versions and files) |
+
+**Upgrading from 0.2.0 (Phase 6):** documents processed before Phase 7 have chunks but no
+vectors, and the pages show «… غير مفهرسة». Stop the app, then run:
+
+```powershell
+uv run rag reindex
+```
+
+It embeds only what is missing or outdated, and keeps the current index until it finishes.
+Run the same command after changing the embedding model or `dimensions` in `config/settings.toml`.
 
 ---
 
@@ -133,5 +143,7 @@ uv run lint-imports       # architecture layer rules
 | `✘ FAIL API key: embedding` | `GEMINI_API_KEY` is missing in `.env` |
 | `CONFIG_INVALID … server.host` | The host is not `127.0.0.1`. The app has no login, so it only runs locally |
 | A document stays «تعذّرت المعالجة» with a PDF message | The PDF is scanned (no text layer), password-protected, or damaged. Export a text PDF or upload the Markdown source |
+| A version fails with «تم بلوغ حد الاستخدام لدى مزود النموذج» | Gemini's free tier hit its per-minute limit after 5 retries. Wait a minute and press «إعادة المعالجة» |
+| A version fails with «مفتاح مزود النموذج غير صالح» | `GEMINI_API_KEY` is missing or wrong in `.env`; fix it, restart, then retry |
 | `FORBIDDEN_ORIGIN` (403) | The request came from another website or host name. Open the app at `http://127.0.0.1:8000` |
 | Arabic text shows as `?` in the terminal | Use Windows Terminal; the app forces UTF-8 output, but the old console may lack fonts |

@@ -4,6 +4,19 @@ All notable changes, one section per phase. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow
 [Semantic Versioning](https://semver.org/) (`0.y.z` until delivery).
 
+## [0.3.0] — Phase 7: Embeddings and indexing
+
+### Added
+- **Embedding provider:** a port plus one OpenAI-compatible adapter (`providers/`). It batches, throttles, and retries 429/5xx with `Retry-After` or doubling backoff; maps authentication errors; validates count and dimension; and L2-normalizes every vector.
+- **Stage 5 in ingestion:** each chunk's heading path and normalized text are embedded. The vectors, tagged with model and dimension, are stored in the same single transaction as the chunks and the version's activation.
+- **`rag reindex`:** embeds every ready version whose vectors are missing (data from 0.2.0) or come from another model or dimension, inactive versions included. It swaps everything in one transaction, so a failed run changes nothing.
+- **Index state:** `/system/status` reports the index model and dimension, `reindex_required`, and `versions_needing_index`. The home and documents pages show an Arabic notice with the command to run.
+- **Tests:** 246 passing (plus the strict expected failure from D-037), including the adapter against a mocked HTTP transport and an opt-in live provider check (run once against Gemini).
+
+### Changed
+- **Embedding dimension 768** instead of the model's default 3072 (D-039): the same quality within noise on the golden set, at a quarter of the memory and search time.
+- `numpy` and `httpx` are runtime dependencies.
+
 ## [0.2.0] — Phase 6: Document ingestion and the documents interface
 
 ### Added

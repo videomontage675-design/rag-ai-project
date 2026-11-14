@@ -4,7 +4,7 @@
 |---|---|
 | Document ID | DESIGN-001 |
 | Phase | Phase 4: Architecture and Technical Design |
-| Status | **Approved** (D-030), including decisions DD-01 to DD-08 (§17). Phase 6 implementation notes in §19 |
+| Status | **Approved** (D-030), including decisions DD-01 to DD-08 (§17). Implementation notes for Phases 6–7 in §19 |
 | Date | 2026-11-13 |
 | Inputs | SRS-001 v1.1 (`docs/01_SRS.md`), TECH-001 (`docs/03_TECHNOLOGY_EVALUATION.md`), CORPUS-001, `docs/DECISIONS.md` |
 | Approved stack | Python + FastAPI · Jinja2 + HTMX · SQLite + NumPy · pdftotext · gemini-embedding-001 · qwen3.8-27b (Groq) · OpenAI-compatible adapters (D-027 to D-029) |
@@ -430,7 +430,7 @@ A crash before `COMMIT` leaves **nothing** behind except the job, which recovery
 `VectorIndex` holds the active vectors in a NumPy matrix (T-05). Before each search it reads `meta.index_generation`, a single-row read that costs microseconds. If the value changed since the matrix was loaded, the matrix is reloaded. Every transaction that changes the active set increments the counter: ready, activate, delete, and re-index. **No search can use a stale set of documents.**
 
 ### 7.4 Embedding model changes and re-indexing
-- At start-up and before each search, the configured embedding model is compared with `meta.index_embedding_model`.
+- At start-up and before each search, the configured embedding model **and dimension** (D-039) are compared with `meta.index_embedding_model` and `meta.index_embedding_dim`. The first vectors ever stored set these values; afterwards only re-indexing changes them.
 - **If they differ:** questions are refused with `REINDEX_REQUIRED` and an Arabic explanation (FR-RET-03). The documents page shows a banner.
 - **`rag reindex` (CLI)** embeds every version that has chunks, inactive versions included (§5.3), into a staging table. A single transaction then swaps the vectors and updates `meta`. If it is interrupted, the old index stays intact (FR-CFG-05).
 
@@ -939,6 +939,10 @@ Refinements made while implementing ingestion and the documents UI. None changes
 | N-8 | §6: recovery re-queues interrupted jobs | `attempts` counts every claim; on start-up, a job left `running` with `attempts ≥ max_attempts` (3) fails with `INTERRUPTED` | FR-ING-14 exactly; configurable in `[ingestion]` |
 | N-9 | §13.2 | Local-only guard and security headers (D-035) | A browser can reach 127.0.0.1 even when the network cannot |
 | N-10 | §11.2 | Pages, fragments, and identity as in UI-001 | D-034 brought the documents UI forward |
+| N-11 | §7.4: re-index into a staging table, then swap | New vectors are held **in memory**, then one transaction deletes the old vectors of the affected versions, inserts the new ones, and updates `meta` | Same guarantee (old index intact until the commit) without a second table. Memory: 61 MB at 20,000 chunks × 768 dimensions (D-039) |
+| N-12 | §7.4: re-index embeds every version | Embeds only **stale** ready versions: no vectors (Phase 6 data, D-034), or another model or dimension | Re-running is cheap and idempotent; nothing is re-sent to the provider without need |
+| N-13 | §10: typed provider exceptions | Adapters raise `AppError` with `PROVIDER_RATE_LIMITED`, `PROVIDER_UNAVAILABLE`, or `PROVIDER_AUTH` | Those codes already carry the HTTP status and the Arabic message, so a second error hierarchy would only be mapped back to them |
+| N-14 | §10: one adapter | `providers/openai_compatible.py` L2-normalizes every vector and sends `dimensions` when configured | Measured: Gemini returns unnormalized vectors at reduced sizes (TECH-001, T-10 addendum) |
 
 ### Known gap: wrapped table cells in PDFs (NFR-LNG-02b)
 In `02_plans_pricing_v1.pdf`, the cell «حتى 3 مستخدمين» wraps onto two lines, and pdftotext emits the second line («مستخدمين») after the whole table. The golden-set evidence passage for Q040 (state `d02_v1_active`) is therefore split. The other seven versions keep 100% of their evidence; letter error is 0.00% everywhere. **Resolved by D-037:** accepted as a known limitation of text-PDF tables. The test stays a strict expected failure, so CI alerts when the gap is fixed; table-aware extraction from word coordinates remains the documented path if Phase 8 shows a retrieval impact.
