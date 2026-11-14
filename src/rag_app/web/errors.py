@@ -7,6 +7,7 @@ import logging
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, Response
+from fastapi.templating import Jinja2Templates
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from rag_app.core.errors import CATALOG, AppError, ErrorCode
@@ -21,30 +22,55 @@ def error_body(
     return {"error": {"code": str(code), "message": message, "details": details or {}}}
 
 
+def error_response(
+    request: Request,
+    code: ErrorCode,
+    message: str,
+    details: dict[str, object] | None = None,
+    status_code: int | None = None,
+) -> Response:
+    """Return the error in the shape the caller understands, keeping the HTTP status.
+
+    API clients get the JSON contract. HTMX requests from the UI get an Arabic alert fragment
+    that is retargeted into the page's alert region, so every action reports errors the same
+    way without page-specific code (FR-UI-07).
+    """
+    status_code = status_code or CATALOG[code].http_status
+    if request.headers.get("hx-request") == "true":
+        templates: Jinja2Templates = request.app.state.context.templates
+        return templates.TemplateResponse(
+            request,
+            "partials/alert.html",
+            {"kind": "error", "message": message, "code": str(code)},
+            status_code=status_code,
+            headers={"HX-Retarget": "#alerts", "HX-Reswap": "innerHTML"},
+        )
+    return JSONResponse(error_body(code, message, details), status_code)
+
+
 def install_error_handlers(app: FastAPI) -> None:
     """Register handlers so every failure leaves the app in the same, documented shape."""
 
     @app.exception_handler(AppError)
-    async def _app_error(_: Request, exc: AppError) -> Response:
+    async def _app_error(request: Request, exc: AppError) -> Response:
         logger.info("app_error", extra={"code": str(exc.code)})
-        return JSONResponse(error_body(exc.code, exc.message_ar, exc.details), exc.http_status)
+        return error_response(request, exc.code, exc.message_ar, dict(exc.details))
 
     @app.exception_handler(RequestValidationError)
-    async def _validation(_: Request, exc: RequestValidationError) -> Response:
+    async def _validation(request: Request, exc: RequestValidationError) -> Response:
         fields = [".".join(str(p) for p in err["loc"]) for err in exc.errors()]
         spec = CATALOG[ErrorCode.VALIDATION_ERROR]
-        return JSONResponse(
-            error_body(ErrorCode.VALIDATION_ERROR, spec.message_ar, {"fields": fields}),
-            spec.http_status,
+        return error_response(
+            request, ErrorCode.VALIDATION_ERROR, spec.message_ar, {"fields": fields}
         )
 
     @app.exception_handler(StarletteHTTPException)
-    async def _http(_: Request, exc: StarletteHTTPException) -> Response:
+    async def _http(request: Request, exc: StarletteHTTPException) -> Response:
         code = ErrorCode.NOT_FOUND if exc.status_code == 404 else ErrorCode.VALIDATION_ERROR
-        return JSONResponse(error_body(code, CATALOG[code].message_ar), exc.status_code)
+        return error_response(request, code, CATALOG[code].message_ar, None, exc.status_code)
 
     @app.exception_handler(Exception)
-    async def _unexpected(_: Request, exc: Exception) -> Response:
+    async def _unexpected(request: Request, exc: Exception) -> Response:
         logger.exception("unhandled_exception", extra={"exception_type": type(exc).__name__})
         spec = CATALOG[ErrorCode.INTERNAL_ERROR]
-        return JSONResponse(error_body(ErrorCode.INTERNAL_ERROR, spec.message_ar), spec.http_status)
+        return error_response(request, ErrorCode.INTERNAL_ERROR, spec.message_ar)

@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}{{ doc.display_name }} · {{ profile.platform_name }}{% endblock %}
+{% block content %}
+<nav class="crumb" aria-label="مسار التنقل"><a href="{{ url_for('documents_page') }}">مكتبة المستندات</a></nav>
+{% include "documents/_history.html" %}
+{% endblock %}

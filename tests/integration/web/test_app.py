@@ -32,7 +32,7 @@ def test_malformed_request_id_is_replaced(client: TestClient) -> None:
 def test_system_status_on_empty_database(client: TestClient) -> None:
     body = client.get("/api/v1/system/status").json()
 
-    assert body["schema_version"] == 1
+    assert body["schema_version"] == 2
     assert body["documents"] == 0
     assert body["reindex_required"] is False
     assert {p["role"] for p in body["providers"]} == {"embedding", "chat"}
@@ -60,7 +60,7 @@ def test_app_error_is_mapped_to_status_and_arabic_message(settings: Settings) ->
         raise AppError(ErrorCode.FILE_TOO_LARGE, limit_mb=10)
 
     app.include_router(probe)
-    with TestClient(app) as test_client:
+    with TestClient(app, base_url="http://127.0.0.1:8000") as test_client:
         response = test_client.get("/probe")
 
     assert response.status_code == 413
@@ -77,7 +77,9 @@ def test_unexpected_exception_returns_generic_internal_error(settings: Settings)
         raise RuntimeError("secret internals")
 
     app.include_router(probe)
-    with TestClient(app, raise_server_exceptions=False) as test_client:
+    with TestClient(
+        app, raise_server_exceptions=False, base_url="http://127.0.0.1:8000"
+    ) as test_client:
         response = test_client.get("/boom")
 
     assert response.status_code == 500

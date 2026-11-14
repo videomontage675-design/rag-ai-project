@@ -1,0 +1,19 @@
+{# Upload form. Needs upload_url and upload_target; compact=True for the new-version form. #}
+<form class="upload{% if compact %} upload--compact{% endif %}" data-upload data-max-bytes="{{ max_upload_bytes }}"
+      hx-post="{{ upload_url }}" hx-encoding="multipart/form-data"
+      hx-target="{{ upload_target }}" hx-swap="outerHTML" hx-disabled-elt="find button[type=submit]">
+  <svg class="upload__icon" aria-hidden="true"><use href="#i-upload"></use></svg>
+  <div class="upload__text">
+    <strong>{% if compact %}رفع نسخة جديدة{% else %}أضف مستنداً إلى المكتبة{% endif %}</strong>
+    <span class="upload__hint">اسحب الملف إلى هنا أو اختره من جهازك. PDF نصي أو Markdown، حتى <bdi>{{ max_upload_mb }}</bdi> ميجابايت.</span>
+    <span class="upload__chosen" data-chosen aria-live="polite"></span>
+  </div>
+  <div class="upload__actions">
+    <input type="file" name="file" id="file-{{ 'v' if compact else 'd' }}" required
+           accept=".pdf,.md,.markdown,application/pdf,text/markdown">
+    <label class="btn btn--quiet upload__pick" for="file-{{ 'v' if compact else 'd' }}">اختيار ملف</label>
+    <button class="btn btn--primary" type="submit">{% if compact %}رفع النسخة{% else %}رفع المستند{% endif %}</button>
+  </div>
+  <p class="field-error" data-error role="alert" hidden></p>
+  <progress max="100" value="0" hidden aria-label="تقدّم الرفع"></progress>
+</form>

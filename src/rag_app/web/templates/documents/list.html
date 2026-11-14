@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}المستندات · {{ profile.platform_name }}{% endblock %}
+{% block alerts %}{% if deleted_alert %}{% with kind=deleted_alert.kind, message=deleted_alert.message %}{% include "partials/alert.html" %}{% endwith %}{% endif %}{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>مكتبة المستندات</h1>
+  <p>الوثائق التي يعتمد عليها المساعد في إجاباته. ارفع ملف PDF نصياً أو ملف Markdown، وسيعالَج تلقائياً.</p>
+</header>
+
+{% set upload_url = url_for('upload_document_ui') %}
+{% set upload_target = '#library' %}
+{% include "documents/_upload.html" %}
+
+{% include "documents/_library.html" %}
+{% endblock %}

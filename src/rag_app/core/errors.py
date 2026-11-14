@@ -20,6 +20,7 @@ class ErrorCode(StrEnum):
     POPPLER_MISSING = "POPPLER_MISSING"
     # Generic request errors
     NOT_FOUND = "NOT_FOUND"
+    FORBIDDEN_ORIGIN = "FORBIDDEN_ORIGIN"
     VALIDATION_ERROR = "VALIDATION_ERROR"
     INTERNAL_ERROR = "INTERNAL_ERROR"
     # Documents and versions
@@ -32,6 +33,7 @@ class ErrorCode(StrEnum):
     PDF_ENCRYPTED = "PDF_ENCRYPTED"
     PDF_CORRUPT = "PDF_CORRUPT"
     EXTRACTION_TIMEOUT = "EXTRACTION_TIMEOUT"
+    INTERRUPTED = "INTERRUPTED"
     VERSION_IS_ACTIVE = "VERSION_IS_ACTIVE"
     VERSION_NOT_READY = "VERSION_NOT_READY"
     VERSION_NOT_FAILED = "VERSION_NOT_FAILED"
@@ -58,6 +60,9 @@ CATALOG: Mapping[ErrorCode, ErrorSpec] = {
         500, "أداة استخراج نص PDF غير مثبتة. راجع تعليمات التثبيت."
     ),
     ErrorCode.NOT_FOUND: ErrorSpec(404, "العنصر المطلوب غير موجود."),
+    ErrorCode.FORBIDDEN_ORIGIN: ErrorSpec(
+        403, "رُفض الطلب لأنه لم يصدر من واجهة التطبيق على هذا الجهاز."
+    ),
     ErrorCode.VALIDATION_ERROR: ErrorSpec(400, "البيانات المرسلة غير صالحة."),
     ErrorCode.INTERNAL_ERROR: ErrorSpec(500, "حدث خطأ غير متوقع. حاول مرة أخرى."),
     ErrorCode.FILE_TOO_LARGE: ErrorSpec(
@@ -77,6 +82,9 @@ CATALOG: Mapping[ErrorCode, ErrorSpec] = {
     ErrorCode.PDF_ENCRYPTED: ErrorSpec(422, "ملف PDF محمي بكلمة مرور ولا يمكن معالجته."),
     ErrorCode.PDF_CORRUPT: ErrorSpec(422, "ملف PDF تالف أو لا يمكن قراءته."),
     ErrorCode.EXTRACTION_TIMEOUT: ErrorSpec(422, "استغرق استخراج النص وقتاً أطول من المسموح."),
+    ErrorCode.INTERRUPTED: ErrorSpec(
+        500, "توقفت معالجة الملف عدة مرات بسبب إعادة تشغيل التطبيق. أعد المحاولة."
+    ),
     ErrorCode.VERSION_IS_ACTIVE: ErrorSpec(
         409, "لا يمكن حذف النسخة النشطة. فعّل نسخة أخرى أو احذف المستند كاملاً."
     ),

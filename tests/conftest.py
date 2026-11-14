@@ -10,11 +10,15 @@ import pytest
 from fastapi.testclient import TestClient
 
 from rag_app.config.settings import Settings, load_settings
+from rag_app.services.documents import DocumentService
+from rag_app.services.ingestion_worker import IngestionWorker
 from rag_app.storage.db import Database
+from rag_app.storage.files import FileStore
 from rag_app.storage.migrate import apply_migrations
 from rag_app.web.app import create_app
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+LOCAL = "http://127.0.0.1:8000"
 
 
 @pytest.fixture
@@ -25,7 +29,10 @@ def config_dir(tmp_path: Path) -> Path:
     settings_file = target / "settings.toml"
     text = settings_file.read_text(encoding="utf-8")
     settings_file.write_text(
-        text.replace('data_dir = "../app_data"', 'data_dir = "../data"'), encoding="utf-8"
+        text.replace('data_dir = "../app_data"', 'data_dir = "../data"').replace(
+            "[ingestion]\n", "[ingestion]\nrun_worker = false\n"
+        ),
+        encoding="utf-8",
     )
     return target
 
@@ -44,5 +51,23 @@ def db(settings: Settings) -> Database:
 
 @pytest.fixture
 def client(settings: Settings) -> Iterator[TestClient]:
-    with TestClient(create_app(settings)) as test_client:
+    # The app only answers loopback host names (local-only guard).
+    with TestClient(create_app(settings), base_url=LOCAL) as test_client:
         yield test_client
+
+
+@pytest.fixture
+def files(settings: Settings) -> FileStore:
+    return FileStore(settings.uploads_dir)
+
+
+@pytest.fixture
+def worker(settings: Settings, db: Database, files: FileStore) -> IngestionWorker:
+    return IngestionWorker(settings, db, files)
+
+
+@pytest.fixture
+def documents(
+    settings: Settings, db: Database, files: FileStore, worker: IngestionWorker
+) -> DocumentService:
+    return DocumentService(settings, db, files, on_enqueued=worker.wake)

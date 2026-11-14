@@ -95,7 +95,10 @@ def test_active_vector_view_does_not_scan_chunks(db: Database) -> None:
 
 
 def _seed(conn: sqlite3.Connection, *, status: str = "ready", active: bool = True) -> None:
-    conn.execute("INSERT INTO documents VALUES ('d1', 'doc', NULL, 't', 't')")
+    conn.execute(
+        "INSERT INTO documents (id, display_name, created_at, updated_at)"
+        " VALUES ('d1', 'doc', 't', 't')"
+    )
     conn.execute(
         "INSERT INTO document_versions (id, document_id, version_number, original_filename, format,"
         " size_bytes, content_hash, stored_name, status, uploaded_at)"
@@ -135,7 +138,10 @@ def test_deleting_document_cascades_and_leaves_no_orphans(db: Database) -> None:
 def test_failed_transaction_rolls_back_everything(db: Database) -> None:
     with pytest.raises(sqlite3.IntegrityError), db.transaction() as conn:
         _seed(conn)
-        conn.execute("INSERT INTO documents VALUES ('d1', 'dup', NULL, 't', 't')")
+        conn.execute(
+            "INSERT INTO documents (id, display_name, created_at, updated_at)"
+            " VALUES ('d1', 'dup', 't', 't')"
+        )
     with db.connect() as conn:
         assert conn.execute("SELECT COUNT(*) FROM documents").fetchone()[0] == 0
 

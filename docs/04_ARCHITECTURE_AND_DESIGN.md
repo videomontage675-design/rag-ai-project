@@ -4,7 +4,7 @@
 |---|---|
 | Document ID | DESIGN-001 |
 | Phase | Phase 4: Architecture and Technical Design |
-| Status | **Approved** (D-030), including decisions DD-01 to DD-08 (§17) |
+| Status | **Approved** (D-030), including decisions DD-01 to DD-08 (§17). Phase 6 implementation notes in §19 |
 | Date | 2026-11-13 |
 | Inputs | SRS-001 v1.1 (`docs/01_SRS.md`), TECH-001 (`docs/03_TECHNOLOGY_EVALUATION.md`), CORPUS-001, `docs/DECISIONS.md` |
 | Approved stack | Python + FastAPI · Jinja2 + HTMX · SQLite + NumPy · pdftotext · gemini-embedding-001 · qwen3.8-27b (Groq) · OpenAI-compatible adapters (D-027 to D-029) |
@@ -704,6 +704,7 @@ Core response shapes (abridged):
 | `/` Chat | Domain-profile welcome text and example questions (FR-UI-08); conversation list (sidebar); messages; question box | The question box posts and swaps in the new message; a loading indicator shows while waiting |
 | `/documents` | Upload (new document); table of documents with status, versions, and actions | Status cells poll every 2 s **only while** a version is `uploaded` or `processing` (FR-UI-03) |
 | `/documents/{id}` | Details, version history, upload new version, activate, delete (with confirmation) | Actions swap the history fragment |
+| Implemented routes (Phase 6) | `GET /documents/_library` and `GET /documents/{id}/_history` (polling fragments); `POST /documents`, `POST /documents/{id}/versions`, `POST …/activate`, `POST …/retry`, `DELETE /documents/{id}`, `DELETE …/versions/{vid}` | Errors keep their HTTP status and are shown as an Arabic alert in `#alerts`; design rationale in UI-001 (`docs/07_UI_AND_IDENTITY.md`) |
 | Answer card states | ✅ answered · ⚠️ unverified · 🔍 insufficient information · ❌ error (FR-UI-06) | — |
 
 ### 11.3 CLI (`python -m rag_app …`)
@@ -733,6 +734,11 @@ port = 8000
 [limits]
 max_upload_mb = 10       # D-018
 max_question_chars = 1000
+
+[ingestion]              # added in Phase 6 (§19)
+poll_seconds = 2.0
+max_attempts = 3         # FR-ING-14
+extraction_timeout_seconds = 60
 
 [rag]
 chunk_chars = 800
@@ -785,6 +791,8 @@ Every expected failure is an `AppError` with a stable `code`, an HTTP status, an
 | `PROVIDER_UNAVAILABLE` | 503 | خدمة النموذج غير متاحة حالياً. حاول لاحقاً. |
 | `PROVIDER_AUTH` | 502 | مفتاح مزود النموذج غير صالح. راجع الإعدادات. |
 | `POPPLER_MISSING` | 500 | أداة استخراج نص PDF غير مثبتة. راجع تعليمات التثبيت. |
+| `INTERRUPTED` | 500 | توقفت معالجة الملف عدة مرات بسبب إعادة تشغيل التطبيق. أعد المحاولة. (stored on the version, §6) |
+| `FORBIDDEN_ORIGIN` | 403 | رُفض الطلب لأنه لم يصدر من واجهة التطبيق على هذا الجهاز. (§13.2) |
 
 ### 13.2 Security controls
 
@@ -795,7 +803,8 @@ Every expected failure is an `AppError` with a stable `code`, an HTTP status, an
 | Prompt injection inside documents | §9.4; fixture test | NFR-SEC-03, FR-GEN-02 |
 | Secret leakage | Keys only in `.env`; never logged; never returned by `/system/status` | NFR-SEC-04 |
 | Data sent to providers | Documented in the README: chunk text and questions go to Gemini, passages and questions to Groq, evaluation data to Cohere. Free-tier terms are stated | NFR-PRV-01 |
-| HTML injection in the UI | Jinja2 autoescaping; answers rendered as text, not HTML | Professional practice |
+| HTML injection in the UI | Jinja2 autoescaping; answers rendered as text, not HTML; a strict Content-Security-Policy without inline script | Professional practice |
+| A web page in the user's browser calling the local app (CSRF, DNS rebinding) | Local-only guard (Phase 6, D-035): refuse non-loopback `Host`, and state-changing requests with a foreign `Origin` or `Sec-Fetch-Site: cross-site` → `403 FORBIDDEN_ORIGIN` | NFR-SEC-01, CLAUDE.md §12 |
 
 ### 13.3 Observability
 - **Structured JSON logs** with these fields: timestamp, level, event, `request_id`, `job_id`, `version_id`, `stage`, `duration_ms`, provider, model, and outcome or error code. Logs go to `logs/` with size-based rotation.
@@ -816,12 +825,12 @@ rag-ai-project/
 │   ├── core/                    🧩 errors.py (AppError + codes) · logging.py · ids.py · clock.py
 │   ├── domain/                  🧩 models.py (Document, Version, Chunk, Answer, Citation …)
 │   ├── ingestion/               🔶 validation · extract_pdf · extract_markdown · cleaning
-│   │                               · normalization · chunking · pipeline · worker
+│   │                               · normalization · chunking · pipeline (worker: services/, §19)
 │   ├── retrieval/               🔶 query (replaceable stage, D-011) · index (NumPy) · ranking · context
 │   ├── generation/              🔶 prompts/answer.v1.md · prompt_builder · verify (citations)
 │   ├── providers/               🔌 ports.py · openai_compatible.py · fallback.py · retry.py
 │   ├── storage/                 🗄️ db.py · migrations/0001_init.sql · repositories/ · files.py
-│   ├── services/                ⚙️ documents.py · chat.py
+│   ├── services/                ⚙️ documents.py · ingestion_worker.py · chat.py
 │   ├── evaluation/              📊 runner.py · metrics.py · judge.py
 │   └── web/                     🖥️ app.py · api/ · ui/ · templates/ (RTL) · static/
 ├── config/                      settings.toml · domain_profile.toml · .env.example
@@ -911,3 +920,25 @@ This separation follows CLAUDE.md §5: a passing test suite shows the system **w
 | Poppler version differences on Windows | `check` CLI reports the Poppler version; extraction tests on the corpus PDFs run on the Windows CI runner |
 | Table reflow in PDF text | Chunker keeps rows together where detectable; evidence-intact metric (NFR-LNG-02 v1.1) is tested |
 | SQLite writer contention | One worker, short transactions, WAL mode |
+
+---
+
+## 19. Implementation Notes (Phase 6)
+
+Refinements made while implementing ingestion and the documents UI. None changes a requirement or an approved decision; each keeps the design's intent with less mechanism or more safety.
+
+| # | Design said | Implemented | Why |
+|---|---|---|---|
+| N-1 | §6: deleting sets status `deleting`; the worker notices and stops | Deletion removes the rows **in one transaction at once**; the worker detects that its version is gone (`set_stage` and the final commit both check) | Same guarantee (DD-02: nothing partial is ever written) with one state fewer. `deleting` stays in the schema, unused |
+| N-2 | §14: the worker lives in `ingestion/` | `services/ingestion_worker.py` | The worker coordinates storage, files, and the pipeline. `ingestion/` stays pure functions, so import contracts keep it free of SQL |
+| N-3 | §5: version number = next in sequence | Migration `0002` adds `documents.last_version_number`; numbers are never reused after a deletion | An old citation "version 3" must never point to a different, later upload (FR-CONV-05) |
+| N-4 | §8.2 stage 3: footers = lines repeated on ≥ 50% of pages | Only lines at **page edges** (first and last two) are considered | Measured: table header words repeat in page bodies and were wrongly removed |
+| N-5 | §8.2 stage 3 | Two more rules: a combining mark that pdftotext places before its letter at a word start is moved after it; lines holding a single isolated letter are dropped | Measured on the corpus PDFs; letter error is now 0.00% on all three (NFR-LNG-02a) |
+| N-6 | §8.2: `MARKDOWN_PARSE_ERROR` | Not used: markdown-it-py accepts any text. A Markdown file with no text under its headings fails with `EMPTY_FILE` | No unreachable error codes |
+| N-7 | §8.2 stage 6: `CANCELLED` (internal) | An internal exception in the worker, never shown to users | Cancellation is not an error |
+| N-8 | §6: recovery re-queues interrupted jobs | `attempts` counts every claim; on start-up, a job left `running` with `attempts ≥ max_attempts` (3) fails with `INTERRUPTED` | FR-ING-14 exactly; configurable in `[ingestion]` |
+| N-9 | §13.2 | Local-only guard and security headers (D-035) | A browser can reach 127.0.0.1 even when the network cannot |
+| N-10 | §11.2 | Pages, fragments, and identity as in UI-001 | D-034 brought the documents UI forward |
+
+### Known gap: wrapped table cells in PDFs (NFR-LNG-02b)
+In `02_plans_pricing_v1.pdf`, the cell «حتى 3 مستخدمين» wraps onto two lines, and pdftotext emits the second line («مستخدمين») after the whole table. The golden-set evidence passage for Q040 (state `d02_v1_active`) is therefore split. The other seven versions keep 100% of their evidence; letter error is 0.00% everywhere. **Resolved by D-037:** accepted as a known limitation of text-PDF tables. The test stays a strict expected failure, so CI alerts when the gap is fixed; table-aware extraction from word coordinates remains the documented path if Phase 8 shows a retrieval impact.
