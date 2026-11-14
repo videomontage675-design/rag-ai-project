@@ -16,6 +16,7 @@ from rag_app.storage.db import Database
 from rag_app.storage.files import FileStore
 from rag_app.storage.migrate import apply_migrations
 from rag_app.web.app import create_app
+from support.embeddings import FakeEmbedder
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 LOCAL = "http://127.0.0.1:8000"
@@ -50,9 +51,15 @@ def db(settings: Settings) -> Database:
 
 
 @pytest.fixture
-def client(settings: Settings) -> Iterator[TestClient]:
+def fake_embedder() -> FakeEmbedder:
+    return FakeEmbedder()
+
+
+@pytest.fixture
+def client(settings: Settings, fake_embedder: FakeEmbedder) -> Iterator[TestClient]:
+    fake = fake_embedder
     # The app only answers loopback host names (local-only guard).
-    with TestClient(create_app(settings), base_url=LOCAL) as test_client:
+    with TestClient(create_app(settings, embedder=lambda: fake), base_url=LOCAL) as test_client:
         yield test_client
 
 
@@ -62,8 +69,10 @@ def files(settings: Settings) -> FileStore:
 
 
 @pytest.fixture
-def worker(settings: Settings, db: Database, files: FileStore) -> IngestionWorker:
-    return IngestionWorker(settings, db, files)
+def worker(
+    settings: Settings, db: Database, files: FileStore, fake_embedder: FakeEmbedder
+) -> IngestionWorker:
+    return IngestionWorker(settings, db, files, embedder=lambda: fake_embedder)
 
 
 @pytest.fixture

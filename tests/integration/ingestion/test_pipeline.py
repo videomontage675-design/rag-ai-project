@@ -9,6 +9,7 @@ from rag_app.core.errors import AppError, ErrorCode
 from rag_app.domain.models import DocumentFormat, ProcessingStage
 from rag_app.ingestion.pipeline import process_file
 from rag_app.ingestion.poppler import PopplerTools
+from support.embeddings import FakeEmbedder
 
 pytestmark = pytest.mark.integration
 
@@ -23,10 +24,21 @@ def test_markdown_file_goes_through_stages_in_order(tmp_path: Path) -> None:
     stages: list[ProcessingStage] = []
 
     result = process_file(
-        path, DocumentFormat.MARKDOWN, RagSettings(), poppler=_no_poppler, on_stage=stages.append
+        path,
+        DocumentFormat.MARKDOWN,
+        RagSettings(),
+        poppler=_no_poppler,
+        embedder=FakeEmbedder,
+        on_stage=stages.append,
     )
 
-    assert stages == [ProcessingStage.EXTRACTING, ProcessingStage.CHUNKING]
+    assert stages == [
+        ProcessingStage.EXTRACTING,
+        ProcessingStage.CHUNKING,
+        ProcessingStage.EMBEDDING,
+    ]
+    assert result.vectors.shape == (1, 32)
+    assert result.embedding.model == "fake-embedding" and result.embedding.dim == 32
     assert result.page_count is None
     (chunk,) = result.chunks
     assert chunk.heading_path == "دليل › المواعيد"
@@ -39,7 +51,9 @@ def test_markdown_with_only_headings_is_empty(tmp_path: Path) -> None:
     path.write_text("# عنوان فقط\n\n## قسم\n", encoding="utf-8")
 
     with pytest.raises(AppError) as info:
-        process_file(path, DocumentFormat.MARKDOWN, RagSettings(), poppler=_no_poppler)
+        process_file(
+            path, DocumentFormat.MARKDOWN, RagSettings(), poppler=_no_poppler, embedder=FakeEmbedder
+        )
 
     assert info.value.code is ErrorCode.EMPTY_FILE
 
@@ -57,5 +71,10 @@ def test_a_stage_callback_can_cancel_processing(tmp_path: Path) -> None:
 
     with pytest.raises(CancelledError):
         process_file(
-            path, DocumentFormat.MARKDOWN, RagSettings(), poppler=_no_poppler, on_stage=cancel
+            path,
+            DocumentFormat.MARKDOWN,
+            RagSettings(),
+            poppler=_no_poppler,
+            embedder=FakeEmbedder,
+            on_stage=cancel,
         )

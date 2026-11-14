@@ -19,6 +19,7 @@ from rag_app.config.settings import RagSettings
 from rag_app.domain.models import Block, DocumentFormat
 from rag_app.ingestion.pipeline import extract, process_file
 from rag_app.ingestion.poppler import locate_poppler
+from support.embeddings import FakeEmbedder
 
 pytestmark = [
     pytest.mark.integration,
@@ -81,7 +82,9 @@ def _evidence_for(doc_id: str, version: str) -> list[dict]:
 def test_all_golden_evidence_is_intact_in_chunks(
     doc_id: str, version: str, path: Path, fmt: DocumentFormat
 ) -> None:
-    chunks = process_file(path, fmt, RagSettings(), poppler=locate_poppler).chunks
+    chunks = process_file(
+        path, fmt, RagSettings(), poppler=locate_poppler, embedder=FakeEmbedder
+    ).chunks
     skeletons = [skeleton(c.text_original) for c in chunks]
 
     evidence = _evidence_for(doc_id, version)
