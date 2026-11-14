@@ -15,6 +15,11 @@ data_dir = "../app_data"   # database, uploads, logs (git-ignored)
 max_upload_mb = 10         # D-018
 max_question_chars = 1000
 
+[ingestion]
+poll_seconds = 2.0                  # how often the background worker checks for new jobs
+max_attempts = 3                    # FR-ING-14: restarts tolerated before a version fails
+extraction_timeout_seconds = 60     # per Poppler call
+
 [rag]                      # initial values (DD-06), calibrated in Phases 8–9
 chunk_chars = 800
 chunk_overlap = 150

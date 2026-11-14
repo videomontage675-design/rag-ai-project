@@ -18,7 +18,10 @@ from fastapi.templating import Jinja2Templates
 import rag_app
 from rag_app.config.domain_profile import load_domain_profile
 from rag_app.config.settings import Settings
+from rag_app.services.documents import DocumentService
+from rag_app.services.ingestion_worker import IngestionWorker
 from rag_app.storage.db import Database
+from rag_app.storage.files import FileStore
 from rag_app.storage.migrate import apply_migrations
 from rag_app.web.api import system
 from rag_app.web.context import AppContext
@@ -38,15 +41,30 @@ def create_app(settings: Settings) -> FastAPI:
     profile = load_domain_profile(settings.resolve(settings.domain_profile_file))
     db = Database(settings.database_file)
     templates = Jinja2Templates(directory=_WEB_DIR / "templates")
+    files = FileStore(settings.uploads_dir)
+    worker = IngestionWorker(settings, db, files)
+    documents = DocumentService(settings, db, files, on_enqueued=worker.wake)
 
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
         applied = apply_migrations(db)
+        removed = documents.sweep_orphan_files()
+        worker.recover()
+        if settings.ingestion.run_worker:
+            worker.start()
         logger.info(
-            "app_started", extra={"migrations_applied": applied, "version": rag_app.__version__}
+            "app_started",
+            extra={
+                "migrations_applied": applied,
+                "orphan_files_removed": len(removed),
+                "version": rag_app.__version__,
+            },
         )
-        yield
-        logger.info("app_stopped")
+        try:
+            yield
+        finally:
+            worker.stop()
+            logger.info("app_stopped")
 
     app = FastAPI(
         title="Dafira RAG Assistant API",
@@ -54,7 +72,14 @@ def create_app(settings: Settings) -> FastAPI:
         description="Arabic question answering over a private document knowledge base.",
         lifespan=lifespan,
     )
-    app.state.context = AppContext(settings=settings, profile=profile, db=db, templates=templates)
+    app.state.context = AppContext(
+        settings=settings,
+        profile=profile,
+        db=db,
+        templates=templates,
+        documents=documents,
+        worker=worker,
+    )
     app.middleware("http")(request_context)
     install_error_handlers(app)
     app.mount("/static", StaticFiles(directory=_WEB_DIR / "static"), name="static")

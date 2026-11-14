@@ -65,6 +65,15 @@ class LimitSettings(_Strict):
     max_question_chars: int = Field(default=1000, ge=10, le=10_000)
 
 
+class IngestionSettings(_Strict):
+    """Background ingestion worker (DESIGN-001 §3.1, §6)."""
+
+    run_worker: bool = True  # tests turn it off and drive the worker explicitly
+    poll_seconds: float = Field(default=2.0, gt=0, le=60)
+    max_attempts: int = Field(default=3, ge=1, le=10)  # FR-ING-14
+    extraction_timeout_seconds: float = Field(default=60.0, gt=0, le=600)
+
+
 class RagSettings(_Strict):
     """Retrieval and context parameters; initial values from DD-06, tuned in Phases 8–9."""
 
@@ -131,6 +140,7 @@ class Settings(_Strict):
     paths: PathSettings = PathSettings()
     limits: LimitSettings = LimitSettings()
     rag: RagSettings = RagSettings()
+    ingestion: IngestionSettings = IngestionSettings()
     providers: ProvidersSettings
     logging: LoggingSettings = LoggingSettings()
     domain_profile_file: Path = Path("domain_profile.toml")
@@ -159,6 +169,11 @@ class Settings(_Strict):
     def uploads_dir(self) -> Path:
         """Absolute folder for original uploaded files."""
         return self.data_dir / "uploads"
+
+    @property
+    def poppler_dir(self) -> Path | None:
+        """Absolute Poppler folder if configured; ``None`` means search ``PATH``."""
+        return self.resolve(self.paths.poppler_bin_dir) if self.paths.poppler_bin_dir else None
 
     @property
     def logs_dir(self) -> Path:

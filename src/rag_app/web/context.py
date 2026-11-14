@@ -9,6 +9,8 @@ from fastapi.templating import Jinja2Templates
 
 from rag_app.config.domain_profile import DomainProfile
 from rag_app.config.settings import Settings
+from rag_app.services.documents import DocumentService
+from rag_app.services.ingestion_worker import IngestionWorker
 from rag_app.storage.db import Database
 
 
@@ -20,6 +22,8 @@ class AppContext:
     profile: DomainProfile
     db: Database
     templates: Jinja2Templates
+    documents: DocumentService
+    worker: IngestionWorker
 
 
 def get_context(request: Request) -> AppContext:
