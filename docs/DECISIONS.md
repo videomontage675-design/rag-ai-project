@@ -305,6 +305,20 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
   - database indexing for fast retrieval;
   - a clear written explanation of the project structure, how the APIs work, where each document lives, the writing rules, and the diagram rules.
 
+## D-033 — Phase 5 approved; foundation verified on the owner's Windows machine
+- **Date:** 2026-11-14 · **Status:** Approved
+- **Decision:** The owner approved Phase 5 (project foundation, PR #5).
+- **Evidence:** The owner installed the dependencies and tools on their Windows machine, configured the keys, ran the checks, and started the app. `http://127.0.0.1:8000` showed the Arabic welcome page with the knowledge-base status (0 documents). This is the first real-machine confirmation of the Windows target (D-017, D-031). The full clean-install check remains part of Phase 12.
+
+## D-034 — Phase 6 authorized, with the documents UI and the visual identity brought forward
+- **Date:** 2026-11-15 · **Status:** Approved
+- **Decision:** Phase 6 (document ingestion up to chunks) is authorized. At the owner's request, it also delivers:
+  1. **the documents user interface:** upload, list, status, version history, activate, delete. It was planned for Phase 10;
+  2. **a visual identity for «ضفيرة»**, applied with user-experience and UI best practices.
+
+  The chat UI stays with generation (Phases 9–10), because it depends on embeddings and answers.
+- **Consequence for document status:** Phase 6 runs stages 1–4 (validate, extract, clean and normalize, chunk), and its one-commit transaction stores the chunks and activates the version (DESIGN-001 §7.1) **without vectors**. Retrieval cannot see such versions, because `active_chunk_vectors` requires embeddings. Phase 7 adds stage 5 to the same commit and embeds already-processed versions through the documented re-index operation (FR-CFG-05).
+
 ---
 
 ## Pending decisions
