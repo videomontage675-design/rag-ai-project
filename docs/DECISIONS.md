@@ -294,12 +294,22 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
   - Remote Control covers the final real-machine check.
 - **Constraints:** CI never uses provider keys or real providers (NFR-MNT-02).
 
+## D-032 — Engineering standards approved; skeleton build authorized
+- **Date:** 2026-11-14 · **Status:** Approved (resolves P-016)
+- **Decision:** STD-001 (`docs/05_ENGINEERING_STANDARDS.md`) is the binding standard for all code and documentation, including uv for dependency management.
+- **Owner's emphasis for the skeleton:**
+  - **fast delivery on a clean, modular base;**
+  - fault isolation, and parts that can be updated independently;
+  - the UI isolated from business logic and the database;
+  - unified code standards and maintainability;
+  - database indexing for fast retrieval;
+  - a clear written explanation of the project structure, how the APIs work, where each document lives, the writing rules, and the diagram rules.
+
 ---
 
 ## Pending decisions
 
 | ID | Question | Resolve by |
 |---|---|---|
-| P-016 | Approval of the engineering standards (STD-001, `docs/05_ENGINEERING_STANDARDS.md`), including uv for dependency management | Before any Phase 5 code |
 
-Resolved: P-008 → D-031 · P-001 → D-009 · P-002 → D-011 · P-003 → D-012 · P-004 → D-017 · P-005 → D-018 · P-006 → D-021 · P-007 → D-019 · P-009 → D-014 · P-010 → D-015 · P-011 → D-029 · P-012 → D-027 · P-014 → D-029 · P-015 → D-029 · P-013 → keys provided (Gemini, Groq, Cohere working; Jina balance exhausted; Mistral key invalid).
+Resolved: P-016 → D-032 · P-008 → D-031 · P-001 → D-009 · P-002 → D-011 · P-003 → D-012 · P-004 → D-017 · P-005 → D-018 · P-006 → D-021 · P-007 → D-019 · P-009 → D-014 · P-010 → D-015 · P-011 → D-029 · P-012 → D-027 · P-014 → D-029 · P-015 → D-029 · P-013 → keys provided (Gemini, Groq, Cohere working; Jina balance exhausted; Mistral key invalid).

@@ -4,7 +4,7 @@
 |---|---|
 | Document ID | STD-001 |
 | Phase | Phase 5: Project Foundation and Environment (first deliverable, before any application code) |
-| Status | **Draft for owner approval** |
+| Status | **Approved** (D-032) |
 | Date | 2026-11-14 |
 | Applies to | All code, tests, configuration, and documentation in this repository |
 | Builds on | `CLAUDE.md` §5 and §9–§13 · `docs/04_ARCHITECTURE_AND_DESIGN.md` (DESIGN-001) · `docs/DECISIONS.md` |
