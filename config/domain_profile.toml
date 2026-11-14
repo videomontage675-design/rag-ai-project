@@ -1,0 +1,14 @@
+# Domain profile (FR-DOM-01, D-021): everything specific to the use case lives here,
+# so the RAG core stays domain-agnostic. Shown in the UI and injected into the prompt.
+
+assistant_name = "مساعد ضفيرة"
+platform_name = "ضفيرة"
+intended_users = "مسؤولو العيادات والعاملون فيها ممن يستخدمون منصة ضفيرة"
+scope_statement = "تجيب عن الأسئلة المتعلقة بمنصة ضفيرة السحابية لإدارة العيادات اعتماداً على وثائقها الرسمية فقط، ولا تقدم أي نصائح طبية أو سريرية."
+welcome_text = "مرحباً! اسألني عن استخدام منصة ضفيرة: المواعيد، وسجلات المرضى، والفوترة، والخطط، والدعم الفني، والخصوصية."
+example_questions = [
+    "ما المدة الافتراضية للموعد؟",
+    "كم سعر الخطة الأساسية شهرياً؟",
+    "متى أصبح التحقق الثنائي إلزامياً؟",
+]
+insufficient_information_message = "لا تتضمن الوثائق المتاحة معلومات كافية للإجابة عن هذا السؤال."

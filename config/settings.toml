@@ -1,0 +1,47 @@
+# Application settings (DESIGN-001 §12). Relative paths are resolved against this folder.
+# API key VALUES never go here: put them in .env (see .env.example).
+
+domain_profile_file = "domain_profile.toml"
+
+[server]
+host = "127.0.0.1"   # NFR-SEC-01: the app has no login, so it must not listen on the network
+port = 8000
+
+[paths]
+data_dir = "../app_data"   # database, uploads, logs (git-ignored)
+# poppler_bin_dir = "C:/path/to/poppler/Library/bin"   # only if pdftotext is not on PATH
+
+[limits]
+max_upload_mb = 10         # D-018
+max_question_chars = 1000
+
+[rag]                      # initial values (DD-06), calibrated in Phases 8–9
+chunk_chars = 800
+chunk_overlap = 150
+retrieve_k = 8
+context_max_passages = 5
+context_max_chars = 6000
+relevance_threshold = 0.60
+
+[providers.embedding]      # T-10: gemini-embedding-001 (free tier)
+base_url = "https://generativelanguage.googleapis.com/v1beta/openai"
+model = "gemini-embedding-001"
+api_key_env = "GEMINI_API_KEY"
+batch_size = 20
+min_seconds_between_batches = 20
+
+[providers.chat]           # T-11: qwen3.8-27b on Groq, fallback gpt-oss-20b (DD-03)
+base_url = "https://api.groq.com/openai/v1"
+model = "qwen/qwen3.8-27b"
+fallback_model = "openai/gpt-oss-20b"
+api_key_env = "GROQ_API_KEY"
+
+[providers.judge]          # T-12: evaluation only, never used to answer users
+base_url = "https://api.cohere.com/compatibility/v1"
+model = "command-a-plus-05-2026"
+api_key_env = "COHERE_API_KEY"
+extra_body = { reasoning_effort = "none" }
+
+[logging]
+level = "INFO"
+to_file = true
