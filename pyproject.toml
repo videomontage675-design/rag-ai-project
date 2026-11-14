@@ -124,7 +124,9 @@ allow_indirect_imports = "True"   # going through services is exactly the intend
 # --------------------------------------------------------------------------- pytest
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = ["-ra", "--strict-markers", "--disable-socket", "--allow-unix-socket"]
+# External network is blocked (NFR-MNT-02); loopback is allowed because asyncio on Windows
+# creates its internal self-pipe as a 127.0.0.1 socket pair (found by Windows CI, run 1).
+addopts = ["-ra", "--strict-markers", "--allow-hosts=127.0.0.1,::1"]
 markers = [
     "unit: fast, isolated tests",
     "integration: tests with SQLite, files, or subprocesses",

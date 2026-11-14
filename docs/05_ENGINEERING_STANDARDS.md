@@ -230,7 +230,7 @@ def extract_citation_labels(answer: str, passage_count: int) -> tuple[list[int],
 | Names | `test_<unit>_<behaviour>_<condition>`, e.g. `test_chunk_keeps_full_heading_path_for_nested_sections` |
 | Shape | Arrange, Act, Assert, separated by blank lines. One behaviour per test |
 | Markers | `unit`, `integration`, `e2e`, `provider` (real network, opt-in), `slow` |
-| Default run | `uv run pytest` runs unit and integration tests, **with the network blocked** (pytest-socket). `-m provider` enables the real-provider smoke tests (keys required) |
+| Default run | `uv run pytest` runs unit and integration tests with **all non-loopback connections blocked** (pytest-socket, `--allow-hosts=127.0.0.1,::1`). Loopback is allowed because asyncio on Windows uses a 127.0.0.1 socket pair internally (found by the first Windows CI run). `-m provider` enables the real-provider smoke tests (keys required) |
 | Test doubles | Fakes that implement the ports (`FakeEmbeddingProvider`, `FakeChatProvider`) are deterministic and live in `tests/fakes/`. HTTP-level tests use respx with recorded response shapes, including 429, 503, 404, and malformed bodies |
 | Data | Small fixtures in `tests/fixtures/`; the corpus PDFs are used for extraction integration tests. Every database test uses a temporary database |
 | Edge cases | Each stage tests: empty input, maximum size, Arabic-Indic digits, presentation forms, mixed Arabic and Latin text, and one failure path |
