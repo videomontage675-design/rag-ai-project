@@ -4,14 +4,47 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{{ profile.assistant_name }}{% endblock %}</title>
+  <meta name="color-scheme" content="light">
+  {# htmx: swap error responses too (they carry an Arabic alert), no inline styles or eval (CSP). #}
+  <meta name="htmx-config" content='{"includeIndicatorStyles": false, "allowEval": false, "allowScriptTags": false, "responseHandling": [{"code": "204", "swap": false}, {"code": "[23]..", "swap": true}, {"code": "[45]..", "swap": true, "error": true}]}'>
+  <link rel="icon" href="{{ url_for('static', path='brand/favicon.svg') }}" type="image/svg+xml">
+  <link rel="preload" href="{{ url_for('static', path='fonts/ibm-plex-sans-arabic-arabic-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{{ url_for('static', path='fonts/noto-kufi-arabic-arabic-wght-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="{{ url_for('static', path='app.css') }}">
+  <script src="{{ url_for('static', path='vendor/htmx-2.0.11.min.js') }}" defer></script>
+  <script src="{{ url_for('static', path='app.js') }}" defer></script>
 </head>
 <body>
+  {% include "partials/icons.html" %}
+  <a class="skip-link" href="#content">تخطَّ إلى المحتوى</a>
   <header class="topbar">
-    <span class="brand">{{ profile.assistant_name }}</span>
+    <div class="topbar__inner">
+      <a class="brand" href="{{ url_for('home') }}">
+        <img class="brand__mark" src="{{ url_for('static', path='brand/braid-mark.svg') }}" alt="" width="22" height="32">
+        <span class="brand__text">
+          <span class="brand__name">{{ profile.platform_name }}</span>
+          <span class="brand__role">المساعد المعرفي</span>
+        </span>
+      </a>
+      <nav class="nav" aria-label="التنقل الرئيسي">
+        <a href="{{ url_for('home') }}" {% if section == 'home' %}aria-current="page"{% endif %}>الرئيسية</a>
+        <a href="{{ url_for('documents_page') }}" {% if section == 'documents' %}aria-current="page"{% endif %}>المستندات</a>
+      </nav>
+    </div>
   </header>
-  <main class="page">
+  <main class="page" id="content" tabindex="-1">
+    <div id="alerts" aria-live="polite">{% block alerts %}{% endblock %}</div>
     {% block content %}{% endblock %}
   </main>
+  <dialog class="dialog" id="confirm-dialog" aria-labelledby="confirm-title">
+    <form method="dialog">
+      <h2 id="confirm-title">تأكيد الإجراء</h2>
+      <p data-question></p>
+      <div class="dialog__actions">
+        <button class="btn btn--primary" value="confirm" data-confirm-button>تأكيد</button>
+        <button class="btn btn--quiet" value="cancel" autofocus>إلغاء</button>
+      </div>
+    </form>
+  </dialog>
 </body>
 </html>

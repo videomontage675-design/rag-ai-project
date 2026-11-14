@@ -1,0 +1,47 @@
+{# The library table. Polls every 2 s only while something is waiting or processing (FR-UI-03). #}
+{% from "partials/status.html" import status_badge %}
+<section id="library" aria-labelledby="library-title"
+  {% if any_processing %}hx-get="{{ url_for('library_fragment') }}" hx-trigger="every 2s" hx-swap="outerHTML"{% endif %}>
+  <div class="library-head">
+    <h2 id="library-title">المستندات</h2>
+    {% if documents %}<span class="muted num">{{ documents | length | documents_count_label }}</span>{% endif %}
+  </div>
+  {% if documents %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">المستند</th>
+        <th scope="col">الحالة</th>
+        <th scope="col">النسخة المعتمدة</th>
+        <th scope="col">الحجم</th>
+        <th scope="col">آخر تحديث</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for doc in documents %}
+      <tr>
+        <td>
+          <a class="doc-name" href="{{ url_for('document_page', document_id=doc.id) }}">{{ doc.display_name }}</a>
+          <span class="format">{{ doc.format | format_label }}</span>
+        </td>
+        <td data-label="الحالة"><span>{{ status_badge(doc.status, doc.stage) }}
+          {%- if doc.active_version and doc.latest_version != doc.active_version %}
+          <span class="stage">للنسخة <bdi>{{ doc.latest_version }}</bdi>، وتبقى النسخة <bdi>{{ doc.active_version }}</bdi> معتمدة</span>{% endif %}</span></td>
+        <td data-label="النسخة المعتمدة" class="num">
+          <span>{% if doc.active_version %}النسخة <bdi>{{ doc.active_version }}</bdi>{% if doc.versions > 1 %} <span class="muted">من <bdi>{{ doc.versions }}</bdi></span>{% endif %}
+          {%- else %}<span class="muted">لا توجد بعد</span>{% endif %}</span>
+        </td>
+        <td data-label="الحجم" class="num"><span>{{ doc.size_bytes | filesize }}</span></td>
+        <td data-label="آخر تحديث" class="num"><time datetime="{{ doc.updated_at }}">{{ doc.updated_at | datetime_ar }}</time></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">
+    <img src="{{ url_for('static', path='brand/braid-mark.svg') }}" alt="" width="42" height="60">
+    <p><strong>المكتبة فارغة.</strong></p>
+    <p>ارفع أول وثيقة من وثائق ضفيرة، مثل دليل المستخدم أو سياسة الخصوصية، ليبدأ المساعد بالاعتماد عليها.</p>
+  </div>
+  {% endif %}
+</section>

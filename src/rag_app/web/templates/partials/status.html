@@ -1,0 +1,8 @@
+{# Status badge for a version. While waiting or processing, the braid weaves (FR-ING-02). #}
+{% macro status_badge(status, stage=None) -%}
+<span class="status status--{{ status }}">
+  {%- if status in ('uploaded', 'processing') %}<span class="weave" aria-hidden="true"></span>{% endif -%}
+  {{ status | status_label }}
+</span>
+{%- if status == 'processing' and stage %}<span class="stage">{{ stage | stage_label }}</span>{% endif %}
+{%- endmacro %}

@@ -1,0 +1,84 @@
+{# Document header + version history. Re-rendered after every action; polls while processing. #}
+{% from "partials/status.html" import status_badge %}
+<div id="document"
+  {% if doc.is_processing %}hx-get="{{ url_for('history_fragment', document_id=doc.id) }}" hx-trigger="every 2s" hx-swap="outerHTML"{% endif %}>
+  <header class="doc-head">
+    <div>
+      <h1>{{ doc.display_name }}</h1>
+      <dl class="facts">
+        <div><dt>النسخة المعتمدة في الإجابات</dt>
+          <dd>{% if doc.active %}النسخة <bdi>{{ doc.active.version_number }}</bdi>{% else %}لا توجد بعد{% endif %}</dd></div>
+        <div><dt>عدد النسخ</dt><dd class="num"><bdi>{{ doc.versions | length }}</bdi></dd></div>
+        <div><dt>آخر تحديث</dt><dd class="num"><time datetime="{{ doc.updated_at }}">{{ doc.updated_at | datetime_ar }}</time></dd></div>
+      </dl>
+    </div>
+  </header>
+
+  <div class="split">
+    <section aria-labelledby="history-title">
+      <h2 id="history-title">سجل النسخ</h2>
+      <ol class="history" reversed>
+        {% for v in doc.versions %}
+        <li class="version{% if v.is_active %} version--active{% endif %}{% if v.status == 'failed' %} version--failed{% endif %}">
+          <span class="version__node" aria-hidden="true"></span>
+          <article class="version__body" aria-labelledby="v-{{ v.id }}">
+            <div class="version__top">
+              <h3 class="version__title" id="v-{{ v.id }}">النسخة <bdi>{{ v.version_number }}</bdi></h3>
+              {{ status_badge(v.status, v.stage) }}
+              {% if v.is_active %}<span class="badge-active">معتمدة في الإجابات</span>{% endif %}
+            </div>
+            <dl class="version__meta">
+              <div><dt>الملف:</dt><dd><bdi>{{ v.original_filename }}</bdi></dd></div>
+              <div><dt>الحجم:</dt><dd class="num">{{ v.size_bytes | filesize }}</dd></div>
+              {% if v.page_count %}<div><dt>الصفحات:</dt><dd class="num"><bdi>{{ v.page_count }}</bdi></dd></div>{% endif %}
+              {% if v.chunk_count %}<div><dt>المقاطع:</dt><dd class="num"><bdi>{{ v.chunk_count }}</bdi></dd></div>{% endif %}
+              <div><dt>رُفعت:</dt><dd class="num"><time datetime="{{ v.uploaded_at }}">{{ v.uploaded_at | datetime_ar }}</time></dd></div>
+            </dl>
+            {% if v.status == 'failed' and v.error_message %}<p class="version__error">{{ v.error_message }}</p>{% endif %}
+            <div class="version__actions">
+              {%- if v.status == 'ready' and not v.is_active %}
+              <button class="btn btn--quiet" type="button"
+                hx-post="{{ url_for('activate_version_ui', document_id=doc.id, version_id=v.id) }}"
+                hx-target="#document" hx-swap="outerHTML"
+                hx-confirm="ستعتمد إجابات المساعد على النسخة {{ v.version_number }} بدلاً من النسخة الحالية.">
+                <svg aria-hidden="true"><use href="#i-restore"></use></svg>اعتماد هذه النسخة</button>
+              {%- endif %}
+              {%- if v.status == 'failed' %}
+              <button class="btn btn--quiet" type="button"
+                hx-post="{{ url_for('retry_version_ui', document_id=doc.id, version_id=v.id) }}"
+                hx-target="#document" hx-swap="outerHTML">
+                <svg aria-hidden="true"><use href="#i-retry"></use></svg>إعادة المعالجة</button>
+              {%- endif %}
+              {%- if not v.is_active %}
+              <button class="btn btn--danger" type="button"
+                hx-delete="{{ url_for('delete_version_ui', document_id=doc.id, version_id=v.id) }}"
+                hx-target="#document" hx-swap="outerHTML"
+                hx-confirm="ستُحذف النسخة {{ v.version_number }} وملفها نهائياً.{% if doc.versions | length == 1 %} ولأنها النسخة الوحيدة سيُحذف المستند كله.{% endif %}">
+                <svg aria-hidden="true"><use href="#i-trash"></use></svg>حذف النسخة</button>
+              {%- endif %}
+            </div>
+          </article>
+        </li>
+        {% endfor %}
+      </ol>
+    </section>
+
+    <aside class="side" aria-label="إجراءات المستند">
+      <div>
+        {% set upload_url = url_for('upload_version_ui', document_id=doc.id) %}
+        {% set upload_target = '#document' %}
+        {% set compact = True %}
+        {% include "documents/_upload.html" %}
+      </div>
+      <p class="muted">تبقى النسخة المعتمدة حالياً مستخدمة في الإجابات حتى تكتمل معالجة النسخة الجديدة.</p>
+      <div class="panel panel--danger">
+        <h2>حذف المستند</h2>
+        <p>يحذف المستند وجميع نسخه وملفاته نهائياً.</p>
+        <button class="btn btn--danger" type="button"
+          hx-delete="{{ url_for('delete_document_ui', document_id=doc.id) }}"
+          hx-confirm="سيُحذف «{{ doc.display_name }}» وجميع نسخه نهائياً، ولن يعتمد عليه المساعد بعد الآن.">
+          <svg aria-hidden="true"><use href="#i-trash"></use></svg>حذف المستند</button>
+      </div>
+    </aside>
+  </div>
+</div>
