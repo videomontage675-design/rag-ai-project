@@ -283,12 +283,23 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
   These resolve FR-VER-07 (DD-01) and FR-DOC-08 (DD-02).
 - **Also authorized:** Phase 5 (Project Foundation and Environment) start.
 
+## D-031 — Continuous integration on Linux and Windows; owner-machine verification
+- **Date:** 2026-11-14 · **Status:** Approved (resolves P-008)
+- **Decision:**
+  - GitHub Actions runs linting, type checks, layer rules, and tests on **ubuntu-latest and windows-latest** for every push and pull request. Claude reads the CI results and logs through the GitHub tools to fix platform problems.
+  - Before delivery, the owner connects their Windows machine to the session through Remote Control, so the clean-install procedure can be verified on the target machine itself.
+- **Rationale:**
+  - Windows is the target (D-017), and the development container is Linux.
+  - CI gives continuous Windows evidence without needing the owner's machine.
+  - Remote Control covers the final real-machine check.
+- **Constraints:** CI never uses provider keys or real providers (NFR-MNT-02).
+
 ---
 
 ## Pending decisions
 
 | ID | Question | Resolve by |
 |---|---|---|
-| P-008 | Lightweight CI (GitHub Actions) for tests and linting, including a Windows runner (D-017) | Phase 5 |
+| P-016 | Approval of the engineering standards (STD-001, `docs/05_ENGINEERING_STANDARDS.md`), including uv for dependency management | Before any Phase 5 code |
 
-Resolved: P-001 → D-009 · P-002 → D-011 · P-003 → D-012 · P-004 → D-017 · P-005 → D-018 · P-006 → D-021 · P-007 → D-019 · P-009 → D-014 · P-010 → D-015 · P-011 → D-029 · P-012 → D-027 · P-014 → D-029 · P-015 → D-029 · P-013 → keys provided (Gemini, Groq, Cohere working; Jina balance exhausted; Mistral key invalid).
+Resolved: P-008 → D-031 · P-001 → D-009 · P-002 → D-011 · P-003 → D-012 · P-004 → D-017 · P-005 → D-018 · P-006 → D-021 · P-007 → D-019 · P-009 → D-014 · P-010 → D-015 · P-011 → D-029 · P-012 → D-027 · P-014 → D-029 · P-015 → D-029 · P-013 → keys provided (Gemini, Groq, Cohere working; Jina balance exhausted; Mistral key invalid).
