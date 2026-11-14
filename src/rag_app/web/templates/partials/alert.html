@@ -1,0 +1,8 @@
+{# An alert placed in #alerts. kind: error | success | info. Announced by screen readers. #}
+<div class="alert alert--{{ kind }}" role="{{ 'alert' if kind == 'error' else 'status' }}">
+  <svg class="alert__icon" aria-hidden="true"><use href="#i-{{ 'warning' if kind == 'error' else 'check' }}"></use></svg>
+  <p class="alert__text">{{ message }}</p>
+  <button type="button" class="alert__close" aria-label="إغلاق التنبيه" onclick="this.parentElement.remove()">
+    <svg aria-hidden="true"><use href="#i-close"></use></svg>
+  </button>
+</div>

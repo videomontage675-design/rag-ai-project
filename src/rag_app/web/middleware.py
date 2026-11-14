@@ -1,4 +1,4 @@
-"""Request correlation: every request gets an ``X-Request-ID`` used in all of its log lines."""
+"""HTTP middleware: request correlation (``X-Request-ID``) and the upload size guard."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ from collections.abc import Awaitable, Callable
 
 from fastapi import Request, Response
 
+from rag_app.core.errors import AppError, ErrorCode
 from rag_app.core.ids import new_id
 from rag_app.core.logging import request_id_var
 
@@ -40,3 +41,36 @@ async def request_context(
         },
     )
     return response
+
+
+# Multipart framing (boundaries, part headers) is small; this margin keeps a file of exactly
+# the maximum size acceptable while still refusing anything clearly too large.
+_MULTIPART_MARGIN = 64 * 1024
+
+Middleware = Callable[[Request, Callable[[Request], Awaitable[Response]]], Awaitable[Response]]
+
+
+def upload_size_guard(max_bytes: int) -> Middleware:
+    """Refuse an upload by its ``Content-Length`` before the body is read (NFR-PRF-04).
+
+    The framework would otherwise spool the whole body to disk first. Uploads without a
+    length (chunked) are still limited while streaming, by the FileStore.
+    """
+    from rag_app.web.errors import error_response
+
+    async def guard(
+        request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
+        length = request.headers.get("content-length", "")
+        if (
+            request.method == "POST"
+            and request.headers.get("content-type", "").startswith("multipart/form-data")
+            and length.isdigit()
+            and int(length) > max_bytes + _MULTIPART_MARGIN
+        ):
+            limit_mb = max_bytes // (1024 * 1024)
+            message = AppError(ErrorCode.FILE_TOO_LARGE, limit_mb=limit_mb).message_ar
+            return error_response(request, ErrorCode.FILE_TOO_LARGE, message)
+        return await call_next(request)
+
+    return guard

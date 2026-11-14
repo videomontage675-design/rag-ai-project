@@ -23,10 +23,11 @@ from rag_app.services.ingestion_worker import IngestionWorker
 from rag_app.storage.db import Database
 from rag_app.storage.files import FileStore
 from rag_app.storage.migrate import apply_migrations
+from rag_app.web.api import documents as documents_api
 from rag_app.web.api import system
 from rag_app.web.context import AppContext
 from rag_app.web.errors import install_error_handlers
-from rag_app.web.middleware import request_context
+from rag_app.web.middleware import request_context, upload_size_guard
 from rag_app.web.ui import pages
 
 logger = logging.getLogger(__name__)
@@ -80,10 +81,13 @@ def create_app(settings: Settings) -> FastAPI:
         documents=documents,
         worker=worker,
     )
+    # Registered last = outermost: oversized uploads are refused before anything else runs.
     app.middleware("http")(request_context)
+    app.middleware("http")(upload_size_guard(settings.limits.max_upload_mb * 1024 * 1024))
     install_error_handlers(app)
     app.mount("/static", StaticFiles(directory=_WEB_DIR / "static"), name="static")
     app.include_router(system.health_router)
     app.include_router(system.router, prefix="/api/v1")
+    app.include_router(documents_api.router, prefix="/api/v1")
     app.include_router(pages.router)
     return app
