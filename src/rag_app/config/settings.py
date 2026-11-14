@@ -106,7 +106,7 @@ class ProviderSettings(_Strict):
     api_key_env: str | None = None
     fallback_model: str | None = None
     # Embeddings only: requested output size (D-039). None = the model's default size.
-    dimensions: int | None = Field(default=None, ge=64, le=8192)
+    dimensions: int | None = Field(default=None, ge=1, le=8192)
     batch_size: int = Field(default=20, ge=1, le=256)
     min_seconds_between_batches: float = Field(default=0.0, ge=0.0)
     timeout_seconds: float = Field(default=60.0, gt=0.0)
