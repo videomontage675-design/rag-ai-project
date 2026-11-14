@@ -13,6 +13,8 @@ dependencies = [
     "jinja2>=3.1",             # D-027: server-rendered Arabic RTL UI
     "pydantic>=2.8",           # settings and API schemas (boundaries only)
     "python-dotenv>=1.0",      # load API keys from .env (never from Git)
+    "markdown-it-py>=3.0",     # T-07: Markdown structure (headings, lists, tables)
+    "python-multipart>=0.0.9", # multipart file uploads (FR-DOC-01)
 ]
 
 [project.scripts]
@@ -27,6 +29,7 @@ dev = [
     "pytest-cov>=6.0",
     "pytest-socket>=0.7",
     "httpx>=0.28",             # required by FastAPI's TestClient
+    "pyyaml>=6.0",             # tests read the corpus manifest and golden set (NFR-LNG-02)
 ]
 
 [build-system]
@@ -124,6 +127,7 @@ allow_indirect_imports = "True"   # going through services is exactly the intend
 # --------------------------------------------------------------------------- pytest
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["tests"]  # shared helpers in tests/support
 # External network is blocked (NFR-MNT-02); loopback is allowed because asyncio on Windows
 # creates its internal self-pipe as a 127.0.0.1 socket pair (found by Windows CI, run 1).
 addopts = ["-ra", "--strict-markers", "--allow-hosts=127.0.0.1,::1"]
