@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <h1>{{ profile.assistant_name }}</h1>
+  <p class="lead">{{ profile.welcome_text }}</p>
+  {% if profile.example_questions %}
+  <h2>أمثلة على الأسئلة</h2>
+  <ul class="examples">
+    {% for question in profile.example_questions %}<li>{{ question }}</li>{% endfor %}
+  </ul>
+  {% endif %}
+</section>
+<section class="card status">
+  <h2>حالة قاعدة المعرفة</h2>
+  <p>المستندات: <bdi>{{ status.documents }}</bdi> · المقاطع الجاهزة للبحث: <bdi>{{ status.active_chunks }}</bdi></p>
+  {% if status.documents == 0 %}
+  <p class="hint">لا توجد مستندات بعد. ستتوفر صفحة رفع المستندات والمحادثة في المراحل القادمة.</p>
+  {% endif %}
+</section>
+{% endblock %}

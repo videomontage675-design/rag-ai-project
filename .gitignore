@@ -23,3 +23,11 @@ Thumbs.db
 .venv
 poc/**/run.log
 poc/**/run_*.log
+
+# Runtime data of the application (database, uploads, logs)
+app_data/
+# Tool caches
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
