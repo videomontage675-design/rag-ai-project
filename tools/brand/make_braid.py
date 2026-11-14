@@ -66,10 +66,9 @@ def main() -> None:
     """Write the mark (square, for the header and favicon) and the progress strip."""
     OUT.mkdir(parents=True, exist_ok=True)
     mark = braid(40, 28, 38, vertical=True, steps=64)
-    (OUT / "braid-mark.svg").write_text(
-        svg(28, 40, mark, "ضفيرة"), encoding="utf-8"
-    )
-    favicon = f'<rect width="40" height="40" rx="9" fill="{PAPER}"/><g transform="translate(6 0)">{mark}</g>'
+    (OUT / "braid-mark.svg").write_text(svg(28, 40, mark, "ضفيرة"), encoding="utf-8")
+    tile = f'<rect width="40" height="40" rx="9" fill="{PAPER}"/>'
+    favicon = f'{tile}<g transform="translate(6 0)">{mark}</g>'
     (OUT / "favicon.svg").write_text(svg(40, 40, favicon, "ضفيرة"), encoding="utf-8")
     # Two periods long, so sliding it by one period loops seamlessly (processing indicator).
     strip = braid(2 * 30 + 4, 20, 30, vertical=False, steps=96)

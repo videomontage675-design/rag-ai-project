@@ -42,19 +42,19 @@
 
 /* ------------------------------------------------------------------ tokens */
 :root {
-  --ink: #18233f;          /* text: deep indigo-navy, 14.9:1 on paper */
-  --ink-soft: #4a5572;     /* secondary text, 7.0:1 on paper */
+  --ink: #18233f;          /* text: deep indigo-navy, 14.5:1 on paper */
+  --ink-soft: #4a5572;     /* secondary text, 6.9:1 on paper */
   --paper: #f6f7fb;        /* page */
   --surface: #ffffff;      /* raised areas */
   --line: #dce0ea;         /* hairlines */
   --line-strong: #b9c0d3;
-  --indigo: #3346a0;       /* strand 1: actions and links, 7.6:1 on white */
+  --indigo: #3346a0;       /* strand 1: actions and links, 8.3:1 on white */
   --indigo-deep: #26357e;
   --indigo-wash: #e9ecf8;
-  --teal: #17766a;         /* strand 2: ready, active, 5.4:1 on white */
+  --teal: #17766a;         /* strand 2: ready, active, 4.7:1 on its wash */
   --teal-wash: #e3f2ef;
   --saffron: #d99a1e;      /* strand 3: brand and processing (graphics only) */
-  --saffron-ink: #7a5200;  /* saffron as text, 7.2:1 on its wash */
+  --saffron-ink: #7a5200;  /* saffron as text, 6.3:1 on its wash */
   --saffron-wash: #fdf3dc;
   --danger: #b3261e;
   --danger-wash: #fbe9e7;
