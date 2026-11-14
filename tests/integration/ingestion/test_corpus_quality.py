@@ -41,7 +41,7 @@ def skeleton(text: str) -> str:
     return "".join(ch for ch in text if unicodedata.category(ch)[0] in "LN")
 
 
-# Known gap (reported to the owner in the Phase 6 report): in D02 v1 the cell "حتى 3 مستخدمين"
+# Known limitation accepted by the owner (D-037): in D02 v1 the cell "حتى 3 مستخدمين"
 # wraps onto two lines and pdftotext emits the second line after the table. Only table-aware
 # extraction can restore it. strict=True makes the test fail loudly once the gap is fixed.
 _KNOWN_GAPS = {("D02", "v1"): "wrapped table cell is split by pdftotext reading order"}

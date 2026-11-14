@@ -804,7 +804,7 @@ Every expected failure is an `AppError` with a stable `code`, an HTTP status, an
 | Secret leakage | Keys only in `.env`; never logged; never returned by `/system/status` | NFR-SEC-04 |
 | Data sent to providers | Documented in the README: chunk text and questions go to Gemini, passages and questions to Groq, evaluation data to Cohere. Free-tier terms are stated | NFR-PRV-01 |
 | HTML injection in the UI | Jinja2 autoescaping; answers rendered as text, not HTML; a strict Content-Security-Policy without inline script | Professional practice |
-| A web page in the user's browser calling the local app (CSRF, DNS rebinding) | Local-only guard (Phase 6, proposed D-035): refuse non-loopback `Host`, and state-changing requests with a foreign `Origin` or `Sec-Fetch-Site: cross-site` → `403 FORBIDDEN_ORIGIN` | NFR-SEC-01, CLAUDE.md §12 |
+| A web page in the user's browser calling the local app (CSRF, DNS rebinding) | Local-only guard (Phase 6, D-035): refuse non-loopback `Host`, and state-changing requests with a foreign `Origin` or `Sec-Fetch-Site: cross-site` → `403 FORBIDDEN_ORIGIN` | NFR-SEC-01, CLAUDE.md §12 |
 
 ### 13.3 Observability
 - **Structured JSON logs** with these fields: timestamp, level, event, `request_id`, `job_id`, `version_id`, `stage`, `duration_ms`, provider, model, and outcome or error code. Logs go to `logs/` with size-based rotation.
@@ -937,8 +937,8 @@ Refinements made while implementing ingestion and the documents UI. None changes
 | N-6 | §8.2: `MARKDOWN_PARSE_ERROR` | Not used: markdown-it-py accepts any text. A Markdown file with no text under its headings fails with `EMPTY_FILE` | No unreachable error codes |
 | N-7 | §8.2 stage 6: `CANCELLED` (internal) | An internal exception in the worker, never shown to users | Cancellation is not an error |
 | N-8 | §6: recovery re-queues interrupted jobs | `attempts` counts every claim; on start-up, a job left `running` with `attempts ≥ max_attempts` (3) fails with `INTERRUPTED` | FR-ING-14 exactly; configurable in `[ingestion]` |
-| N-9 | §13.2 | Local-only guard and security headers (proposed D-035) | A browser can reach 127.0.0.1 even when the network cannot |
+| N-9 | §13.2 | Local-only guard and security headers (D-035) | A browser can reach 127.0.0.1 even when the network cannot |
 | N-10 | §11.2 | Pages, fragments, and identity as in UI-001 | D-034 brought the documents UI forward |
 
 ### Known gap: wrapped table cells in PDFs (NFR-LNG-02b)
-In `02_plans_pricing_v1.pdf`, the cell «حتى 3 مستخدمين» wraps onto two lines, and pdftotext emits the second line («مستخدمين») after the whole table. The golden-set evidence passage for Q040 (state `d02_v1_active`) is therefore split. The other seven versions keep 100% of their evidence; letter error is 0.00% everywhere. The test is a strict expected failure, so it alerts when fixed. Options are listed in the Phase 6 report for the owner to decide.
+In `02_plans_pricing_v1.pdf`, the cell «حتى 3 مستخدمين» wraps onto two lines, and pdftotext emits the second line («مستخدمين») after the whole table. The golden-set evidence passage for Q040 (state `d02_v1_active`) is therefore split. The other seven versions keep 100% of their evidence; letter error is 0.00% everywhere. **Resolved by D-037:** accepted as a known limitation of text-PDF tables. The test stays a strict expected failure, so CI alerts when the gap is fixed; table-aware extraction from word coordinates remains the documented path if Phase 8 shows a retrieval impact.

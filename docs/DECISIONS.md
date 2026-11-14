@@ -319,8 +319,8 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
   The chat UI stays with generation (Phases 9–10), because it depends on embeddings and answers.
 - **Consequence for document status:** Phase 6 runs stages 1–4 (validate, extract, clean and normalize, chunk), and its one-commit transaction stores the chunks and activates the version (DESIGN-001 §7.1) **without vectors**. Retrieval cannot see such versions, because `active_chunk_vectors` requires embeddings. Phase 7 adds stage 5 to the same commit and embeds already-processed versions through the documented re-index operation (FR-CFG-05).
 
-## D-035 — Local-only guard against browser-based access *(proposed)*
-- **Date:** 2026-11-14 · **Status:** Proposed — implemented in Phase 6, awaiting owner approval
+## D-035 — Local-only guard against browser-based access
+- **Date:** 2026-11-14 · **Status:** Approved (owner, at Phase 6 approval, D-038)
 - **Problem:** CLAUDE.md §12 requires the login-free app to be reachable only from this machine. Listening on 127.0.0.1 blocks other computers, but **any web page open in the owner's browser** can still send requests to `http://127.0.0.1:8000`:
   - by submitting a hidden form that uploads or deletes documents (cross-site request forgery);
   - by pointing a domain it controls at 127.0.0.1 (DNS rebinding) and then reading the responses.
@@ -332,8 +332,8 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
 - **Cost:** about 60 lines and 15 tests. curl and scripts (no `Origin` header) keep working. Setting `server.allow_non_local = true` (an explicit owner choice) disables the host check.
 - **Alternatives rejected:** CSRF tokens (more moving parts in every form and HTMX call, and no protection against DNS rebinding); doing nothing (leaves a known hole in the §12 requirement).
 
-## D-036 — Visual identity and interface patterns (UI-001) *(proposed)*
-- **Date:** 2026-11-14 · **Status:** Proposed — implemented in Phase 6, awaiting owner approval
+## D-036 — Visual identity and interface patterns (UI-001)
+- **Date:** 2026-11-14 · **Status:** Approved (owner, at Phase 6 approval, D-038)
 - **Decision:** The identity and interface rules in `docs/07_UI_AND_IDENTITY.md`:
   - **the mark:** a three-strand plait («ضفيرة» = braid), which also serves as the processing indicator;
   - **typefaces:** Noto Kufi Arabic for headings, linked to braided Kufic calligraphy; IBM Plex Sans Arabic for text;
@@ -341,12 +341,30 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
   - **interface patterns:** a real table for the library, a version timeline, one Arabic alert region, and confirmation dialogs for destructive actions.
 - **Basis:** D-034, which asks for an identity suited to a clinic-management platform and for UX best practices. All assets are self-hosted and openly licensed (OFL 1.1, 0BSD).
 
+## D-037 — Wrapped PDF table cells accepted as a known limitation (resolves P-017)
+- **Date:** 2026-11-14 · **Status:** Approved
+- **Decision:** Option (a). In `02_plans_pricing_v1.pdf`, the table cell «حتى 3 مستخدمين» wraps onto two lines, and pdftotext emits the second line after the table. This is recorded as a **known limitation of text-PDF tables with wrapped cells**.
+  - The evidence test for D02 v1 stays a strict expected failure, so CI reports it the moment the gap is fixed.
+  - The golden set is **not** edited, because that would hide a real limitation.
+- **Effect on NFR-LNG-02:** part (a), letter error ≤ 1%, is met on every PDF (0.00%). Part (b), intact evidence, is met on 7 of 8 corpus versions; this decision documents the exception.
+- **Revisit when:** Phase 8 retrieval measurements show that the split cell hurts answers (the chunk still holds «عدد المستخدمين المشمولين» and «حتى 3»), or a real user's tables suffer from it. Table-aware extraction from word coordinates (option b) remains the documented path.
+
+## D-038 — Phase 6 approved
+- **Date:** 2026-11-14 · **Status:** Approved
+- **Decision:** The owner approved Phase 6 (document ingestion up to chunks, the documents API, the documents UI, and the Dafira identity), together with D-035, D-036, and D-037.
+- **Evidence presented:**
+  - 218 tests passing (96% coverage);
+  - CI green on Windows and Linux;
+  - letter error 0.00% on all corpus PDFs;
+  - a real-browser walkthrough of upload, processing, approval, and deletion with no browser errors;
+  - screenshots on desktop and phone.
+- **Next:** one PR for Phase 6 (D-015). Phase 7 (embeddings and re-indexing) starts only on the owner's explicit approval.
+
 ---
 
 ## Pending decisions
 
 | ID | Question | Resolve by |
 |---|---|---|
-| P-017 | **Wrapped PDF table cells (NFR-LNG-02b).** In `02_plans_pricing_v1.pdf` one evidence passage («حتى 3 مستخدمين») is split by pdftotext's reading order (DESIGN-001 §19). Options: (a) accept and record it as a known limitation of text-PDF tables, keeping the strict xfail; (b) build table-aware extraction from pdftotext's word coordinates (`-bbox-layout`), estimated at 1–2 days with risk, because Arabic glyph order in that output is visual; (c) correct the golden-set snippet, which is not recommended because it hides a real limitation | Owner, at Phase 6 approval |
 
-Resolved: P-016 → D-032 · P-008 → D-031 · P-001 → D-009 · P-002 → D-011 · P-003 → D-012 · P-004 → D-017 · P-005 → D-018 · P-006 → D-021 · P-007 → D-019 · P-009 → D-014 · P-010 → D-015 · P-011 → D-029 · P-012 → D-027 · P-014 → D-029 · P-015 → D-029 · P-013 → keys provided (Gemini, Groq, Cohere working; Jina balance exhausted; Mistral key invalid).
+Resolved: P-017 → D-037 · P-016 → D-032 · P-008 → D-031 · P-001 → D-009 · P-002 → D-011 · P-003 → D-012 · P-004 → D-017 · P-005 → D-018 · P-006 → D-021 · P-007 → D-019 · P-009 → D-014 · P-010 → D-015 · P-011 → D-029 · P-012 → D-027 · P-014 → D-029 · P-015 → D-029 · P-013 → keys provided (Gemini, Groq, Cohere working; Jina balance exhausted; Mistral key invalid).

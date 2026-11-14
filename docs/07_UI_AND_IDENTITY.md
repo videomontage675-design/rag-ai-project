@@ -4,7 +4,7 @@
 |---|---|
 | Document ID | UI-001 |
 | Phase | Phase 6 (brought forward by D-034) |
-| Status | Draft for owner approval (proposed decision D-036) |
+| Status | **Approved** (D-036) |
 | Date | 2026-11-14 |
 | Inputs | SRS-001 FR-UI, DESIGN-001 §11.2, D-027 (Jinja2 + HTMX), D-034 |
 | Code | `src/rag_app/web/templates/`, `src/rag_app/web/static/`, `src/rag_app/web/ui/` |

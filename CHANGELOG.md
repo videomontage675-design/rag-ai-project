@@ -30,13 +30,13 @@ All notable changes, one section per phase. The format follows
   - accessible confirmation dialogs and Arabic alerts;
   - a redesigned home page;
   - a mobile layout.
-- **Security:** the local-only guard (refuses foreign hosts and cross-site changes) and security headers, including a strict Content-Security-Policy (proposed D-035).
+- **Security:** the local-only guard (refuses foreign hosts and cross-site changes) and security headers, including a strict Content-Security-Policy (D-035).
 - **Tests:** unit, integration, API, and UI tests (218 passing, 1 known gap as a strict expected failure), plus the NFR-LNG-02 corpus acceptance test on Linux and Windows. Failure-path PDFs are built in code.
 - **Docs:** `docs/07_UI_AND_IDENTITY.md`; DESIGN-001 §19 implementation notes; an updated README and developer guide.
 
 ### Known limitations
 - Versions are chunked but not embedded yet (Phase 7), so they are not searchable and questions cannot be asked yet.
-- One golden-set evidence passage in `02_plans_pricing_v1.pdf` is split by a wrapped table cell (P-017).
+- One golden-set evidence passage in `02_plans_pricing_v1.pdf` is split by a wrapped table cell; accepted as a known limitation (D-037).
 
 ## [0.1.0] — Phase 5: Project foundation
 
