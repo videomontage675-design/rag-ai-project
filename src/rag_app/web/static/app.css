@@ -1,0 +1,19 @@
+/* Base styles for the Arabic RTL interface. Fonts: Segoe UI and Tahoma ship with Windows and
+   cover Arabic; Noto fonts cover other systems. Logical properties keep RTL correct. */
+:root {
+  --bg: #f6f7f9; --card: #ffffff; --text: #1f2328; --muted: #57606a;
+  --accent: #1a73e8; --border: #d0d7de;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font-family: "Segoe UI", Tahoma, "Noto Sans Arabic", "Noto Naskh Arabic", sans-serif;
+  line-height: 1.7;
+}
+.topbar { background: var(--card); border-block-end: 1px solid var(--border); padding: 0.75rem 1.5rem; }
+.brand { font-weight: 700; color: var(--accent); }
+.page { max-inline-size: 60rem; margin-inline: auto; padding: 1.5rem; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem 1.5rem; margin-block-end: 1rem; }
+.lead { color: var(--muted); }
+.examples li { margin-block: 0.25rem; }
+.hint { color: var(--muted); font-size: 0.95rem; }
