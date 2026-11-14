@@ -1,0 +1,142 @@
+[project]
+name = "rag-app"
+version = "0.1.0"
+description = "Arabic retrieval-augmented question answering over a private document knowledge base (Dafira assistant)."
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+license = "MIT"
+authors = [{ name = "Project owner" }]
+# Runtime dependencies are added only when a phase uses them (STD-001 §2.2).
+dependencies = [
+    "fastapi>=0.115",          # T-02: API, validation, OpenAPI
+    "uvicorn>=0.30",           # ASGI server for FastAPI
+    "jinja2>=3.1",             # D-027: server-rendered Arabic RTL UI
+    "pydantic>=2.8",           # settings and API schemas (boundaries only)
+    "python-dotenv>=1.0",      # load API keys from .env (never from Git)
+]
+
+[project.scripts]
+rag = "rag_app.cli:main"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15",
+    "mypy>=1.13",
+    "import-linter>=2.1",
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "pytest-socket>=0.7",
+    "httpx>=0.28",             # required by FastAPI's TestClient
+]
+
+[build-system]
+requires = ["uv_build>=0.9,<0.12"]
+build-backend = "uv_build"
+
+[tool.uv]
+# STD-001 §2.2: dependencies must be at least two weeks old when locked.
+exclude-newer = "2026-10-31T00:00:00Z"
+
+# --------------------------------------------------------------------------- ruff
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+preview = true
+explicit-preview-rules = true   # only preview rules selected by name are enabled
+select = [
+    "E", "W", "F",      # pycodestyle, pyflakes
+    "I",                # import sorting
+    "B",                # bugbear
+    "UP",               # modern syntax
+    "N",                # naming
+    "S",                # security (bandit)
+    "SIM", "RET", "PTH",# simplify, returns, pathlib (Windows-safe paths)
+    "D",                # docstrings
+    "ANN",              # annotations
+    "BLE",              # no blind except
+    "DTZ",              # timezone-aware datetimes
+    "PLW1514",          # open() without encoding (preview rule, STD-001 §5.3)
+    "RUF",
+]
+ignore = ["D203", "D213", "RUF001", "RUF002", "RUF003"]  # D211/D212 style; RUF00x flag Arabic text
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "D", "ANN", "PLW1514"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+# --------------------------------------------------------------------------- mypy
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = "src"
+packages = ["rag_app"]
+warn_unreachable = true
+
+# --------------------------------------------------------------------------- import-linter
+[tool.importlinter]
+root_package = "rag_app"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Layers: interface -> services -> pipeline -> infrastructure -> foundation (DESIGN-001 §3)"
+type = "layers"
+layers = [
+    "rag_app.cli : rag_app.web",
+    "rag_app.services",
+    "rag_app.ingestion | rag_app.retrieval | rag_app.generation | rag_app.evaluation",
+    "rag_app.storage | rag_app.providers",
+    "rag_app.domain : rag_app.config : rag_app.core",
+]
+
+[[tool.importlinter.contracts]]
+name = "Only the web layer uses FastAPI and Jinja2"
+type = "forbidden"
+source_modules = ["rag_app.services", "rag_app.ingestion", "rag_app.retrieval", "rag_app.generation", "rag_app.evaluation", "rag_app.storage", "rag_app.providers", "rag_app.domain", "rag_app.config", "rag_app.core"]
+forbidden_modules = ["fastapi", "jinja2", "starlette"]
+allow_indirect_imports = "True"   # forbid direct use; layers may use them through lower layers
+
+[[tool.importlinter.contracts]]
+name = "Only the storage layer uses sqlite3"
+type = "forbidden"
+source_modules = ["rag_app.cli", "rag_app.web", "rag_app.services", "rag_app.ingestion", "rag_app.retrieval", "rag_app.generation", "rag_app.evaluation", "rag_app.providers", "rag_app.domain", "rag_app.config", "rag_app.core"]
+forbidden_modules = ["sqlite3"]
+allow_indirect_imports = "True"
+
+[[tool.importlinter.contracts]]
+name = "Only the providers layer uses httpx"
+type = "forbidden"
+source_modules = ["rag_app.cli", "rag_app.web", "rag_app.services", "rag_app.ingestion", "rag_app.retrieval", "rag_app.generation", "rag_app.evaluation", "rag_app.storage", "rag_app.domain", "rag_app.config", "rag_app.core"]
+forbidden_modules = ["httpx"]
+allow_indirect_imports = "True"
+
+[[tool.importlinter.contracts]]
+name = "The interface layer never runs SQL: no repositories in web or cli (UI isolated from the database)"
+type = "forbidden"
+source_modules = ["rag_app.web", "rag_app.cli"]
+forbidden_modules = ["rag_app.storage.repositories"]
+allow_indirect_imports = "True"   # going through services is exactly the intended path
+
+# --------------------------------------------------------------------------- pytest
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["-ra", "--strict-markers", "--disable-socket", "--allow-unix-socket"]
+markers = [
+    "unit: fast, isolated tests",
+    "integration: tests with SQLite, files, or subprocesses",
+    "e2e: end-to-end UI journeys (Phase 10)",
+    "provider: real provider calls (opt-in, needs keys and network)",
+    "slow: tests that take more than a few seconds",
+]
+
+[tool.coverage.run]
+source = ["rag_app"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true

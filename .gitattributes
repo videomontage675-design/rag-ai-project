@@ -1,0 +1,7 @@
+# STD-001 §5.3: identical bytes on Linux and Windows (stable hashes, clean diffs).
+* text=auto eol=lf
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.pdf binary
+*.png binary
+*.woff2 binary
