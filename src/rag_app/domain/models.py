@@ -84,6 +84,13 @@ class ChunkDraft:
     char_end: int
 
 
+class EmbeddingTask(StrEnum):
+    """What a text is embedded for; asymmetric models encode passages and questions differently."""
+
+    DOCUMENT = "document"
+    QUERY = "query"
+
+
 class JobStatus(StrEnum):
     """Status of an ingestion job (DESIGN-001 §5)."""
 

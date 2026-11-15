@@ -44,6 +44,7 @@ class ErrorCode(StrEnum):
     PROVIDER_RATE_LIMITED = "PROVIDER_RATE_LIMITED"
     PROVIDER_UNAVAILABLE = "PROVIDER_UNAVAILABLE"
     PROVIDER_AUTH = "PROVIDER_AUTH"
+    PROVIDER_BAD_RESPONSE = "PROVIDER_BAD_RESPONSE"
 
 
 @dataclass(frozen=True, slots=True)
@@ -92,13 +93,17 @@ CATALOG: Mapping[ErrorCode, ErrorSpec] = {
     ErrorCode.VERSION_NOT_FAILED: ErrorSpec(409, "إعادة المحاولة متاحة للنسخ الفاشلة فقط."),
     ErrorCode.QUESTION_INVALID: ErrorSpec(400, "يرجى كتابة سؤال لا يتجاوز {max_chars} حرف."),
     ErrorCode.REINDEX_REQUIRED: ErrorSpec(
-        503, "تغيّر نموذج التمثيلات الدلالية؛ يلزم إعادة الفهرسة قبل طرح الأسئلة."
+        503,
+        "تغيّر نموذج التمثيلات الدلالية؛ يلزم إعادة الفهرسة قبل طرح الأسئلة أو إضافة مستندات.",
     ),
     ErrorCode.PROVIDER_RATE_LIMITED: ErrorSpec(
         429, "تم بلوغ حد الاستخدام لدى مزود النموذج. حاول بعد قليل."
     ),
     ErrorCode.PROVIDER_UNAVAILABLE: ErrorSpec(503, "خدمة النموذج غير متاحة حالياً. حاول لاحقاً."),
     ErrorCode.PROVIDER_AUTH: ErrorSpec(502, "مفتاح مزود النموذج غير صالح. راجع الإعدادات."),
+    ErrorCode.PROVIDER_BAD_RESPONSE: ErrorSpec(
+        502, "رفض مزود النموذج الطلب أو أعاد استجابة غير متوقعة. راجع الإعدادات أو حاول لاحقاً."
+    ),
 }
 
 

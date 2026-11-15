@@ -72,6 +72,10 @@ class IngestionSettings(_Strict):
     poll_seconds: float = Field(default=2.0, gt=0, le=60)
     max_attempts: int = Field(default=3, ge=1, le=10)  # FR-ING-14
     extraction_timeout_seconds: float = Field(default=60.0, gt=0, le=600)
+    # Patient backoff for provider calls during ingestion and re-indexing (DESIGN-001 §8.2):
+    # waits of 15, 30, 60, 120 s ride out a free-tier per-minute quota.
+    provider_retry_attempts: int = Field(default=5, ge=1, le=10)
+    provider_retry_initial_seconds: float = Field(default=15.0, ge=0, le=300)
 
 
 class RagSettings(_Strict):
