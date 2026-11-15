@@ -26,9 +26,9 @@ class ScriptedProvider:
 
 
 def test_embedding_text_prefixes_the_normalized_heading_path() -> None:
-    text = embedding_text("الإصدار ٤ > التغييرات المُهمّة", "نص المقطع")
+    text = embedding_text("الإصدار ٤ › التغييرات المُهمّة", "نص المقطع")
 
-    assert text == "الإصدار 4 > التغييرات المهمة\nنص المقطع"
+    assert text == "الإصدار 4 › التغييرات المهمة\nنص المقطع"
 
 
 def test_embedding_text_without_heading_is_the_chunk_text() -> None:
