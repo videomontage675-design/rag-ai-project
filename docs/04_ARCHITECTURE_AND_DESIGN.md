@@ -4,7 +4,7 @@
 |---|---|
 | Document ID | DESIGN-001 |
 | Phase | Phase 4: Architecture and Technical Design |
-| Status | **Approved** (D-030), including decisions DD-01 to DD-08 (§17). Phase 6 implementation notes in §19 |
+| Status | **Approved** (D-030), including decisions DD-01 to DD-08 (§17). Implementation notes: Phase 6 in §19, Phase 7 in §20 |
 | Date | 2026-11-13 |
 | Inputs | SRS-001 v1.1 (`docs/01_SRS.md`), TECH-001 (`docs/03_TECHNOLOGY_EVALUATION.md`), CORPUS-001, `docs/DECISIONS.md` |
 | Approved stack | Python + FastAPI · Jinja2 + HTMX · SQLite + NumPy · pdftotext · gemini-embedding-001 · qwen3.8-27b (Groq) · OpenAI-compatible adapters (D-027 to D-029) |
@@ -648,7 +648,7 @@ flowchart LR
 
 | Concern | Design |
 |---|---|
-| Interfaces | `EmbeddingProvider.embed(texts, task: "document" or "query") -> list[vector]` and `ChatProvider.complete(messages, *, temperature, max_tokens, timeout) -> text`. Typed errors: `ProviderRateLimited`, `ProviderUnavailable`, `ProviderAuthError`, `ProviderBadResponse` |
+| Interfaces | `EmbeddingProvider.embed(texts, task: "document" or "query") -> list[vector]` and `ChatProvider.complete(messages, *, temperature, max_tokens, timeout) -> text`. Typed errors: `ProviderRateLimitedError`, `ProviderUnavailableError`, `ProviderAuthError`, `ProviderBadResponseError` (§20, P7-3) |
 | One adapter | `OpenAICompatibleProvider` uses `httpx`, `base_url`, `model`, and an **optional** API-key environment variable (D-013). It tolerates response differences found in Phase 3 (e.g., Gemini omits `index` in embedding results) |
 | Retries | Ingestion uses patient backoff (15 s start, 5 attempts). Queries use quick retries (2 attempts, 2 s) to keep latency acceptable, then return a clear Arabic error |
 | Fallback | For chat only: on 404, 429, or 503 from the primary, retry the request once on the fallback model. The model actually used is stored in `message.generation_model`. *Proposal DD-03:* Phase 3 measured all three failure types on a free tier in one session |
@@ -739,6 +739,8 @@ max_question_chars = 1000
 poll_seconds = 2.0
 max_attempts = 3         # FR-ING-14
 extraction_timeout_seconds = 60
+provider_retry_attempts = 5           # Phase 7 (§20): patient backoff for ingestion and re-indexing
+provider_retry_initial_seconds = 15   # waits 15, 30, 60, 120 s
 
 [rag]
 chunk_chars = 800
@@ -786,10 +788,11 @@ Every expected failure is an `AppError` with a stable `code`, an HTTP status, an
 | `PDF_ENCRYPTED` | 422 | ملف PDF محمي بكلمة مرور ولا يمكن معالجته. |
 | `VERSION_IS_ACTIVE` | 409 | لا يمكن حذف النسخة النشطة. فعّل نسخة أخرى أو احذف المستند كاملاً. |
 | `QUESTION_INVALID` | 400 | يرجى كتابة سؤال لا يتجاوز 1000 حرف. |
-| `REINDEX_REQUIRED` | 503 | تغيّر نموذج التمثيلات الدلالية؛ يلزم إعادة الفهرسة قبل طرح الأسئلة. |
+| `REINDEX_REQUIRED` | 503 | تغيّر نموذج التمثيلات الدلالية؛ يلزم إعادة الفهرسة قبل طرح الأسئلة أو إضافة مستندات. |
 | `PROVIDER_RATE_LIMITED` | 429 | تم بلوغ حد الاستخدام لدى مزود النموذج. حاول بعد قليل. |
 | `PROVIDER_UNAVAILABLE` | 503 | خدمة النموذج غير متاحة حالياً. حاول لاحقاً. |
 | `PROVIDER_AUTH` | 502 | مفتاح مزود النموذج غير صالح. راجع الإعدادات. |
+| `PROVIDER_BAD_RESPONSE` | 502 | رفض مزود النموذج الطلب أو أعاد استجابة غير متوقعة. راجع الإعدادات أو حاول لاحقاً. (§20, P7-4) |
 | `POPPLER_MISSING` | 500 | أداة استخراج نص PDF غير مثبتة. راجع تعليمات التثبيت. |
 | `INTERRUPTED` | 500 | توقفت معالجة الملف عدة مرات بسبب إعادة تشغيل التطبيق. أعد المحاولة. (stored on the version, §6) |
 | `FORBIDDEN_ORIGIN` | 403 | رُفض الطلب لأنه لم يصدر من واجهة التطبيق على هذا الجهاز. (§13.2) |
@@ -942,3 +945,29 @@ Refinements made while implementing ingestion and the documents UI. None changes
 
 ### Known gap: wrapped table cells in PDFs (NFR-LNG-02b)
 In `02_plans_pricing_v1.pdf`, the cell «حتى 3 مستخدمين» wraps onto two lines, and pdftotext emits the second line («مستخدمين») after the whole table. The golden-set evidence passage for Q040 (state `d02_v1_active`) is therefore split. The other seven versions keep 100% of their evidence; letter error is 0.00% everywhere. **Resolved by D-037:** accepted as a known limitation of text-PDF tables. The test stays a strict expected failure, so CI alerts when the gap is fixed; table-aware extraction from word coordinates remains the documented path if Phase 8 shows a retrieval impact.
+
+---
+
+## 20. Implementation Notes (Phase 7)
+
+Embeddings, storage of vectors, the in-memory index, and re-indexing (D-039). As in §19, none of these changes a requirement or an approved decision.
+
+| # | Design said | Implemented | Why |
+|---|---|---|---|
+| P7-1 | §14: the NumPy index lives in `retrieval/` | `storage/vector_index.py` holds `VectorIndex` (load and reload); the search over its snapshot comes in Phase 8, in `retrieval/` | Loading runs SQL, and SQL lives only in `storage/` (STD-001 §10) |
+| P7-2 | §14: `providers/retry.py` | `providers/resilience.py`: `RetryingEmbeddings` around `ThrottledEmbeddings`, so a retry is throttled too. `fallback.py` comes with chat (Phase 9) | Throttling and backoff answer the same free-tier constraint and must compose in one order |
+| P7-3 | §10: `ProviderRateLimited`, `ProviderUnavailable`, `ProviderBadResponse` | The same classes with the `Error` suffix | Enforced naming rule (ruff N818) |
+| P7-4 | §10 names a bad-response error but §13.1 has no code for it | New code `PROVIDER_BAD_RESPONSE` (502): other 4xx answers, malformed bodies, wrong vector counts, mixed or zero vectors | Every typed error needs a catalog entry (STD-001 §7) |
+| P7-5 | §7.4: `REINDEX_REQUIRED` refuses questions | It also fails an **ingestion** whose vectors would be of another model than the stored ones, before any provider call, and again inside the storing transaction. An index with no vectors adopts the new model. The message now mentions adding documents | FR-CFG-05: two models are never mixed |
+| P7-6 | §8.2 stage 5: retries on 429/5xx | Also on 408, timeouts, and network errors; `Retry-After` is honoured up to 300 s. 404 (retired model) is not retried. Gemini's `400 API_KEY_INVALID` maps to `PROVIDER_AUTH`, following Google's documented error format; this mapping is **not yet verified against the live API** (D-039) | Retry only what waiting can fix |
+| P7-7 | §7.4: re-index "embeds every version" | It embeds only chunks of ready versions that lack a vector of the configured model. Each batch is committed to `reindex_staging` (migration `0003`), so an interrupted run resumes without spending quota again | Same end state, at most once per chunk per model |
+| P7-8 | DD-05: run while the app is stopped | Still the instruction. As a safety net, the swap checks inside its transaction that every ready chunk has a vector of the model; versions that finished meanwhile get another pass (up to three), otherwise nothing changes | A forgotten running app cannot cause mixed or missing vectors |
+| P7-9 | §10: `embed(texts, task)` | `task` is part of the port, but the OpenAI-compatible request has no task field, so the adapter does not send it | Phase 3 measured `gemini-embedding-001` through this endpoint without a task type (T-10) |
+| P7-10 | §12: a missing key stops the app | The app starts. `rag check` reports the missing variable, and the first embedding call fails with `PROVIDER_AUTH`, naming the variable in the log | Unchanged from Phase 5: the document library stays usable while the key is fixed |
+| P7-11 | §5.2: vectors as float32 BLOBs | Little-endian float32, written and read with an explicit byte order | A database copied between machines reads back identically |
+| P7-12 | — | Provider waits use the worker's stop signal, so shutting down never waits out a 2-minute backoff; the job stays `running` and recovery re-queues it (FR-ING-14) | `rag serve` stops promptly |
+| P7-13 | FR-DOC-06 | Version details show the embedding model; a ready version without vectors (processed before Phase 7) says re-indexing creates them. `/system/status` adds `versions_missing_vectors` | Retrieval cannot see such versions, so the owner must be told |
+
+### Phase 8 must take into account
+- Query embeddings must **not** go through the ingestion throttle (20 s spacing). They use the quick retry policy of §10 and share the same per-minute free-tier quota, so a question asked during a large ingestion may meet a 429.
+

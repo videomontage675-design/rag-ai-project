@@ -15,7 +15,7 @@
 ```mermaid
 flowchart LR
     browser(["🖥️ Browser<br/>Arabic RTL pages"]) --> web
-    cli(["⌨️ rag CLI<br/>check · serve"]) --> services
+    cli(["⌨️ rag CLI<br/>check · serve · reindex"]) --> services
     subgraph app["⚙️ rag_app (one Python process, 127.0.0.1)"]
         web["🖥️ web<br/>HTTP ⇄ service calls"] --> services["⚙️ services<br/>use cases"]
         services --> pipeline{{"🔶 pipeline<br/>ingestion · retrieval · generation"}}
@@ -50,7 +50,7 @@ This is what lets a failure stay inside one box and lets a box be replaced witho
 ```text
 rag-ai-project/
 ├── src/rag_app/                    the application (one package)
-│   ├── cli.py                      ⌨️ rag check | rag serve
+│   ├── cli.py                      ⌨️ rag check | rag serve | rag reindex
 │   ├── web/                        🖥️ interface: HTTP only, no business rules, no SQL
 │   │   ├── app.py                     composition root: builds and wires every dependency
 │   │   ├── context.py                 AppContext handed to request handlers
@@ -63,29 +63,37 @@ rag-ai-project/
 │   ├── services/                   ⚙️ use cases: the only entry point for web and CLI
 │   │   ├── documents.py               DocumentService: upload, versions, activate, retry, delete
 │   │   ├── ingestion_worker.py        IngestionWorker: background thread, recovery, cancellation
+│   │   ├── reindex.py                 ReindexService: embed what is missing, swap in one step
 │   │   ├── system.py                  knowledge-base status
-│   │   └── diagnostics.py             checks behind `rag check`
-│   ├── ingestion/                  🔶 stages 1–4, pure functions (no SQL, no network)
+│   │   └── diagnostics.py             checks behind `rag check` (incl. vector-index consistency)
+│   ├── ingestion/                  🔶 stages 1–5 (no SQL; providers only through the port)
 │   │   ├── validation.py              type by content, UTF-8, display name
 │   │   ├── extract_pdf.py · poppler.py   pdfinfo/pdftotext with timeouts (D-028)
 │   │   ├── extract_markdown.py        headings, lists, table rows (markdown-it-py)
 │   │   ├── cleaning.py                PDF clean-up rules measured on the corpus
 │   │   ├── normalization.py           text used for search (NFKC, tashkeel, digits)
 │   │   ├── chunking.py                structure-aware chunks with full heading paths
-│   │   └── pipeline.py                process_file(): stages 2–4 in order
-│   ├── retrieval/ generation/      🔶 RAG pipeline stages (Phases 7–9)
+│   │   ├── pipeline.py                process_file(): stages 2–4 in order
+│   │   └── embedding.py               stage 5: embedded text, batches, checks, L2 normalization
+│   ├── retrieval/ generation/      🔶 RAG pipeline stages (Phases 8–9)
 │   │   evaluation/
 │   ├── storage/                    🗄️ the only place with SQL and the uploads folder
 │   │   ├── db.py                      connections, pragmas, transactions
 │   │   ├── migrate.py                 applies numbered migrations atomically
-│   │   ├── migrations/                0001 schema + indexes + view · 0002 version counter
+│   │   ├── migrations/                0001 schema + indexes + view · 0002 version counter · 0003 re-index staging
 │   │   ├── files.py                   FileStore: streamed uploads, generated names, orphan sweep
-│   │   └── repositories/              system.py · documents.py (documents, versions, chunks, jobs)
-│   ├── providers/                  ☁️ model providers behind interfaces (Phase 7)
+│   │   ├── vectors.py                 vector byte format (float32 LE) and index metadata (meta)
+│   │   ├── vector_index.py            VectorIndex: active vectors in memory, reloaded on change
+│   │   └── repositories/              system.py · documents.py (documents, versions, chunks, vectors, jobs) · index.py (re-index, consistency)
+│   ├── providers/                  ☁️ model providers behind interfaces
+│   │   ├── ports.py                   EmbeddingProvider Protocol + typed ProviderError classes
+│   │   ├── openai_compatible.py       one adapter for Gemini, Cohere, or a local server (T-13)
+│   │   ├── resilience.py              retries with backoff, throttling between requests
+│   │   └── factory.py                 builds the adapter from settings (key read from the environment)
 │   ├── config/                     🧩 typed settings and domain profile loaders
 │   ├── core/                       🧩 errors (catalog), logging, ids, clock
 │   └── domain/                     🧩 shared vocabulary: statuses, formats, outcomes
-├── tests/  unit/ integration/      mirrors src/; network blocked by default; support/ = shared helpers
+├── tests/  unit/ integration/      mirrors src/; network blocked by default; support/ = shared helpers; fakes/ = provider fakes
 ├── config/ settings.toml domain_profile.toml
 ├── docs/                           all project documents (§7)
 ├── data/sample_corpus/ eval/       Phase 2 corpus and golden set (read-only for tests)
@@ -169,11 +177,11 @@ CI runs all of these on **Linux and Windows** for every push. A red check blocks
 | Long work | Uploads return `202 Accepted` and are processed in the background; clients poll `GET /documents/{id}` until no version is `uploaded` or `processing` (`is_processing: false`) |
 | Who may call | Only this machine. Requests with a non-loopback `Host`, or changes sent from another website (`Origin`, `Sec-Fetch-Site`), get `403 FORBIDDEN_ORIGIN`. Tools such as curl are unaffected |
 
-### 5.2 Endpoints available now (Phase 6)
+### 5.2 Endpoints available now (Phase 7)
 | Method | Path | Returns |
 |---|---|---|
-| GET | `/health` | `{"status": "ok", "version": "0.2.0"}` |
-| GET | `/api/v1/system/status` | Document and chunk counts, schema version, index embedding model, whether re-indexing is needed, and provider models (never keys) |
+| GET | `/health` | `{"status": "ok", "version": "0.3.0"}` |
+| GET | `/api/v1/system/status` | Document and searchable-chunk counts, schema version, index embedding model, whether re-indexing is needed (`reindex_required`, `versions_missing_vectors`), and provider models (never keys) |
 | POST | `/api/v1/documents` | Upload a new document (multipart field `file`) → **202** `DocumentDetail` |
 | GET | `/api/v1/documents` | `DocumentSummary[]`, most recently updated first |
 | GET | `/api/v1/documents/{id}` | `DocumentDetail` with the version history, newest first |
@@ -193,7 +201,8 @@ curl -s http://127.0.0.1:8000/api/v1/documents/<id>
  "is_processing": false, "created_at": "2026-11-14T20:49:01+00:00", "updated_at": "…",
  "versions": [{"id": "b638…", "version_number": 1, "status": "ready", "stage": null,
                "is_active": true, "original_filename": "دليل المستخدم.md", "format": "markdown",
-               "size_bytes": 12034, "page_count": null, "chunk_count": 19, "error": null,
+               "size_bytes": 12034, "page_count": null, "chunk_count": 19,
+               "embedding_model": "gemini-embedding-001", "error": null,
                "uploaded_at": "…", "processing_finished_at": "…"}]}
 ```
 
@@ -210,6 +219,7 @@ sequenceDiagram
     participant F as 🗄️ FileStore
     participant W as ⚙️ IngestionWorker (thread)
     participant P as 🔶 ingestion.pipeline
+    participant E as ☁️ embedding provider
     participant R as 🗄️ DocumentRepository
 
     U->>A: POST file
@@ -223,9 +233,20 @@ sequenceDiagram
     W->>R: claim_next_job() → processing
     W->>P: process_file(): extract → clean → chunk (in memory)
     P-->>W: chunks (or an AppError → version failed, Arabic message)
-    W->>R: complete_ingestion(): chunks + ready + approve + index_generation (one transaction)
-    Note over W,R: If the version was deleted meanwhile, the stage update or the final<br/>check finds it gone and nothing is written (DD-02)
+    loop batches of 20, at most one request per 20 s
+        W->>E: embed(heading path + text) via port, retried on 429/5xx
+        E-->>W: vectors (checked, L2-normalized)
+    end
+    W->>R: complete_ingestion(): chunks + vectors + ready + approve + index_generation (one transaction)
+    Note over W,R: If the version was deleted meanwhile, the stage update before each batch<br/>or the final check finds it gone and nothing is written (DD-02)
 ```
+
+### 5.2.2 Embeddings and the vector index, in five facts
+1. **What is embedded:** for each chunk, its normalized heading path, a newline, then its normalized text (`ingestion/embedding.py::embedding_text`). The headings tell the model which section a passage belongs to (Phase 3 finding).
+2. **How provider calls behave:** `ThrottledEmbeddings` keeps requests at least `min_seconds_between_batches` apart; `RetryingEmbeddings` retries 429, 5xx, timeouts, and network errors with backoff (15 s doubling, 5 attempts, configurable in `[ingestion]`), honouring `Retry-After`. Auth errors and malformed responses fail at once. The waits end immediately when the app stops.
+3. **One model at a time:** every vector carries its model and dimension; `meta` records the index model. A vector of another model is refused (`REINDEX_REQUIRED`) before any quota is spent, and again inside the storing transaction.
+4. **Searchable means active and ready:** `VectorIndex.current()` loads the `active_chunk_vectors` view into a read-only NumPy matrix and reloads only when `meta.index_generation` changes. Phase 8 adds the search over it.
+5. **Re-indexing:** `rag reindex` embeds whatever lacks a vector of the configured model into `reindex_staging`, batch by batch, then swaps everything in with one transaction. Interrupted runs resume from staging.
 
 ### 5.3 Adding an endpoint (recipe)
 1. Write or extend a **service** function that takes and returns plain types or dataclasses.
@@ -318,6 +339,7 @@ From STD-001 §14.2, with an example of each:
 | Install or update the environment | `uv sync` |
 | Run the app | `uv run rag serve` → <http://127.0.0.1:8000> |
 | Check the environment | `uv run rag check` |
+| Re-embed after an embedding-model change (app stopped) | `uv run rag reindex` |
 | All tests | `uv run pytest` |
 | One test file, verbose | `uv run pytest tests/integration/storage/test_migrations.py -v` |
 | Coverage report | `uv run pytest --cov` |

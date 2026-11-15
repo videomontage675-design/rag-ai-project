@@ -8,11 +8,12 @@ The initial deployment is a help assistant for «ضفيرة», a **fictional** c
 managing medical clinics. All use-case wording lives in `config/domain_profile.toml`; the core
 is domain-agnostic.
 
-> **Status:** Phase 6 (document ingestion). You can build the document library: upload PDF and
-> Markdown files, follow their processing, keep versions, choose the version the assistant
-> uses, and delete documents, from the Arabic interface or the JSON API. Documents are split
-> into chunks, but not yet embedded (Phase 7), so **asking questions is not available yet**
-> (Phases 8–10). The roadmap is in `docs/planning/PHASE_0_DISCOVERY_AND_PLAN.md`.
+> **Status:** Phase 7 (embeddings and indexing). You can build the document library: upload
+> PDF and Markdown files, follow their processing, keep versions, choose the version the
+> assistant uses, and delete documents, from the Arabic interface or the JSON API. Every
+> processed version is split into chunks and embedded with the configured model, ready for
+> semantic search. **Asking questions is not available yet** (Phases 8–10). The roadmap is in
+> `docs/planning/PHASE_0_DISCOVERY_AND_PLAN.md`.
 
 ---
 
@@ -62,8 +63,11 @@ before `rag serve`.
 **5. Build the library**
 
 Open **المستندات** (Documents), then drag a file onto the upload area or choose one. Accepted:
-text-based PDF and UTF-8 Markdown, up to 10 MB. The status changes from «بانتظار المعالجة» to
-«جاهز» within seconds. To try it with the sample documents, upload the files in
+text-based PDF and UTF-8 Markdown, up to 10 MB. The status moves from «بانتظار المعالجة»
+through «توليد التمثيلات الدلالية» (embedding) to «جاهز». Embedding is paced for the free
+tier: one batch of 20 chunks every 20 seconds, so a 100-chunk document takes about a minute
+and a half. If the provider's quota is hit, the app waits and retries (15, 30, 60, 120 s)
+before it gives up. To try it with the sample documents, upload the files in
 `data/sample_corpus/source/` and `data/sample_corpus/pdf/`.
 
 | You want to | Do this |
@@ -71,7 +75,22 @@ text-based PDF and UTF-8 Markdown, up to 10 MB. The status changes from «بان
 | Update a document | Open it and use «رفع نسخة جديدة». The current version keeps serving answers until the new one is ready |
 | Go back to an older version | Open the document and click «اعتماد هذه النسخة» on that version |
 | Fix a failed version | Read its Arabic error message, then «إعادة المعالجة» or upload a corrected version |
-| Remove a document | «حذف المستند» (asks for confirmation; removes all its versions and files) |
+| Remove a document | «حذف المستند» (asks for confirmation; removes all its versions, files, chunks, and vectors) |
+
+**6. Re-index when the embedding model changes**
+
+Vectors from different models cannot be compared, so the app never mixes them. After you
+change `[providers.embedding] model`, or after upgrading from version 0.2.0 (whose documents
+have chunks but no vectors), stop the app and run:
+
+```powershell
+uv run rag reindex
+```
+
+It prints the plan (chunks, batches, estimated minutes), embeds what is missing, and switches
+all vectors to the new model **in one step**. Interrupt it (Ctrl+C) or let the provider fail,
+and the current index stays as it was; run it again and it continues where it stopped.
+`rag check` tells you when a re-index is needed.
 
 ---
 
@@ -79,7 +98,7 @@ text-based PDF and UTF-8 Markdown, up to 10 MB. The status changes from «بان
 
 | Data | Sent to | When |
 |---|---|---|
-| Text of document chunks | Google Gemini API (embeddings) | When a document is processed |
+| Text of document chunks, each with its section headings | Google Gemini API (embeddings) | When a document is processed, and by `rag reindex` |
 | Your question | Google Gemini API (embeddings) | Every question |
 | Your question plus the retrieved passages | Groq API (answer generation) | Every question that has relevant passages |
 | Questions, answers, and passages of the golden set | Cohere API (judge) | Only when you run the offline evaluation |
@@ -131,6 +150,10 @@ uv run lint-imports       # architecture layer rules
 |---|---|
 | `✘ FAIL poppler (pdftotext)` | Poppler is not on `PATH`. Set `paths.poppler_bin_dir` to the folder that contains `pdftotext.exe` |
 | `✘ FAIL API key: embedding` | `GEMINI_API_KEY` is missing in `.env` |
+| `! WARN vector index … run rag reindex` | The embedding model changed, or versions have no vectors yet. Stop the app and run `uv run rag reindex` |
+| A version fails with «مفتاح مزود النموذج غير صالح» | The embedding key is missing or wrong. Fix `.env`, restart, then «إعادة المعالجة» |
+| A version fails with «تم بلوغ حد الاستخدام» | The free-tier quota stayed exhausted through all retries. Wait a few minutes, then «إعادة المعالجة» |
+| A version fails with «يلزم إعادة الفهرسة» | The configured embedding model differs from the stored vectors. Run `uv run rag reindex`, then retry |
 | `CONFIG_INVALID … server.host` | The host is not `127.0.0.1`. The app has no login, so it only runs locally |
 | A document stays «تعذّرت المعالجة» with a PDF message | The PDF is scanned (no text layer), password-protected, or damaged. Export a text PDF or upload the Markdown source |
 | `FORBIDDEN_ORIGIN` (403) | The request came from another website or host name. Open the app at `http://127.0.0.1:8000` |
