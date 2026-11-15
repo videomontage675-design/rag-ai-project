@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import pytest
-from fakes.embeddings import FakeEmbeddingProvider
 
+from fakes.embeddings import FakeEmbeddingProvider
 from rag_app.domain.models import EmbeddingTask
 from rag_app.providers.ports import (
     ProviderAuthError,

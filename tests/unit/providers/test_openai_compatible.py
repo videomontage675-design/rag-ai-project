@@ -153,9 +153,7 @@ def test_rate_limit_reads_retry_after_seconds(header: str, expected: float | Non
     assert info.value.retry_after == expected
 
 
-@pytest.mark.parametrize(
-    "exception", [httpx.ReadTimeout("slow"), httpx.ConnectError("refused")]
-)
+@pytest.mark.parametrize("exception", [httpx.ReadTimeout("slow"), httpx.ConnectError("refused")])
 @respx.mock
 def test_timeouts_and_network_failures_are_retryable_unavailability(
     exception: Exception,
