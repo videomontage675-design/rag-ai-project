@@ -82,6 +82,7 @@ rag-ai-project/
 │   │   ├── migrate.py                 applies numbered migrations atomically
 │   │   ├── migrations/                0001 schema + indexes + view · 0002 version counter
 │   │   ├── files.py                   FileStore: streamed uploads, generated names, orphan sweep
+│   │   ├── vector_index.py            VectorIndex: active vectors in memory, reloaded on change (D-041)
 │   │   └── repositories/              system.py · documents.py · indexing.py
 │   ├── providers/                  ☁️ ports.py (EmbeddingProvider) · openai_compatible.py (the one adapter)
 │   ├── config/                     🧩 typed settings and domain profile loaders

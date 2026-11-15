@@ -10,6 +10,7 @@ All notable changes, one section per phase. The format follows
 - **Embedding provider:** a port plus one OpenAI-compatible adapter (`providers/`). It batches, throttles, and retries 429/5xx with `Retry-After` or doubling backoff; maps authentication errors; validates count and dimension; and L2-normalizes every vector.
 - **Stage 5 in ingestion:** each chunk's heading path and normalized text are embedded. The vectors, tagged with model and dimension, are stored in the same single transaction as the chunks and the version's activation.
 - **`rag reindex`:** embeds every ready version whose vectors are missing (data from 0.2.0) or come from another model or dimension, inactive versions included. It swaps everything in one transaction, so a failed run changes nothing.
+- **`VectorIndex`** (`storage/vector_index.py`, D-041): the active vectors in a read-only NumPy matrix, reloaded only when the index generation changes. The search over it comes in Phase 8.
 - **Index state:** `/system/status` reports the index model and dimension, `reindex_required`, and `versions_needing_index`. The home and documents pages show an Arabic notice with the command to run.
 - **Tests:** 246 passing (plus the strict expected failure from D-037), including the adapter against a mocked HTTP transport and an opt-in live provider check (run once against Gemini).
 

@@ -375,6 +375,15 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
 - **Date:** 2026-11-14 · **Status:** Approved
 - **Decision:** Phase 7 is authorized: embeddings (stage 5) in the one-commit ingestion, the model and dimension stored with every vector, and re-indexing. Re-indexing also embeds the versions that Phase 6 stored without vectors (D-034).
 
+## D-041 — Phase 7 continues on this branch; the in-memory vector index is brought forward
+- **Date:** 2026-11-15 · **Status:** Approved
+- **Context:** A second Phase 7 implementation was made in a later session on another branch (`eng-emadhassan/charming-archimedes-7bl3k6`) without knowing about this one. It did not follow D-039 (it kept 3,072 dimensions).
+- **Decision:** This branch is the basis of Phase 7, because it follows D-039 and D-040 and was checked against the real provider. One component is brought over from the other branch: `VectorIndex` (DESIGN-001 §7.3), which loads the active vectors into a NumPy matrix and reloads it when `index_generation` changes. The similarity search over it stays in Phase 8.
+- **Basis:** loading and invalidating the index is part of "indexing" (`EXECUTION_PROTOCOL.md` §4); searching is part of retrieval.
+- **Consequences:**
+  - The other branch is kept on GitHub, unmerged.
+  - Its other additions are not part of Phase 7 unless the owner approves them separately: resumable re-indexing, consistency checks in `rag check`, and immediate shutdown during provider waits.
+
 ---
 
 ## Pending decisions
