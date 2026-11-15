@@ -88,6 +88,7 @@ def test_detail_page_shows_history_and_actions(client: TestClient) -> None:
     assert "معتمدة في الإجابات" in html
     assert "اعتماد هذه النسخة" in html  # v1 can be restored
     assert 'hx-confirm="ستعتمد إجابات المساعد على النسخة 1' in html
+    assert html.count('<bdi dir="ltr">fake-embedding</bdi>') == 2  # model of each version
 
 
 def test_activate_retry_and_version_delete_return_the_updated_block(client: TestClient) -> None:
@@ -140,3 +141,15 @@ def test_user_text_is_escaped(client: TestClient) -> None:
 
     assert "<img src=x" not in html
     assert "&lt;img src=x onerror=" in html
+
+
+def test_ready_version_without_vectors_says_reindexing_creates_them(client: TestClient) -> None:
+    _upload_ui(client)
+    _ctx(client).worker.run_until_idle()
+    with _ctx(client).db.transaction() as conn:  # a version processed before Phase 7 (D-034)
+        conn.execute("DELETE FROM chunk_embeddings")
+        conn.execute("UPDATE document_versions SET embedding_model = NULL")
+
+    html = client.get(f"/documents/{_doc_id(client)}").text
+
+    assert "لم تُنشأ بعد؛ تُنشأ بإعادة الفهرسة" in html

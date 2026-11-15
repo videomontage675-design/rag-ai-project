@@ -13,6 +13,7 @@ from rag_app.core.errors import AppError
 from rag_app.ingestion.poppler import locate_poppler
 from rag_app.storage.db import Database
 from rag_app.storage.migrate import apply_migrations
+from rag_app.storage.repositories.index import IndexRepository
 
 
 class CheckLevel(StrEnum):
@@ -38,6 +39,7 @@ def run_checks(settings: Settings) -> list[CheckResult]:
         _check_domain_profile(settings),
         _check_data_dir(settings),
         _check_database(settings),
+        _check_index(settings),
         _check_poppler(settings),
         *_check_keys(settings),
     ]
@@ -68,6 +70,40 @@ def _check_database(settings: Settings) -> CheckResult:
         return CheckResult("database", CheckLevel.FAIL, f"{type(exc).__name__}: {exc}")
     note = f"applied {', '.join(applied)}" if applied else "schema up to date"
     return CheckResult("database", CheckLevel.OK, f"{settings.database_file} ({note})")
+
+
+def _check_index(settings: Settings) -> CheckResult:
+    """Vector-index consistency (NFR-REL-02) and whether ``rag reindex`` is needed."""
+    name = "vector index"
+    try:
+        state = IndexRepository(Database(settings.database_file)).consistency()
+    except Exception as exc:  # noqa: BLE001  (diagnostics report any failure, then continue)
+        return CheckResult(name, CheckLevel.FAIL, f"{type(exc).__name__}: {exc}")
+    configured = settings.providers.embedding.model
+    if state.problems:
+        return CheckResult(
+            name,
+            CheckLevel.FAIL,
+            f"inconsistent: {state.vectors_of_other_models} vectors of other models,"
+            f" {state.vectors_with_wrong_dim} with a wrong dimension,"
+            f" {state.chunk_count_mismatches} versions with wrong chunk counts",
+        )
+    if state.index_model and state.index_model != configured:
+        return CheckResult(
+            name,
+            CheckLevel.WARN,
+            f"index uses {state.index_model} but {configured} is configured:"
+            " stop the app and run `rag reindex`",
+        )
+    if state.versions_missing_vectors:
+        return CheckResult(
+            name,
+            CheckLevel.WARN,
+            f"{state.versions_missing_vectors} ready versions have no vectors:"
+            " stop the app and run `rag reindex`",
+        )
+    model = state.index_model or "empty"
+    return CheckResult(name, CheckLevel.OK, f"{state.ready_versions} ready versions ({model})")
 
 
 def _check_poppler(settings: Settings) -> CheckResult:

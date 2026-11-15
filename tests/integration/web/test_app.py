@@ -1,3 +1,5 @@
+import io
+
 import pytest
 from fastapi import APIRouter
 from fastapi.testclient import TestClient
@@ -35,6 +37,7 @@ def test_system_status_on_empty_database(client: TestClient) -> None:
     assert body["schema_version"] == 3
     assert body["documents"] == 0
     assert body["reindex_required"] is False
+    assert body["versions_missing_vectors"] == 0
     assert {p["role"] for p in body["providers"]} == {"embedding", "chat"}
 
 
@@ -100,3 +103,17 @@ def test_openapi_document_lists_versioned_api(client: TestClient) -> None:
 
     assert "/api/v1/system/status" in paths
     assert "/health" in paths
+
+
+def test_system_status_counts_ready_versions_without_vectors(client: TestClient) -> None:
+    context = client.app.state.context  # type: ignore[attr-defined]
+    context.documents.upload_document("a.md", io.BytesIO(b"# a\n\ntext\n"))
+    context.worker.run_until_idle()
+    assert client.get("/api/v1/system/status").json()["versions_missing_vectors"] == 0
+    with context.db.transaction() as conn:
+        conn.execute("DELETE FROM chunk_embeddings")
+
+    body = client.get("/api/v1/system/status").json()
+
+    assert body["versions_missing_vectors"] == 1
+    assert body["active_chunks"] == 0

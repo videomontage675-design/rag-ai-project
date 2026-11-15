@@ -45,6 +45,7 @@ def test_upload_list_detail_and_processing(client: TestClient) -> None:
     assert detail["is_processing"] is False
     assert detail["versions"][0]["is_active"] is True
     assert detail["versions"][0]["chunk_count"] == 1
+    assert detail["versions"][0]["embedding_model"] == "fake-embedding"
     assert detail["versions"][0]["error"] is None
 
 

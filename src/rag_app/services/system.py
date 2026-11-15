@@ -7,6 +7,7 @@ from dataclasses import dataclass
 import rag_app
 from rag_app.config.settings import Settings
 from rag_app.storage.db import Database
+from rag_app.storage.repositories.index import IndexRepository
 from rag_app.storage.repositories.system import read_snapshot
 
 
@@ -32,6 +33,7 @@ class SystemStatus:
     index_embedding_model: str
     configured_embedding_model: str
     reindex_required: bool
+    versions_missing_vectors: int
     providers: tuple[ProviderInfo, ...]
 
 
@@ -40,8 +42,11 @@ def get_system_status(settings: Settings, db: Database) -> SystemStatus:
 
     ``reindex_required`` is true when vectors exist for a different embedding model than the
     configured one (FR-RET-03); an empty index never requires re-indexing.
+    ``versions_missing_vectors`` counts ready versions that retrieval cannot see because they
+    have no vectors of the index model (processed before Phase 7); ``rag reindex`` fixes both.
     """
     snap = read_snapshot(db)
+    missing = IndexRepository(db).consistency().versions_missing_vectors
     configured = settings.providers.embedding.model
     reindex_required = bool(snap.index_embedding_model) and snap.index_embedding_model != configured
     providers = [
@@ -58,5 +63,6 @@ def get_system_status(settings: Settings, db: Database) -> SystemStatus:
         index_embedding_model=snap.index_embedding_model,
         configured_embedding_model=configured,
         reindex_required=reindex_required,
+        versions_missing_vectors=missing,
         providers=tuple(providers),
     )

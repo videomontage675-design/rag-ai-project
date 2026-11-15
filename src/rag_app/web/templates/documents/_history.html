@@ -32,6 +32,8 @@
               <div><dt>الحجم:</dt><dd class="num">{{ v.size_bytes | filesize }}</dd></div>
               {% if v.page_count %}<div><dt>الصفحات:</dt><dd class="num"><bdi>{{ v.page_count }}</bdi></dd></div>{% endif %}
               {% if v.chunk_count %}<div><dt>المقاطع:</dt><dd class="num"><bdi>{{ v.chunk_count }}</bdi></dd></div>{% endif %}
+              {% if v.embedding_model %}<div><dt>نموذج التمثيلات:</dt><dd><bdi dir="ltr">{{ v.embedding_model }}</bdi></dd></div>
+              {% elif v.status == 'ready' %}<div><dt>التمثيلات الدلالية:</dt><dd>لم تُنشأ بعد؛ تُنشأ بإعادة الفهرسة</dd></div>{% endif %}
               <div><dt>رُفعت:</dt><dd class="num"><time datetime="{{ v.uploaded_at }}">{{ v.uploaded_at | datetime_ar }}</time></dd></div>
             </dl>
             {% if v.status == 'failed' and v.error_message %}<p class="version__error">{{ v.error_message }}</p>{% endif %}

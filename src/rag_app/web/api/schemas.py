@@ -36,6 +36,7 @@ class SystemStatusResponse(BaseModel):
     index_embedding_model: str
     configured_embedding_model: str
     reindex_required: bool
+    versions_missing_vectors: int
     providers: list[ProviderOut]
 
 
@@ -59,6 +60,7 @@ class VersionOut(BaseModel):
     size_bytes: int
     page_count: int | None
     chunk_count: int | None
+    embedding_model: str | None
     error: ErrorInfo | None
     uploaded_at: str
     processing_finished_at: str | None
@@ -80,6 +82,7 @@ class VersionOut(BaseModel):
             size_bytes=v.size_bytes,
             page_count=v.page_count,
             chunk_count=v.chunk_count,
+            embedding_model=v.embedding_model,
             error=error,
             uploaded_at=v.uploaded_at,
             processing_finished_at=v.processing_finished_at,
