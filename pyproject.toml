@@ -15,6 +15,8 @@ dependencies = [
     "python-dotenv>=1.0",      # load API keys from .env (never from Git)
     "markdown-it-py>=3.0",     # T-07: Markdown structure (headings, lists, tables)
     "python-multipart>=0.0.9", # multipart file uploads (FR-DOC-01)
+    "numpy>=2.0",              # T-05: float32 vectors, exact cosine search
+    "httpx>=0.28",             # T-13: OpenAI-compatible provider adapters
 ]
 
 [project.scripts]
@@ -28,8 +30,8 @@ dev = [
     "pytest>=8.3",
     "pytest-cov>=6.0",
     "pytest-socket>=0.7",
-    "httpx>=0.28",             # required by FastAPI's TestClient
     "pyyaml>=6.0",             # tests read the corpus manifest and golden set (NFR-LNG-02)
+    "respx>=0.22",             # HTTP mocks for the provider adapters (NFR-MNT-02)
 ]
 
 [build-system]
