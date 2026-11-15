@@ -360,6 +360,12 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
   - screenshots on desktop and phone.
 - **Next:** one PR for Phase 6 (D-015). Phase 7 (embeddings and re-indexing) starts only on the owner's explicit approval.
 
+## D-039 — Phase 7 authorized, with the in-memory vector index brought forward
+- **Date:** 2026-11-15 · **Status:** Approved
+- **Decision:** The owner authorized Phase 7 (embeddings, indexing, and storage): stage 5 (embed) inside the one-commit ingestion transaction, the `rag reindex` operation (FR-CFG-05), consistency checks, and the related UI details.
+- **Scope adjustment:** `VectorIndex` (DESIGN-001 §7.3) is built in this phase: loading the active vectors into a NumPy matrix and reloading it when `index_generation` changes. The similarity search itself stays in Phase 8. **Basis:** loading and invalidating the index is part of "indexing" (`EXECUTION_PROTOCOL.md` §4); searching is part of retrieval.
+- **Not authorized yet:** a real call to the embedding provider. All Phase 7 tests use mocked HTTP responses and fakes (NFR-MNT-02). A real-provider check needs a separate owner approval, because it sends the sample-corpus text to Google, whose free tier may use content to improve its products (TECH-001).
+
 ---
 
 ## Pending decisions
