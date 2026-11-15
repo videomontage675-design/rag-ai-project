@@ -360,6 +360,30 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
   - screenshots on desktop and phone.
 - **Next:** one PR for Phase 6 (D-015). Phase 7 (embeddings and re-indexing) starts only on the owner's explicit approval.
 
+## D-039 — Embedding dimension 768 (resolves P-018)
+- **Date:** 2026-11-14 · **Status:** Approved
+- **Decision:** gemini-embedding-001 vectors use **768 dimensions** by default (`providers.embedding.dimensions`), L2-normalized by the adapter.
+- **Basis:** TECH-001, T-10 addendum.
+  - 3072 had been the model's unexamined default.
+  - Measured: 256 to 3072 dimensions are within noise on the golden set.
+  - 768 is Google's smallest recommended size, and costs a quarter of the memory and search time of 3072.
+- **Consequences:**
+  - The dimension is part of the index identity, together with the model. Changing either requires `rag reindex`.
+  - Retrieval quality at larger scale is re-checked in the Phase 8 evaluation.
+
+## D-040 — Phase 7 authorized
+- **Date:** 2026-11-14 · **Status:** Approved
+- **Decision:** Phase 7 is authorized: embeddings (stage 5) in the one-commit ingestion, the model and dimension stored with every vector, and re-indexing. Re-indexing also embeds the versions that Phase 6 stored without vectors (D-034).
+
+## D-041 — Phase 7 continues on this branch; the in-memory vector index is brought forward
+- **Date:** 2026-11-15 · **Status:** Approved
+- **Context:** A second Phase 7 implementation was made in a later session on another branch (`eng-emadhassan/charming-archimedes-7bl3k6`) without knowing about this one. It did not follow D-039 (it kept 3,072 dimensions).
+- **Decision:** This branch is the basis of Phase 7, because it follows D-039 and D-040 and was checked against the real provider. One component is brought over from the other branch: `VectorIndex` (DESIGN-001 §7.3), which loads the active vectors into a NumPy matrix and reloads it when `index_generation` changes. The similarity search over it stays in Phase 8.
+- **Basis:** loading and invalidating the index is part of "indexing" (`EXECUTION_PROTOCOL.md` §4); searching is part of retrieval.
+- **Consequences:**
+  - The other branch is kept on GitHub, unmerged.
+  - Its other additions are not part of Phase 7 unless the owner approves them separately: resumable re-indexing, consistency checks in `rag check`, and immediate shutdown during provider waits.
+
 ---
 
 ## Pending decisions
@@ -367,4 +391,4 @@ Status values: **Approved** (decided by the owner) · **Superseded** (replaced b
 | ID | Question | Resolve by |
 |---|---|---|
 
-Resolved: P-017 → D-037 · P-016 → D-032 · P-008 → D-031 · P-001 → D-009 · P-002 → D-011 · P-003 → D-012 · P-004 → D-017 · P-005 → D-018 · P-006 → D-021 · P-007 → D-019 · P-009 → D-014 · P-010 → D-015 · P-011 → D-029 · P-012 → D-027 · P-014 → D-029 · P-015 → D-029 · P-013 → keys provided (Gemini, Groq, Cohere working; Jina balance exhausted; Mistral key invalid).
+Resolved: P-018 → D-039 · P-017 → D-037 · P-016 → D-032 · P-008 → D-031 · P-001 → D-009 · P-002 → D-011 · P-003 → D-012 · P-004 → D-017 · P-005 → D-018 · P-006 → D-021 · P-007 → D-019 · P-009 → D-014 · P-010 → D-015 · P-011 → D-029 · P-012 → D-027 · P-014 → D-029 · P-015 → D-029 · P-013 → keys provided (Gemini, Groq, Cohere working; Jina balance exhausted; Mistral key invalid).

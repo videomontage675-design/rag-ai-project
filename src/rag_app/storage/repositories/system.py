@@ -17,6 +17,7 @@ class StorageSnapshot:
     active_chunks: int
     conversations: int
     index_embedding_model: str
+    index_embedding_dim: int
     index_generation: int
 
 
@@ -47,5 +48,6 @@ def read_snapshot(db: Database) -> StorageSnapshot:
         active_chunks=int(active_chunks),
         conversations=int(conversations),
         index_embedding_model=meta.get("index_embedding_model", ""),
+        index_embedding_dim=int(meta.get("index_embedding_dim", "0")),
         index_generation=int(meta.get("index_generation", "0")),
     )

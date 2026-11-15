@@ -326,6 +326,9 @@ bdi, .ltr { unicode-bidi: isolate; }
 .alert--error { background: var(--danger-wash); border-color: #efcfcb; color: #7d1a14; }
 .alert--success { background: var(--teal-wash); border-color: #b9ddd6; color: #0f5249; }
 .alert--info { background: var(--indigo-wash); border-color: #cdd3ee; color: var(--indigo-deep); }
+.notice { margin-block-end: var(--space-5); }
+.notice p { margin: 0 0 var(--space-1); }
+.notice code { background: rgba(255, 255, 255, 0.7); padding: 0 0.35em; border-radius: 4px; }
 .alert__icon { width: 1.25rem; height: 1.25rem; flex: none; margin-top: 0.15rem; }
 .alert__text { margin: 0; flex: 1; }
 .alert__close { background: none; border: 0; padding: 0.25rem; cursor: pointer; color: inherit; border-radius: 4px; }

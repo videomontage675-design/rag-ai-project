@@ -34,8 +34,11 @@ class SystemStatusResponse(BaseModel):
     active_chunks: int
     conversations: int
     index_embedding_model: str
+    index_embedding_dim: int
     configured_embedding_model: str
+    configured_embedding_dim: int | None
     reindex_required: bool
+    versions_needing_index: int
     providers: list[ProviderOut]
 
 

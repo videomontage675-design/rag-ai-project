@@ -18,6 +18,8 @@ from rag_app.core.errors import CATALOG, AppError, ErrorCode
 from rag_app.domain.models import ClaimedJob, ProcessingStage
 from rag_app.ingestion.pipeline import process_file
 from rag_app.ingestion.poppler import PopplerTools, locate_poppler
+from rag_app.providers.openai_compatible import RetryPolicy, build_embedder
+from rag_app.providers.ports import EmbeddingProvider
 from rag_app.storage.db import Database
 from rag_app.storage.files import FileStore
 from rag_app.storage.repositories.documents import DocumentRepository, RecoveryReport
@@ -38,12 +40,23 @@ class IngestionWorker:
         db: Database,
         files: FileStore,
         poppler: Callable[[], PopplerTools] | None = None,
+        embedder: Callable[[], EmbeddingProvider] | None = None,
     ) -> None:
-        """Wire the worker. Poppler is located on first use, so Markdown works without it."""
+        """Wire the worker. Poppler and the embedding provider are created on first use.
+
+        A missing key or Poppler therefore fails the affected version with a clear message
+        instead of stopping the app.
+        """
         self._settings = settings
         self._repo = DocumentRepository(db)
         self._files = files
         self._poppler = poppler or cache(lambda: locate_poppler(settings.poppler_dir))
+        retry = RetryPolicy(
+            settings.ingestion.embed_max_attempts, settings.ingestion.embed_first_backoff_seconds
+        )
+        self._embedder: Callable[[], EmbeddingProvider] = embedder or cache(
+            lambda: build_embedder(settings.providers.embedding, retry)
+        )
         self._wake = threading.Event()
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
@@ -118,6 +131,7 @@ class IngestionWorker:
                 job.format,
                 self._settings.rag,
                 poppler=self._poppler,
+                embedder=self._embedder,
                 timeout=self._settings.ingestion.extraction_timeout_seconds,
                 on_stage=lambda stage: self._progress(job, stage),
             )
@@ -133,7 +147,9 @@ class IngestionWorker:
             self._fail(job, ErrorCode.INTERNAL_ERROR, None, log)
             return True
 
-        if self._repo.complete_ingestion(job, result.chunks, result.page_count):
+        if self._repo.complete_ingestion(
+            job, result.chunks, result.page_count, result.vectors, result.embedding
+        ):
             logger.info("ingestion_done", extra={**log, "chunks": len(result.chunks)})
         else:
             logger.info("ingestion_cancelled", extra=log)

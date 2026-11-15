@@ -19,6 +19,8 @@ max_question_chars = 1000
 poll_seconds = 2.0                  # how often the background worker checks for new jobs
 max_attempts = 3                    # FR-ING-14: restarts tolerated before a version fails
 extraction_timeout_seconds = 60     # per Poppler call
+embed_max_attempts = 5              # FR-ING-11: retries on 429/5xx, then the version fails
+embed_first_backoff_seconds = 15    # doubles after each retry
 
 [rag]                      # initial values (DD-06), calibrated in Phases 8–9
 chunk_chars = 800
@@ -31,6 +33,7 @@ relevance_threshold = 0.60
 [providers.embedding]      # T-10: gemini-embedding-001 (free tier)
 base_url = "https://generativelanguage.googleapis.com/v1beta/openai"
 model = "gemini-embedding-001"
+dimensions = 768           # D-039: same quality as 3072 on the golden set, a quarter of the cost
 api_key_env = "GEMINI_API_KEY"
 batch_size = 20
 min_seconds_between_batches = 20

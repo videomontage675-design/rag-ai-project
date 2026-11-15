@@ -7,6 +7,8 @@
   <p>الوثائق التي يعتمد عليها المساعد في إجاباته. ارفع ملف PDF نصياً أو ملف Markdown، وسيعالَج تلقائياً.</p>
 </header>
 
+{% include "partials/index_notice.html" %}
+
 {% set upload_url = url_for('upload_document_ui') %}
 {% set upload_target = '#library' %}
 {% include "documents/_upload.html" %}

@@ -168,3 +168,14 @@ class ClaimedJob:
     stored_name: str
     format: DocumentFormat
     attempts: int
+
+
+@dataclass(frozen=True, slots=True)
+class EmbeddingIdentity:
+    """Which vectors an index holds: the model and the vector size (FR-ING-12, D-039).
+
+    Vectors with different identities are never compared (FR-RET-03).
+    """
+
+    model: str
+    dim: int

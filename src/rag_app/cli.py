@@ -1,4 +1,4 @@
-"""Command-line interface: ``rag check`` and ``rag serve`` (DESIGN-001 §11.3).
+"""Command-line interface: ``rag check``, ``rag serve``, ``rag reindex`` (DESIGN-001 §11.3).
 
 Run as ``uv run rag <command>`` or ``python -m rag_app <command>``.
 """
@@ -15,7 +15,11 @@ from dotenv import load_dotenv
 from rag_app.config.settings import Settings, load_settings, settings_path_from_env
 from rag_app.core.errors import AppError
 from rag_app.core.logging import configure_logging
+from rag_app.providers.openai_compatible import RetryPolicy, build_embedder
 from rag_app.services.diagnostics import CheckLevel, run_checks
+from rag_app.services.indexing import IndexingService
+from rag_app.storage.db import Database
+from rag_app.storage.migrate import apply_migrations
 
 _SYMBOL = {CheckLevel.OK: "✔", CheckLevel.WARN: "!", CheckLevel.FAIL: "✘"}
 
@@ -51,6 +55,38 @@ def _cmd_serve(settings: Settings) -> int:
     return 0
 
 
+def _cmd_reindex(settings: Settings) -> int:
+    """Re-embed stale versions (FR-CFG-05). Run it while the app is stopped (DD-05)."""
+    db = Database(settings.database_file)
+    apply_migrations(db)
+    retry = RetryPolicy(
+        settings.ingestion.embed_max_attempts, settings.ingestion.embed_first_backoff_seconds
+    )
+    service = IndexingService(
+        settings, db, lambda: build_embedder(settings.providers.embedding, retry)
+    )
+    pending = service.pending_versions()
+    model = settings.providers.embedding.model
+    dim = settings.providers.embedding.dimensions or "default"
+    if pending == 0:
+        print(f"✔ Index is up to date ({model}, {dim} dimensions). Nothing to do.")
+        return 0
+    print(f"Re-indexing {pending} version(s) with {model} ({dim} dimensions).")
+    print("The current index stays in use until the end; stop the app before running this.")
+
+    def progress(done: int, total: int) -> None:
+        print(f"  embedded {done}/{total}", flush=True)
+
+    try:
+        report = service.reindex(progress)
+    except AppError as exc:
+        print(f"✘ {exc.code}: {exc.message_ar}", file=sys.stderr)
+        print("The previous index is unchanged. Fix the cause and run the command again.")
+        return 1
+    print(f"✔ Done: {report.versions} version(s), {report.chunks} chunk(s) re-embedded.")
+    return 0
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     """Parse arguments, run a command, and return the process exit code."""
     # Windows consoles and redirected output may not default to UTF-8; Arabic must print.
@@ -64,6 +100,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("check", help="validate configuration, data folder, database, Poppler, keys")
     sub.add_parser("serve", help="start the web app on 127.0.0.1")
+    sub.add_parser(
+        "reindex",
+        help="embed every document version whose vectors are missing or use another model",
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -73,4 +113,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 2
     if args.command == "check":
         return _cmd_check(settings)
+    if args.command == "reindex":
+        return _cmd_reindex(settings)
     return _cmd_serve(settings)

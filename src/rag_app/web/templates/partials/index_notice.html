@@ -1,0 +1,14 @@
+{# Shown when vectors are missing or outdated (FR-RET-03, FR-CFG-05). Needs `index`. #}
+{% if index and (index.reindex_required or index.versions_needing_index) %}
+<div class="alert alert--info notice" role="status">
+  <svg class="alert__icon" aria-hidden="true"><use href="#i-warning"></use></svg>
+  <div class="alert__text">
+    {% if index.reindex_required %}
+    <p><strong>يلزم إعادة فهرسة المستندات.</strong> تغيّر نموذج التمثيلات الدلالية أو حجمها في الإعدادات، ولن يستخدم المساعد المكتبة حتى تكتمل الفهرسة.</p>
+    {% else %}
+    <p><strong>{{ index.versions_needing_index | versions_unindexed_label }}</strong> لن يبحث فيها المساعد حتى تُفهرس.</p>
+    {% endif %}
+    <p>أوقف التطبيق، ثم شغّل الأمر <code dir="ltr">uv run rag reindex</code> وأعد تشغيله.</p>
+  </div>
+</div>
+{% endif %}

@@ -7,7 +7,7 @@ different provider or a test database, without touching the code that uses it.
 from __future__ import annotations
 
 import logging
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -18,6 +18,7 @@ from fastapi.templating import Jinja2Templates
 import rag_app
 from rag_app.config.domain_profile import load_domain_profile
 from rag_app.config.settings import Settings
+from rag_app.providers.ports import EmbeddingProvider
 from rag_app.services.documents import DocumentService
 from rag_app.services.ingestion_worker import IngestionWorker
 from rag_app.storage.db import Database
@@ -35,17 +36,20 @@ logger = logging.getLogger(__name__)
 _WEB_DIR = Path(__file__).parent
 
 
-def create_app(settings: Settings) -> FastAPI:
+def create_app(
+    settings: Settings, *, embedder: Callable[[], EmbeddingProvider] | None = None
+) -> FastAPI:
     """Build the FastAPI application for ``settings``.
 
     The database schema is migrated at start-up, so a fresh data folder works immediately.
+    ``embedder`` replaces the configured embedding provider (tests use a test double).
     """
     profile = load_domain_profile(settings.resolve(settings.domain_profile_file))
     db = Database(settings.database_file)
     templates = Jinja2Templates(directory=_WEB_DIR / "templates")
     ui_format.register(templates.env)
     files = FileStore(settings.uploads_dir)
-    worker = IngestionWorker(settings, db, files)
+    worker = IngestionWorker(settings, db, files, embedder=embedder)
     documents = DocumentService(settings, db, files, on_enqueued=worker.wake)
 
     @asynccontextmanager

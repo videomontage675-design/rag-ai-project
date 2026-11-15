@@ -11,6 +11,9 @@ import sqlite3
 from collections.abc import Sequence
 from dataclasses import dataclass
 
+import numpy as np
+import numpy.typing as npt
+
 from rag_app.core.clock import utc_now_iso
 from rag_app.core.errors import AppError, ErrorCode
 from rag_app.core.ids import new_id
@@ -20,6 +23,7 @@ from rag_app.domain.models import (
     DocumentDetail,
     DocumentFormat,
     DocumentSummary,
+    EmbeddingIdentity,
     JobStatus,
     ProcessingStage,
     VersionInfo,
@@ -66,6 +70,42 @@ _VERSION_COLUMNS = """
     v.page_count, v.chunk_count, v.error_code, v.error_message_ar, v.uploaded_at,
     v.processing_finished_at, (d.active_version_id = v.id) AS is_active
 """
+
+
+def _insert_vectors(
+    conn: sqlite3.Connection,
+    chunk_ids: Sequence[str],
+    vectors: npt.NDArray[np.float32],
+    embedding: EmbeddingIdentity,
+) -> None:
+    """Store vectors as little-endian float32 BLOBs tagged with model and dimension."""
+    conn.executemany(
+        "INSERT INTO chunk_embeddings (chunk_id, model, dim, vector) VALUES (?, ?, ?, ?)",
+        [
+            (chunk_id, embedding.model, embedding.dim, row.astype("<f4").tobytes())
+            for chunk_id, row in zip(chunk_ids, vectors, strict=True)
+        ],
+    )
+
+
+def _claim_index_identity(conn: sqlite3.Connection, embedding: EmbeddingIdentity) -> None:
+    """Record the index's model and dimension when the first vectors arrive.
+
+    Once set, only re-indexing changes them, so a configuration change is detected as
+    "re-index required" instead of silently mixing vector spaces (FR-RET-03).
+    """
+    current = conn.execute("SELECT value FROM meta WHERE key = 'index_embedding_model'").fetchone()
+    if current is None or current[0] == "":
+        _set_index_identity(conn, embedding)
+
+
+def _set_index_identity(conn: sqlite3.Connection, embedding: EmbeddingIdentity) -> None:
+    conn.execute(
+        "UPDATE meta SET value = ? WHERE key = 'index_embedding_model'", (embedding.model,)
+    )
+    conn.execute(
+        "UPDATE meta SET value = ? WHERE key = 'index_embedding_dim'", (str(embedding.dim),)
+    )
 
 
 def _version(row: sqlite3.Row) -> VersionInfo:
@@ -307,13 +347,23 @@ class DocumentRepository:
         return cur.rowcount == 1
 
     def complete_ingestion(
-        self, job: ClaimedJob, chunks: Sequence[ChunkDraft], page_count: int | None
+        self,
+        job: ClaimedJob,
+        chunks: Sequence[ChunkDraft],
+        page_count: int | None,
+        vectors: npt.NDArray[np.float32],
+        embedding: EmbeddingIdentity,
     ) -> bool:
-        """Store all chunks, mark the version ready, and activate it, in one transaction.
+        """Store chunks and their vectors, mark the version ready, and activate it.
 
-        This is the "one commit" rule (DESIGN-001 §7.1): readers see the whole version or
-        nothing. Returns ``False`` without writing if the version was deleted meanwhile (DD-02).
+        This is the "one commit" rule (DESIGN-001 §7.1): readers see the whole version, with
+        its vectors, or nothing. Returns ``False`` without writing if the version was deleted
+        meanwhile (DD-02).
         """
+        if len(vectors) != len(chunks):
+            msg = f"{len(chunks)} chunks but {len(vectors)} vectors"
+            raise ValueError(msg)
+        chunk_ids = [new_id() for _ in chunks]
         now = utc_now_iso()
         with self._db.transaction() as conn:
             status = conn.execute(
@@ -327,7 +377,7 @@ class DocumentRepository:
                 " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 [
                     (
-                        new_id(),
+                        chunk_id,
                         job.version_id,
                         c.seq,
                         c.heading_path,
@@ -338,14 +388,17 @@ class DocumentRepository:
                         c.char_start,
                         c.char_end,
                     )
-                    for c in chunks
+                    for chunk_id, c in zip(chunk_ids, chunks, strict=True)
                 ],
             )
+            _insert_vectors(conn, chunk_ids, vectors, embedding)
             conn.execute(
                 "UPDATE document_versions SET status = 'ready', stage = NULL, chunk_count = ?,"
-                " page_count = ?, processing_finished_at = ? WHERE id = ?",
-                (len(chunks), page_count, now, job.version_id),
+                " page_count = ?, processing_finished_at = ?, embedding_model = ?,"
+                " embedding_dim = ? WHERE id = ?",
+                (len(chunks), page_count, now, embedding.model, embedding.dim, job.version_id),
             )
+            _claim_index_identity(conn, embedding)
             # A new version becomes active only when it is ready (FR-VER-02).
             conn.execute(
                 "UPDATE documents SET active_version_id = ?, updated_at = ? WHERE id = ?",

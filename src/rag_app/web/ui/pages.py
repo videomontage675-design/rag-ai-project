@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, File, Request, UploadFile
 from fastapi.responses import HTMLResponse, Response
 
 from rag_app.domain.models import DocumentSummary, VersionStatus
+from rag_app.services.system import get_system_status
 from rag_app.web.context import AppContext, get_context
 
 router = APIRouter(include_in_schema=False)
@@ -42,7 +43,11 @@ def _render(
 
 def _library(ctx: AppContext) -> dict[str, Any]:
     documents: list[DocumentSummary] = ctx.documents.list_documents()
-    return {"documents": documents, "any_processing": any(d.status in _WAITING for d in documents)}
+    return {
+        "documents": documents,
+        "any_processing": any(d.status in _WAITING for d in documents),
+        "index": get_system_status(ctx.settings, ctx.db),
+    }
 
 
 def _redirect(url: str) -> Response:
@@ -63,6 +68,7 @@ def home(request: Request, ctx: Ctx) -> HTMLResponse:
         total_documents=len(documents),
         ready_documents=sum(1 for d in documents if d.active_version is not None),
         processing_documents=sum(1 for d in documents if d.status in _WAITING),
+        index=get_system_status(ctx.settings, ctx.db),
     )
 
 

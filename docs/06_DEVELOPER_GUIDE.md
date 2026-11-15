@@ -63,6 +63,7 @@ rag-ai-project/
 │   ├── services/                   ⚙️ use cases: the only entry point for web and CLI
 │   │   ├── documents.py               DocumentService: upload, versions, activate, retry, delete
 │   │   ├── ingestion_worker.py        IngestionWorker: background thread, recovery, cancellation
+│   │   ├── indexing.py                IndexingService: `rag reindex` (stale versions, one swap)
 │   │   ├── system.py                  knowledge-base status
 │   │   └── diagnostics.py             checks behind `rag check`
 │   ├── ingestion/                  🔶 stages 1–4, pure functions (no SQL, no network)
@@ -72,7 +73,8 @@ rag-ai-project/
 │   │   ├── cleaning.py                PDF clean-up rules measured on the corpus
 │   │   ├── normalization.py           text used for search (NFKC, tashkeel, digits)
 │   │   ├── chunking.py                structure-aware chunks with full heading paths
-│   │   └── pipeline.py                process_file(): stages 2–4 in order
+│   │   ├── embedding.py               stage 5: heading path + normalized text → vector
+│   │   └── pipeline.py                process_file(): stages 2–5 in order
 │   ├── retrieval/ generation/      🔶 RAG pipeline stages (Phases 7–9)
 │   │   evaluation/
 │   ├── storage/                    🗄️ the only place with SQL and the uploads folder
@@ -80,8 +82,9 @@ rag-ai-project/
 │   │   ├── migrate.py                 applies numbered migrations atomically
 │   │   ├── migrations/                0001 schema + indexes + view · 0002 version counter
 │   │   ├── files.py                   FileStore: streamed uploads, generated names, orphan sweep
-│   │   └── repositories/              system.py · documents.py (documents, versions, chunks, jobs)
-│   ├── providers/                  ☁️ model providers behind interfaces (Phase 7)
+│   │   ├── vector_index.py            VectorIndex: active vectors in memory, reloaded on change (D-041)
+│   │   └── repositories/              system.py · documents.py · indexing.py
+│   ├── providers/                  ☁️ ports.py (EmbeddingProvider) · openai_compatible.py (the one adapter)
 │   ├── config/                     🧩 typed settings and domain profile loaders
 │   ├── core/                       🧩 errors (catalog), logging, ids, clock
 │   └── domain/                     🧩 shared vocabulary: statuses, formats, outcomes
@@ -172,8 +175,8 @@ CI runs all of these on **Linux and Windows** for every push. A red check blocks
 ### 5.2 Endpoints available now (Phase 6)
 | Method | Path | Returns |
 |---|---|---|
-| GET | `/health` | `{"status": "ok", "version": "0.2.0"}` |
-| GET | `/api/v1/system/status` | Document and chunk counts, schema version, index embedding model, whether re-indexing is needed, and provider models (never keys) |
+| GET | `/health` | `{"status": "ok", "version": "0.3.0"}` |
+| GET | `/api/v1/system/status` | Document and chunk counts, schema version, index embedding model and dimension, `reindex_required`, `versions_needing_index`, and provider models (never keys) |
 | POST | `/api/v1/documents` | Upload a new document (multipart field `file`) → **202** `DocumentDetail` |
 | GET | `/api/v1/documents` | `DocumentSummary[]`, most recently updated first |
 | GET | `/api/v1/documents/{id}` | `DocumentDetail` with the version history, newest first |
@@ -221,9 +224,9 @@ sequenceDiagram
     S-->>W: wake()
     A-->>U: 202 (status: uploaded)
     W->>R: claim_next_job() → processing
-    W->>P: process_file(): extract → clean → chunk (in memory)
+    W->>P: process_file(): extract → clean → chunk → embed (in memory)
     P-->>W: chunks (or an AppError → version failed, Arabic message)
-    W->>R: complete_ingestion(): chunks + ready + approve + index_generation (one transaction)
+    W->>R: complete_ingestion(): chunks + vectors + ready + approve + index_generation (one transaction)
     Note over W,R: If the version was deleted meanwhile, the stage update or the final<br/>check finds it gone and nothing is written (DD-02)
 ```
 
@@ -317,6 +320,8 @@ From STD-001 §14.2, with an example of each:
 |---|---|
 | Install or update the environment | `uv sync` |
 | Run the app | `uv run rag serve` → <http://127.0.0.1:8000> |
+| Embed missing or outdated vectors (app stopped) | `uv run rag reindex` |
+| Live provider check (sends 2 sentences; opt-in) | PowerShell: `$env:RAG_PROVIDER_TESTS=1; uv run pytest -m provider --allow-hosts=generativelanguage.googleapis.com` |
 | Check the environment | `uv run rag check` |
 | All tests | `uv run pytest` |
 | One test file, verbose | `uv run pytest tests/integration/storage/test_migrations.py -v` |
