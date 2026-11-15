@@ -4,6 +4,44 @@ All notable changes, one section per phase. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow
 [Semantic Versioning](https://semver.org/) (`0.y.z` until delivery).
 
+## [0.3.0] — Phase 7: Embeddings, indexing, and re-indexing
+
+### Added
+- **Provider layer** (`providers/`):
+  - the `EmbeddingProvider` port with typed errors (`retryable` flag);
+  - one OpenAI-compatible adapter (Gemini by default) that validates every response;
+  - throttling between requests and exponential backoff that honours `Retry-After`.
+- **Stage 5 (embed)** in the ingestion worker:
+  - the normalized heading path and chunk text are embedded in batches;
+  - vectors are L2-normalized float32, stored with model and dimension in the same transaction as the chunks (FR-ING-11/12/13);
+  - cancellation is checked before every batch;
+  - provider waits end at once on shutdown.
+- **One model at a time:** vectors of a second model are refused (`REINDEX_REQUIRED`) before any quota is spent.
+- **`VectorIndex`:** the active vectors in a read-only NumPy matrix, reloaded only when the index generation changes (D-039). Search comes in Phase 8.
+- **`rag reindex`:** embeds what lacks a vector of the configured model into a staging table, then swaps everything in with one transaction. It resumes after interruption and prints its plan first (FR-CFG-05).
+- **Checks:**
+  - `rag check` reports vector-index consistency and when a re-index is needed;
+  - `/api/v1/system/status` adds `versions_missing_vectors`;
+  - version details show the embedding model.
+- **Errors:** `PROVIDER_BAD_RESPONSE`.
+- **Database:** migration `0003` (re-index staging, index on the vector model).
+- **Settings:** `[ingestion] provider_retry_attempts` and `provider_retry_initial_seconds`.
+- **Dependencies:** NumPy and httpx at runtime; respx for tests.
+- **Tests:** 312 passing, 1 known gap as a strict expected failure. No test reaches a provider. Covered:
+  - adapter behaviour against recorded response shapes;
+  - retries and throttling with a fake clock;
+  - failure, cancellation, and model-mismatch paths;
+  - re-index resume and concurrency;
+  - the configured app end to end with mocked HTTP;
+  - the whole sample corpus.
+
+### Upgrading from 0.2.0
+Documents processed by 0.2.0 have chunks but no vectors. Stop the app and run `uv run rag reindex` once; `rag check` warns until you do.
+
+### Known limitations
+- No real call to the embedding provider has been made in this phase (D-039); all provider behaviour is tested against mocked HTTP.
+- Questions cannot be asked yet (Phases 8–10).
+
 ## [0.2.0] — Phase 6: Document ingestion and the documents interface
 
 ### Added
