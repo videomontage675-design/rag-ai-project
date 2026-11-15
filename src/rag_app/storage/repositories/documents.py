@@ -22,10 +22,12 @@ from rag_app.domain.models import (
     DocumentSummary,
     JobStatus,
     ProcessingStage,
+    VectorSet,
     VersionInfo,
     VersionStatus,
 )
 from rag_app.storage.db import Database
+from rag_app.storage.vectors import BUMP_GENERATION, claim_index_model, to_blob
 
 
 @dataclass(frozen=True, slots=True)
@@ -56,14 +58,9 @@ class RecoveryReport:
     failed: int
 
 
-_BUMP_GENERATION = (
-    "UPDATE meta SET value = CAST(CAST(value AS INTEGER) + 1 AS TEXT)"
-    " WHERE key = 'index_generation'"
-)
-
 _VERSION_COLUMNS = """
     v.id, v.version_number, v.status, v.stage, v.original_filename, v.format, v.size_bytes,
-    v.page_count, v.chunk_count, v.error_code, v.error_message_ar, v.uploaded_at,
+    v.page_count, v.chunk_count, v.embedding_model, v.error_code, v.error_message_ar, v.uploaded_at,
     v.processing_finished_at, (d.active_version_id = v.id) AS is_active
 """
 
@@ -80,6 +77,7 @@ def _version(row: sqlite3.Row) -> VersionInfo:
         size_bytes=row["size_bytes"],
         page_count=row["page_count"],
         chunk_count=row["chunk_count"],
+        embedding_model=row["embedding_model"],
         error_code=row["error_code"],
         error_message=row["error_message_ar"],
         uploaded_at=row["uploaded_at"],
@@ -307,27 +305,41 @@ class DocumentRepository:
         return cur.rowcount == 1
 
     def complete_ingestion(
-        self, job: ClaimedJob, chunks: Sequence[ChunkDraft], page_count: int | None
+        self,
+        job: ClaimedJob,
+        chunks: Sequence[ChunkDraft],
+        page_count: int | None,
+        vectors: VectorSet,
     ) -> bool:
-        """Store all chunks, mark the version ready, and activate it, in one transaction.
+        """Store chunks and vectors, mark the version ready, and activate it: one transaction.
 
-        This is the "one commit" rule (DESIGN-001 §7.1): readers see the whole version or
-        nothing. Returns ``False`` without writing if the version was deleted meanwhile (DD-02).
+        This is the "one commit" rule (DESIGN-001 §7.1): readers see the whole version, with
+        a vector for every chunk, or nothing (FR-ING-13). Returns ``False`` without writing if
+        the version was deleted meanwhile (DD-02).
+
+        Raises:
+            AppError: ``REINDEX_REQUIRED`` if the index holds vectors of another model.
+            ValueError: ``vectors`` does not hold exactly one vector per chunk.
         """
+        if len(vectors) != len(chunks):
+            msg = f"{len(chunks)} chunks but {len(vectors)} vectors"
+            raise ValueError(msg)
         now = utc_now_iso()
+        chunk_ids = [new_id() for _ in chunks]
         with self._db.transaction() as conn:
             status = conn.execute(
                 "SELECT status FROM document_versions WHERE id = ?", (job.version_id,)
             ).fetchone()
             if status is None or status[0] != VersionStatus.PROCESSING:
                 return False
+            claim_index_model(conn, vectors)
             conn.executemany(
                 "INSERT INTO chunks (id, version_id, seq, heading_path, text_original,"
                 " text_normalized, page_start, page_end, char_start, char_end)"
                 " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 [
                     (
-                        new_id(),
+                        chunk_id,
                         job.version_id,
                         c.seq,
                         c.heading_path,
@@ -338,13 +350,21 @@ class DocumentRepository:
                         c.char_start,
                         c.char_end,
                     )
-                    for c in chunks
+                    for chunk_id, c in zip(chunk_ids, chunks, strict=True)
+                ],
+            )
+            conn.executemany(
+                "INSERT INTO chunk_embeddings (chunk_id, model, dim, vector) VALUES (?, ?, ?, ?)",
+                [
+                    (chunk_id, vectors.model, vectors.dim, to_blob(row))
+                    for chunk_id, row in zip(chunk_ids, vectors.matrix, strict=True)
                 ],
             )
             conn.execute(
                 "UPDATE document_versions SET status = 'ready', stage = NULL, chunk_count = ?,"
-                " page_count = ?, processing_finished_at = ? WHERE id = ?",
-                (len(chunks), page_count, now, job.version_id),
+                " page_count = ?, embedding_model = ?, embedding_dim = ?,"
+                " processing_finished_at = ? WHERE id = ?",
+                (len(chunks), page_count, vectors.model, vectors.dim, now, job.version_id),
             )
             # A new version becomes active only when it is ready (FR-VER-02).
             conn.execute(
@@ -355,7 +375,7 @@ class DocumentRepository:
                 "UPDATE ingestion_jobs SET status = 'done', finished_at = ? WHERE id = ?",
                 (now, job.job_id),
             )
-            conn.execute(_BUMP_GENERATION)
+            conn.execute(BUMP_GENERATION)
         return True
 
     def fail_ingestion(self, job: ClaimedJob, code: str, message_ar: str) -> None:
@@ -457,7 +477,7 @@ class DocumentRepository:
                 (version_id, now, document_id, version_id),
             )
             if cur.rowcount:
-                conn.execute(_BUMP_GENERATION)
+                conn.execute(BUMP_GENERATION)
             detail = self._get_document(conn, document_id)
         assert detail is not None  # noqa: S101  (checked in this transaction)
         return detail
@@ -482,7 +502,7 @@ class DocumentRepository:
             cur = conn.execute("DELETE FROM documents WHERE id = ?", (document_id,))
             if cur.rowcount == 0:
                 raise AppError(ErrorCode.NOT_FOUND)
-            conn.execute(_BUMP_GENERATION)
+            conn.execute(BUMP_GENERATION)
         return files
 
     def delete_version(self, document_id: str, version_id: str) -> tuple[list[str], bool]:

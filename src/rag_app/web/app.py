@@ -18,6 +18,8 @@ from fastapi.templating import Jinja2Templates
 import rag_app
 from rag_app.config.domain_profile import load_domain_profile
 from rag_app.config.settings import Settings
+from rag_app.providers.factory import open_embedding_provider
+from rag_app.providers.ports import EmbeddingProvider
 from rag_app.services.documents import DocumentService
 from rag_app.services.ingestion_worker import IngestionWorker
 from rag_app.storage.db import Database
@@ -35,17 +37,23 @@ logger = logging.getLogger(__name__)
 _WEB_DIR = Path(__file__).parent
 
 
-def create_app(settings: Settings) -> FastAPI:
+def create_app(settings: Settings, *, embedder: EmbeddingProvider | None = None) -> FastAPI:
     """Build the FastAPI application for ``settings``.
 
     The database schema is migrated at start-up, so a fresh data folder works immediately.
+    ``embedder`` replaces the configured embedding provider (tests pass a fake, so no test
+    reaches a real provider).
     """
     profile = load_domain_profile(settings.resolve(settings.domain_profile_file))
     db = Database(settings.database_file)
     templates = Jinja2Templates(directory=_WEB_DIR / "templates")
     ui_format.register(templates.env)
     files = FileStore(settings.uploads_dir)
-    worker = IngestionWorker(settings, db, files)
+    adapter = None
+    if embedder is None:
+        adapter = open_embedding_provider(settings.providers.embedding)
+        embedder = adapter
+    worker = IngestionWorker(settings, db, files, embedder)
     documents = DocumentService(settings, db, files, on_enqueued=worker.wake)
 
     @asynccontextmanager
@@ -67,6 +75,8 @@ def create_app(settings: Settings) -> FastAPI:
             yield
         finally:
             worker.stop()
+            if adapter is not None:
+                adapter.close()
             logger.info("app_stopped")
 
     app = FastAPI(

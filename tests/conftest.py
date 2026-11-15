@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
+from fakes.embeddings import FakeEmbeddingProvider
 from rag_app.config.settings import Settings, load_settings
 from rag_app.services.documents import DocumentService
 from rag_app.services.ingestion_worker import IngestionWorker
@@ -23,15 +24,19 @@ LOCAL = "http://127.0.0.1:8000"
 
 @pytest.fixture
 def config_dir(tmp_path: Path) -> Path:
-    """A copy of the real config folder, with the data folder redirected into ``tmp_path``."""
+    """A copy of the real config folder: data folder in ``tmp_path``, no worker, no throttling.
+
+    Throttling is turned off so tests never wait between embedding batches; the throttle
+    itself is tested on its own with a fake clock.
+    """
     target = tmp_path / "config"
     shutil.copytree(PROJECT_ROOT / "config", target)
     settings_file = target / "settings.toml"
     text = settings_file.read_text(encoding="utf-8")
     settings_file.write_text(
-        text.replace('data_dir = "../app_data"', 'data_dir = "../data"').replace(
-            "[ingestion]\n", "[ingestion]\nrun_worker = false\n"
-        ),
+        text.replace('data_dir = "../app_data"', 'data_dir = "../data"')
+        .replace("[ingestion]\n", "[ingestion]\nrun_worker = false\n")
+        .replace("min_seconds_between_batches = 20", "min_seconds_between_batches = 0"),
         encoding="utf-8",
     )
     return target
@@ -50,9 +55,14 @@ def db(settings: Settings) -> Database:
 
 
 @pytest.fixture
-def client(settings: Settings) -> Iterator[TestClient]:
+def embedder() -> FakeEmbeddingProvider:
+    return FakeEmbeddingProvider()
+
+
+@pytest.fixture
+def client(settings: Settings, embedder: FakeEmbeddingProvider) -> Iterator[TestClient]:
     # The app only answers loopback host names (local-only guard).
-    with TestClient(create_app(settings), base_url=LOCAL) as test_client:
+    with TestClient(create_app(settings, embedder=embedder), base_url=LOCAL) as test_client:
         yield test_client
 
 
@@ -62,8 +72,10 @@ def files(settings: Settings) -> FileStore:
 
 
 @pytest.fixture
-def worker(settings: Settings, db: Database, files: FileStore) -> IngestionWorker:
-    return IngestionWorker(settings, db, files)
+def worker(
+    settings: Settings, db: Database, files: FileStore, embedder: FakeEmbeddingProvider
+) -> IngestionWorker:
+    return IngestionWorker(settings, db, files, embedder)
 
 
 @pytest.fixture

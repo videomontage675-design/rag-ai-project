@@ -18,6 +18,7 @@ EXPECTED_TABLES = {
     "messages",
     "citations",
     "schema_migrations",
+    "reindex_staging",
 }
 
 

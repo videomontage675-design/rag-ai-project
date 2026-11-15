@@ -7,6 +7,7 @@ import time
 
 import pytest
 
+from fakes.embeddings import FakeEmbeddingProvider
 from rag_app.config.settings import Settings
 from rag_app.core.errors import ErrorCode
 from rag_app.domain.models import VersionStatus
@@ -47,7 +48,13 @@ def test_unexpected_error_fails_the_version_with_a_generic_message(
     def broken_poppler() -> object:
         raise RuntimeError("bug")
 
-    worker = IngestionWorker(settings, db, files, poppler=broken_poppler)  # type: ignore[arg-type]
+    worker = IngestionWorker(
+        settings,
+        db,
+        files,
+        FakeEmbeddingProvider(),
+        poppler=broken_poppler,  # type: ignore[arg-type]
+    )
     doc_id = documents.upload_document("a.pdf", io.BytesIO(b"%PDF-1.7 x")).id
 
     worker.run_until_idle()

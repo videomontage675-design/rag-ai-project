@@ -32,7 +32,7 @@ def test_malformed_request_id_is_replaced(client: TestClient) -> None:
 def test_system_status_on_empty_database(client: TestClient) -> None:
     body = client.get("/api/v1/system/status").json()
 
-    assert body["schema_version"] == 2
+    assert body["schema_version"] == 3
     assert body["documents"] == 0
     assert body["reindex_required"] is False
     assert {p["role"] for p in body["providers"]} == {"embedding", "chat"}

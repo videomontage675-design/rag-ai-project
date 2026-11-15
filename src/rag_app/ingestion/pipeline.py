@@ -1,8 +1,8 @@
 """Ingestion pipeline, stages 2–4: file → blocks → chunks. No database, no network.
 
-The caller (the ingestion worker) supplies the file and tools, records stage progress, and
-stores the result in one transaction (DESIGN-001 §7.1). Stage 5 (embedding) is added in
-Phase 7 (D-034).
+The caller (the ingestion worker) supplies the file and tools, records stage progress, runs
+stage 5 (:mod:`rag_app.ingestion.embedding`), and stores the result in one transaction
+(DESIGN-001 §7.1).
 """
 
 from __future__ import annotations

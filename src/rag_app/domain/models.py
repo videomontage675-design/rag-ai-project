@@ -3,6 +3,9 @@
 from dataclasses import dataclass
 from enum import StrEnum
 
+import numpy as np
+import numpy.typing as npt
+
 
 class VersionStatus(StrEnum):
     """Lifecycle status of a document version (DESIGN-001 §6)."""
@@ -91,6 +94,23 @@ class EmbeddingTask(StrEnum):
     QUERY = "query"
 
 
+@dataclass(frozen=True, slots=True, eq=False)
+class VectorSet:
+    """Vectors from one embedding model: row ``i`` belongs to input ``i`` (FR-ING-12).
+
+    ``matrix`` is float32 with shape ``(n, dim)`` and L2-normalized rows, so a dot product is
+    the cosine similarity (T-05). It is read-only, so one instance can be shared safely.
+    """
+
+    model: str
+    dim: int
+    matrix: npt.NDArray[np.float32]
+
+    def __len__(self) -> int:
+        """Number of vectors."""
+        return int(self.matrix.shape[0])
+
+
 class JobStatus(StrEnum):
     """Status of an ingestion job (DESIGN-001 §5)."""
 
@@ -115,6 +135,7 @@ class VersionInfo:
     size_bytes: int
     page_count: int | None
     chunk_count: int | None
+    embedding_model: str | None
     error_code: str | None
     error_message: str | None
     uploaded_at: str
